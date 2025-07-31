@@ -42,26 +42,26 @@ This application provides a simple web interface to bootstrap new v0.dev chat in
 ### Installation
 
 1. Clone the repository:
-```bash
+\`\`\`bash
 git clone <repository-url>
 cd v0-github-bootstrapper
-```
+\`\`\`
 
 2. Install dependencies:
-```bash
+\`\`\`bash
 pnpm install
-```
+\`\`\`
 
 3. Set up environment variables:
-```bash
+\`\`\`bash
 # Create .env.local and add your v0 API key
 V0_API_KEY=your_v0_api_key_here
-```
+\`\`\`
 
 4. Run the development server:
-```bash
+\`\`\`bash
 pnpm dev
-```
+\`\`\`
 
 5. Open [http://localhost:3000](http://localhost:3000) in your browser
 

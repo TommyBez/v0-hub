@@ -1,13 +1,14 @@
 "use client"
 
-import { useActionState, useRef } from "react"
+import { useActionState, useRef, useState, useEffect } from "react"
 import { toast } from "sonner"
-import { bootstrapChatFromRepo } from "@/app/actions"
+import { bootstrapChatFromRepo, fetchGitHubBranches } from "@/app/actions"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Github, Loader2, ExternalLink, Copy } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Github, Loader2, ExternalLink, Copy, GitBranch } from "lucide-react"
 
 const initialState = {
   success: false,
@@ -19,10 +20,81 @@ export default function BootstrapPage() {
   const [state, formAction, isPending] = useActionState(bootstrapChatFromRepo, initialState)
   const formRef = useRef<HTMLFormElement>(null)
 
+  // Branch fetching state
+  const [repoUrl, setRepoUrl] = useState("")
+  const [branches, setBranches] = useState<string[]>([])
+  const [selectedBranch, setSelectedBranch] = useState("")
+  const [isFetchingBranches, setIsFetchingBranches] = useState(false)
+  const [branchError, setBranchError] = useState("")
+
+  // Debounce repo URL changes
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (repoUrl && repoUrl.match(/^https:\/\/github\.com\/[^/]+\/[^/]+(?:\.git)?(?:\/)?$/)) {
+        fetchBranches(repoUrl)
+      } else {
+        setBranches([])
+        setSelectedBranch("")
+        setBranchError("")
+      }
+    }, 500)
+
+    return () => clearTimeout(timeoutId)
+  }, [repoUrl])
+
+  const fetchBranches = async (url: string) => {
+    setIsFetchingBranches(true)
+    setBranchError("")
+    setBranches([])
+    setSelectedBranch("")
+
+    try {
+      const result = await fetchGitHubBranches(url)
+
+      if (result.success && result.branches) {
+        setBranches(result.branches)
+        // Auto-select main/master branch if available
+        const defaultBranch =
+          result.branches.find((branch) => branch === "main" || branch === "master") || result.branches[0]
+        setSelectedBranch(defaultBranch)
+        toast.success(`Found ${result.branches.length} branches`)
+      } else {
+        setBranchError(result.error || "Failed to fetch branches")
+        toast.error(result.error || "Failed to fetch branches")
+      }
+    } catch (error) {
+      setBranchError("Failed to fetch branches")
+      toast.error("Failed to fetch branches")
+    } finally {
+      setIsFetchingBranches(false)
+    }
+  }
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
     toast.success("Copied to clipboard!")
   }
+
+  const handleSubmit = (formData: FormData) => {
+    // Add the selected branch to form data
+    formData.set("branch", selectedBranch)
+    return formAction(formData)
+  }
+
+  // Show toast notifications for form submission results
+  useEffect(() => {
+    if (state.message) {
+      if (state.success) {
+        toast.success(state.message)
+        formRef.current?.reset()
+        setRepoUrl("")
+        setBranches([])
+        setSelectedBranch("")
+      } else {
+        toast.error(state.message)
+      }
+    }
+  }, [state])
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-gray-50 dark:bg-gray-950 p-4">
@@ -37,7 +109,7 @@ export default function BootstrapPage() {
               </div>
             </div>
           </CardHeader>
-          <form ref={formRef} action={formAction}>
+          <form ref={formRef} action={handleSubmit}>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="repoUrl">GitHub Repository URL</Label>
@@ -48,15 +120,59 @@ export default function BootstrapPage() {
                   required
                   type="url"
                   disabled={isPending}
+                  value={repoUrl}
+                  onChange={(e) => setRepoUrl(e.target.value)}
                 />
               </div>
+
               <div className="space-y-2">
                 <Label htmlFor="branch">Branch</Label>
-                <Input id="branch" name="branch" placeholder="canary" required disabled={isPending} />
+                <div className="relative">
+                  <Select
+                    value={selectedBranch}
+                    onValueChange={setSelectedBranch}
+                    disabled={isPending || isFetchingBranches || branches.length === 0}
+                  >
+                    <SelectTrigger className="w-full">
+                      <div className="flex items-center gap-2">
+                        {isFetchingBranches ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <GitBranch className="h-4 w-4" />
+                        )}
+                        <SelectValue
+                          placeholder={
+                            isFetchingBranches
+                              ? "Fetching branches..."
+                              : branches.length === 0
+                                ? "Enter repository URL first"
+                                : "Select a branch"
+                          }
+                        />
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {branches.map((branch) => (
+                        <SelectItem key={branch} value={branch}>
+                          <div className="flex items-center gap-2">
+                            <GitBranch className="h-4 w-4" />
+                            {branch}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                {branchError && <p className="text-sm text-destructive">{branchError}</p>}
+                {branches.length > 0 && (
+                  <p className="text-sm text-muted-foreground">
+                    Found {branches.length} branch{branches.length !== 1 ? "es" : ""}
+                  </p>
+                )}
               </div>
             </CardContent>
-            <CardFooter>
-              <Button type="submit" className="w-full" disabled={isPending}>
+            <CardFooter className="mt-6">
+              <Button type="submit" className="w-full" disabled={isPending || !selectedBranch || isFetchingBranches}>
                 {isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -91,18 +207,6 @@ export default function BootstrapPage() {
                       <span className="sr-only">Open in new tab</span>
                     </Button>
                   </a>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label>Preview (Embeddable)</Label>
-                <div className="aspect-video w-full overflow-hidden rounded-lg border">
-                  <iframe
-                    src={state.data.demo}
-                    width="100%"
-                    height="100%"
-                    className="border-0"
-                    title={`v0 Chat Preview - ${state.data.id}`}
-                  />
                 </div>
               </div>
             </CardContent>
