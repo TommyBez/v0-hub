@@ -155,7 +155,7 @@ export default function BootstrapPage() {
                       {branches.map((branch) => (
                         <SelectItem key={branch} value={branch}>
                           <div className="flex items-center gap-2">
-                            <GitBranch className="h-4 w-4" />
+                            
                             {branch}
                           </div>
                         </SelectItem>
