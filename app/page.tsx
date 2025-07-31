@@ -1,7 +1,7 @@
 "use client"
 
-import { useActionState, useEffect, useRef } from "react"
-import { toast } from "@/hooks/use-toast"
+import { useActionState, useRef } from "react"
+import { toast } from "sonner"
 import { bootstrapChatFromRepo } from "@/app/actions"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
@@ -19,30 +19,9 @@ export default function BootstrapPage() {
   const [state, formAction, isPending] = useActionState(bootstrapChatFromRepo, initialState)
   const formRef = useRef<HTMLFormElement>(null)
 
-  useEffect(() => {
-    if (state.message) {
-      if (state.success) {
-        toast({
-          title: "Success",
-          description: state.message,
-        })
-        formRef.current?.reset()
-      } else {
-        toast({
-          title: "Error",
-          description: state.message,
-          variant: "destructive",
-        })
-      }
-    }
-  }, [state])
-
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
-    toast({
-      title: "Copied!",
-      description: "URL copied to clipboard",
-    })
+    toast.success("Copied to clipboard!")
   }
 
   return (
