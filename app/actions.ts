@@ -59,7 +59,7 @@ export async function bootstrapChatFromRepo(prevState: BootstrapState, formData:
         url: repoUrl,
         branch: branch,
       },
-      chatPrivacy: "private",
+      chatPrivacy: "public",
     })
 
     return {
