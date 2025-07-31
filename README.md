@@ -2,9 +2,6 @@
 
 *A Next.js application that creates v0.dev chat instances from GitHub repositories*
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/tommasos-projects-bb9d6551/v0-v0-github-bootstrapper)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/Bf8RAM3tv5J)
-
 ## Overview
 
 This application provides a simple web interface to bootstrap new v0.dev chat instances from public GitHub repositories. Users can input a GitHub repository URL and branch, and the application will create a private v0 chat session initialized with that repository's code.
