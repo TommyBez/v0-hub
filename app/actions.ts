@@ -46,6 +46,17 @@ async function createShortLink(longUrl: string): Promise<string | null> {
   }
 }
 
+function generateChatName(repoUrl: string, branch: string): string {
+  // Extract repository name from URL
+  const match = repoUrl.match(/^https:\/\/github\.com\/[^/]+\/([^/]+)$/)
+  const repoName = match ? match[1] : "repository"
+
+  // Omit branch if it's main or master
+  const shouldIncludeBranch = branch !== "main" && branch !== "master"
+
+  return shouldIncludeBranch ? `[v0hub] ${repoName} - ${branch}` : `[v0hub] ${repoName}`
+}
+
 export async function bootstrapChatFromRepo(prevState: BootstrapState, formData: FormData): Promise<BootstrapState> {
   const validatedFields = bootstrapSchema.safeParse({
     repoUrl: formData.get("repoUrl"),
@@ -79,6 +90,9 @@ export async function bootstrapChatFromRepo(prevState: BootstrapState, formData:
   }
 
   try {
+    // Generate custom chat name
+    const chatName = generateChatName(repoUrl, branch)
+
     const chat = await v0.chats.init({
       type: "repo",
       repo: {
@@ -86,6 +100,7 @@ export async function bootstrapChatFromRepo(prevState: BootstrapState, formData:
         branch: branch,
       },
       chatPrivacy: "public",
+      name: chatName,
     })
 
     // Generate short links for the chat URL and demo URL
@@ -96,7 +111,7 @@ export async function bootstrapChatFromRepo(prevState: BootstrapState, formData:
       // Create short links
       const shortUrlResult = await createShortLink(chat.url)
       const shortDemoUrlResult = await createShortLink(chat.demo)
-      
+
       if (shortUrlResult) shortUrl = shortUrlResult
       if (shortDemoUrlResult) shortDemoUrl = shortDemoUrlResult
     }
