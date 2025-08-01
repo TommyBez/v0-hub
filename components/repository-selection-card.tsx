@@ -188,7 +188,7 @@ export default function RepositorySelectionCard({
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {buttonText.includes("Bootstrap") ? "Bootstrapping..." : "Loading..."}
+                Loading...
               </>
             ) : (
               buttonText
