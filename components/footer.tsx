@@ -1,5 +1,6 @@
 import Link from "next/link"
-import { Linkedin, Twitter } from "lucide-react"
+import { Linkedin } from "lucide-react"
+import { SiX } from "@icons-pack/react-simple-icons"
 
 export function Footer() {
   return (
@@ -22,7 +23,7 @@ export function Footer() {
             className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
             aria-label="Follow on X (Twitter)"
           >
-            <Twitter className="h-5 w-5" />
+            <SiX className="h-5 w-5" />
           </Link>
           <Link
             href="https://www.linkedin.com/in/tcarnemolla"
