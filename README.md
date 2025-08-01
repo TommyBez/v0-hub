@@ -6,7 +6,7 @@ This is a Next.js application that allows you to bootstrap v0 chats from GitHub 
 
 - Bootstrap v0 chats from any public GitHub repository
 - Automatically fetch and select repository branches
-- Generate short links for both chat and demo URLs using Dub
+- Generate short links for chat URLs using Dub
 - Copy links to clipboard with one click
 - Modern, responsive UI built with shadcn/ui
 
@@ -54,38 +54,17 @@ Before you begin, ensure you have:
 
 ## Dub Integration
 
-The application uses the [Dub TypeScript SDK](https://github.com/dubinc/dub-ts) to create short links for generated v0 chats. When a chat is successfully created:
-
-1. A short link is generated for the chat URL
-2. A short link is generated for the demo URL
-3. Both short links are tagged with "v0-chat" for easy organization in your Dub dashboard
-4. The short links include descriptive titles based on the repository name
+The application uses the [Dub TypeScript SDK](https://github.com/dubinc/dub-ts) to create short links for generated v0 chats. When a chat is successfully created, short links are automatically generated for the chat URL, making them easier to share.
 
 ### Benefits of Using Dub
 
-- **Analytics**: Track clicks and engagement on your v0 chat links
-- **Custom Domains**: Use your own domain for short links (requires Dub subscription)
+- **Cleaner URLs**: Share professional-looking short links instead of long v0 URLs
+- **Analytics**: Track clicks and engagement on your v0 chat links in the Dub dashboard
 - **Link Management**: Organize and manage all your v0 chat links in one place
-- **QR Codes**: Generate QR codes for your links automatically
 
 ## Configuration
 
-### Optional Dub Features
-
-You can customize the Dub integration by modifying the `createShortLink` function in `app/actions.ts`:
-
-```typescript
-const link = await dub.links.create({
-  url: longUrl,
-  title: title || "v0 Chat",
-  tags: ["v0-chat"],
-  // Add more options:
-  // domain: "your-custom-domain.com", // Use custom domain
-  // expiresAt: "2024-12-31", // Set expiration date
-  // password: "secret", // Password protect the link
-  // targetId: "user-123", // Add custom identifier
-})
-```
+The Dub integration only requires your API key. If the `DUB_API_KEY` is not set, the application will continue to work normally, displaying the original v0 URLs instead of short links.
 
 ## Troubleshooting
 

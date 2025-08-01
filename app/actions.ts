@@ -28,43 +28,20 @@ interface BootstrapState {
   } | null
 }
 
-async function createShortLink(longUrl: string, title?: string, metadata?: Record<string, any>): Promise<string | null> {
+async function createShortLink(longUrl: string): Promise<string | null> {
   // Initialize Dub client
   const dub = new Dub({
     token: process.env.DUB_API_KEY,
   })
 
   try {
-    const linkData: any = {
+    const link = await dub.links.create({
       url: longUrl,
-      title: title || "v0 Chat",
-      // Optional: add tags for organization
-      tags: ["v0-chat"],
-    }
-
-    // Add custom domain if configured
-    if (process.env.DUB_CUSTOM_DOMAIN) {
-      linkData.domain = process.env.DUB_CUSTOM_DOMAIN
-    }
-
-    // Add metadata if provided
-    if (metadata) {
-      linkData.metadata = metadata
-    }
-
-    const link = await dub.links.create(linkData)
+    })
 
     return link.shortLink
   } catch (error) {
     console.error("Error creating short link:", error)
-    // Check for specific Dub errors
-    if (error instanceof Error) {
-      if (error.message.includes("rate limit")) {
-        console.error("Dub rate limit exceeded")
-      } else if (error.message.includes("unauthorized")) {
-        console.error("Invalid Dub API key")
-      }
-    }
     return null
   }
 }
@@ -116,40 +93,12 @@ export async function bootstrapChatFromRepo(prevState: BootstrapState, formData:
     let shortDemoUrl: string | undefined
 
     if (process.env.DUB_API_KEY) {
-      // Extract repo name from URL for better link titles
-      const repoMatch = repoUrl.match(/github\.com\/([^/]+)\/([^/]+)/)
-      const repoName = repoMatch ? `${repoMatch[1]}/${repoMatch[2]}` : "Repository"
-      
-      // Metadata to track the source
-      const metadata = {
-        repository: repoUrl,
-        branch: branch,
-        chatId: chat.id,
-        createdAt: new Date().toISOString()
-      }
-      
-      // Create short links with metadata
-      const shortUrlResult = await createShortLink(
-        chat.url, 
-        `v0 Chat - ${repoName} (${branch})`,
-        { ...metadata, type: "chat" }
-      )
-      const shortDemoUrlResult = await createShortLink(
-        chat.demo, 
-        `v0 Demo - ${repoName} (${branch})`,
-        { ...metadata, type: "demo" }
-      )
+      // Create short links
+      const shortUrlResult = await createShortLink(chat.url)
+      const shortDemoUrlResult = await createShortLink(chat.demo)
       
       if (shortUrlResult) shortUrl = shortUrlResult
       if (shortDemoUrlResult) shortDemoUrl = shortDemoUrlResult
-      
-      // Log success
-      if (shortUrl || shortDemoUrl) {
-        console.log(`Created short links for ${repoName}:`, {
-          chat: shortUrl,
-          demo: shortDemoUrl
-        })
-      }
     }
 
     return {
