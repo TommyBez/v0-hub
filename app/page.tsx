@@ -10,22 +10,10 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Github, Loader2, ExternalLink, Copy, GitBranch } from "lucide-react"
 
-interface BootstrapState {
-  success: boolean
-  message: string
-  data?: {
-    id: string
-    url: string
-    demo: string
-    shortUrl?: string
-    shortDemoUrl?: string
-  } | null
-}
-
 const initialState = {
   success: false,
   message: "",
-  data: null as { id: string; url: string; demo: string } | null,
+  data: null as { id: string; url: string; demo: string; shortUrl?: string; shortDemoUrl?: string } | null,
 }
 
 export default function BootstrapPage() {
@@ -219,33 +207,6 @@ export default function BootstrapPage() {
                     </Button>
                   </a>
                 </div>
-                {state.data.shortUrl && (
-                  <p className="text-xs text-muted-foreground">
-                    Original: {state.data.url}
-                  </p>
-                )}
-              </div>
-              
-              <div className="space-y-2">
-                <Label>Demo URL</Label>
-                <div className="flex items-center gap-2">
-                  <Input readOnly value={state.data.shortDemoUrl || state.data.demo} className="flex-1" />
-                  <Button variant="outline" size="icon" onClick={() => copyToClipboard(state.data.shortDemoUrl || state.data.demo)}>
-                    <Copy className="h-4 w-4" />
-                    <span className="sr-only">Copy Demo URL</span>
-                  </Button>
-                  <a href={state.data.shortDemoUrl || state.data.demo} target="_blank" rel="noopener noreferrer">
-                    <Button variant="outline" size="icon">
-                      <ExternalLink className="h-4 w-4" />
-                      <span className="sr-only">Open demo in new tab</span>
-                    </Button>
-                  </a>
-                </div>
-                {state.data.shortDemoUrl && (
-                  <p className="text-xs text-muted-foreground">
-                    Original: {state.data.demo}
-                  </p>
-                )}
               </div>
             </CardContent>
           </Card>
