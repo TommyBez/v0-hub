@@ -13,7 +13,7 @@ import { Github, Loader2, ExternalLink, Copy, GitBranch } from "lucide-react"
 const initialState = {
   success: false,
   message: "",
-  data: null as { id: string; url: string; demo: string } | null,
+  data: null as { id: string; url: string; demo: string; shortUrl?: string; shortDemoUrl?: string } | null,
 }
 
 export default function BootstrapPage() {
@@ -195,12 +195,12 @@ export default function BootstrapPage() {
               <div className="space-y-2">
                 <Label>Chat URL</Label>
                 <div className="flex items-center gap-2">
-                  <Input readOnly value={state.data.url} className="flex-1" />
-                  <Button variant="outline" size="icon" onClick={() => copyToClipboard(state.data.url)}>
+                  <Input readOnly value={state.data.shortUrl || state.data.url} className="flex-1" />
+                  <Button variant="outline" size="icon" onClick={() => copyToClipboard(state.data.shortUrl || state.data.url)}>
                     <Copy className="h-4 w-4" />
                     <span className="sr-only">Copy URL</span>
                   </Button>
-                  <a href={state.data.url} target="_blank" rel="noopener noreferrer">
+                  <a href={state.data.shortUrl || state.data.url} target="_blank" rel="noopener noreferrer">
                     <Button variant="outline" size="icon">
                       <ExternalLink className="h-4 w-4" />
                       <span className="sr-only">Open in new tab</span>

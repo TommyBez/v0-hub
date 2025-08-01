@@ -2,6 +2,7 @@
 
 import { z } from "zod"
 import { v0 } from "v0-sdk"
+import { Dub } from "dub"
 
 // Define the schema for input validation
 const bootstrapSchema = z.object({
@@ -22,7 +23,27 @@ interface BootstrapState {
     id: string
     url: string
     demo: string
+    shortUrl?: string
+    shortDemoUrl?: string
   } | null
+}
+
+async function createShortLink(longUrl: string): Promise<string | null> {
+  // Initialize Dub client
+  const dub = new Dub({
+    token: process.env.DUB_API_KEY,
+  })
+
+  try {
+    const link = await dub.links.create({
+      url: longUrl,
+    })
+
+    return link.shortLink
+  } catch (error) {
+    console.error("Error creating short link:", error)
+    return null
+  }
 }
 
 export async function bootstrapChatFromRepo(prevState: BootstrapState, formData: FormData): Promise<BootstrapState> {
@@ -52,6 +73,11 @@ export async function bootstrapChatFromRepo(prevState: BootstrapState, formData:
     }
   }
 
+  // Check if Dub API key is configured
+  if (!process.env.DUB_API_KEY) {
+    console.warn("DUB_API_KEY is not set. Short links will not be generated.")
+  }
+
   try {
     const chat = await v0.chats.init({
       type: "repo",
@@ -62,6 +88,19 @@ export async function bootstrapChatFromRepo(prevState: BootstrapState, formData:
       chatPrivacy: "public",
     })
 
+    // Generate short links for the chat URL and demo URL
+    let shortUrl: string | undefined
+    let shortDemoUrl: string | undefined
+
+    if (process.env.DUB_API_KEY) {
+      // Create short links
+      const shortUrlResult = await createShortLink(chat.url)
+      const shortDemoUrlResult = await createShortLink(chat.demo)
+      
+      if (shortUrlResult) shortUrl = shortUrlResult
+      if (shortDemoUrlResult) shortDemoUrl = shortDemoUrlResult
+    }
+
     return {
       success: true,
       message: "Chat bootstrapped successfully!",
@@ -69,6 +108,8 @@ export async function bootstrapChatFromRepo(prevState: BootstrapState, formData:
         id: chat.id,
         url: chat.url,
         demo: chat.demo,
+        shortUrl,
+        shortDemoUrl,
       },
     }
   } catch (error) {
