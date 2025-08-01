@@ -16,12 +16,14 @@ interface RepositorySelectionCardProps {
   title?: string
   description?: string
   disabled?: boolean
+  showHeader?: boolean
 }
 
 export default function RepositorySelectionCard({
   title = "Bootstrap Chat from GitHub",
   description = "Initialize a new v0 chat instance from a public GitHub repository.",
   disabled = false,
+  showHeader = true,
 }: RepositorySelectionCardProps) {
   const router = useRouter()
   
@@ -101,19 +103,21 @@ export default function RepositorySelectionCard({
   return (
     <Card className="relative overflow-hidden border-primary/20 shadow-xl shadow-primary/5">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent" />
-      <CardHeader className="relative">
-        <div className="flex items-center gap-3">
-          <div className="p-3 rounded-xl bg-primary/10 backdrop-blur-sm">
-            <SiGithub className="h-8 w-8 text-primary" />
+      {showHeader && (
+        <CardHeader className="relative">
+          <div className="flex items-center gap-3">
+            <div className="p-3 rounded-xl bg-primary/10 backdrop-blur-sm">
+              <SiGithub className="h-8 w-8 text-primary" />
+            </div>
+            <div>
+              <CardTitle className="text-2xl">{title}</CardTitle>
+              <CardDescription>{description}</CardDescription>
+            </div>
           </div>
-          <div>
-            <CardTitle className="text-2xl">{title}</CardTitle>
-            <CardDescription>{description}</CardDescription>
-          </div>
-        </div>
-      </CardHeader>
+        </CardHeader>
+      )}
       <form onSubmit={handleSubmit}>
-        <CardContent className="relative space-y-4">
+        <CardContent className={`relative space-y-4 ${!showHeader ? 'pt-6' : ''}`}>
           <div className="space-y-2">
             <Label htmlFor="repoUrl" className="text-base font-medium">GitHub Repository URL</Label>
             <Input

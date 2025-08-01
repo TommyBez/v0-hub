@@ -37,8 +37,7 @@ export default function HomePage() {
             {/* Main CTA Card */}
             <div className="w-full max-w-2xl animate-fade-in animation-delay-300">
               <RepositorySelectionCard
-                title="Start Working"
-                description="Enter any public GitHub repository URL and select a branch to bootstrap your v0 agent."
+                showHeader={false}
               />
             </div>
           </div>
