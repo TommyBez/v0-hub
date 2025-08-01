@@ -3,14 +3,14 @@ import { fetchGitHubBranches } from "@/app/actions"
 import RepositorySelectionCard from "@/components/repository-selection-card"
 
 interface PageProps {
-  params: {
+  params: Promise<{
     user: string
     repository: string
-  }
+  }>
 }
 
 export default async function RepositoryPage({ params }: PageProps) {
-  const { user, repository } = params
+  const { user, repository } = await params
   const repoUrl = `https://github.com/${user}/${repository}`
 
   // Fetch branches server-side
