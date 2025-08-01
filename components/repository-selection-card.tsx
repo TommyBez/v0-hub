@@ -34,6 +34,48 @@ export default function RepositorySelectionCard({
   const [isFetchingBranches, setIsFetchingBranches] = useState(false)
   const [branchError, setBranchError] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [extractedBranch, setExtractedBranch] = useState<string | null>(null)
+
+  // Function to parse GitHub URL and extract branch if present
+  const parseGitHubUrl = (url: string): { baseUrl: string; branch?: string } => {
+    // Check if URL contains /tree/ pattern (indicating a branch)
+    const treeIndex = url.indexOf('/tree/')
+    
+    if (treeIndex !== -1 && url.includes('github.com')) {
+      // Extract base URL (everything before /tree/)
+      const baseUrl = url.substring(0, treeIndex)
+      
+      // Extract branch name (everything after /tree/)
+      const afterTree = url.substring(treeIndex + 6) // 6 is length of '/tree/'
+      
+      // The branch name is everything after /tree/
+      // We'll let the branch validation handle whether it's valid
+      const branch = afterTree || undefined
+      
+      return {
+        baseUrl: baseUrl,
+        branch: branch
+      }
+    }
+    
+    // Return original URL if no branch pattern found
+    return { baseUrl: url }
+  }
+
+  // Handle URL input changes
+  const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputUrl = e.target.value
+    const { baseUrl, branch } = parseGitHubUrl(inputUrl)
+    
+    setRepoUrl(baseUrl)
+    
+    // Store extracted branch to use when branches are fetched
+    if (branch) {
+      setExtractedBranch(branch)
+    } else {
+      setExtractedBranch(null)
+    }
+  }
 
   // Debounce repo URL changes
   useEffect(() => {
@@ -61,11 +103,38 @@ export default function RepositorySelectionCard({
 
       if (result.success && result.branches) {
         setBranches(result.branches)
-        // Prioritize "main" over "master", then fall back to first branch
-        const defaultBranch =
-          result.branches.find((branch) => branch === "main") ||
-          result.branches.find((branch) => branch === "master") ||
-          result.branches[0]
+        
+        // If we extracted a branch from the URL, try to match it with actual branches
+        let defaultBranch: string
+        if (extractedBranch) {
+          // First, check if the extracted branch exactly matches a branch
+          if (result.branches.includes(extractedBranch)) {
+            defaultBranch = extractedBranch
+          } else {
+            // If not, check if any branch matches the beginning of the extracted string
+            // This handles cases like "main/src/index.js" where "main" is the branch
+            const matchingBranch = result.branches.find(branch => 
+              extractedBranch.startsWith(branch + '/') || extractedBranch === branch
+            )
+            
+            if (matchingBranch) {
+              defaultBranch = matchingBranch
+            } else {
+              // Fall back to default branch selection
+              defaultBranch =
+                result.branches.find((branch) => branch === "main") ||
+                result.branches.find((branch) => branch === "master") ||
+                result.branches[0]
+            }
+          }
+        } else {
+          // No extracted branch, use default selection
+          defaultBranch =
+            result.branches.find((branch) => branch === "main") ||
+            result.branches.find((branch) => branch === "master") ||
+            result.branches[0]
+        }
+        
         setSelectedBranch(defaultBranch)
         toast.success(`Found ${result.branches.length} branches`)
       } else {
@@ -128,7 +197,7 @@ export default function RepositorySelectionCard({
               type="url"
               disabled={disabled || isSubmitting}
               value={repoUrl}
-              onChange={(e) => setRepoUrl(e.target.value)}
+              onChange={handleUrlChange}
               className="h-12 text-base"
             />
           </div>
