@@ -1,92 +1,113 @@
-# GitHub Repository to v0 Chat Bootstrapper
+# v0 Chat Bootstrapper with Dub Short Links
 
-*A Next.js application that creates v0.dev chat instances from GitHub repositories*
-
-## Overview
-
-This application provides a simple web interface to bootstrap new v0.dev chat instances from public GitHub repositories. Users can input a GitHub repository URL and branch, and the application will create a private v0 chat session initialized with that repository's code.
+This is a Next.js application that allows you to bootstrap v0 chats from GitHub repositories and automatically creates short links using Dub.
 
 ## Features
 
-- **Repository Input**: Enter any public GitHub repository URL
-- **Branch Selection**: Specify which branch to bootstrap from
-- **Instant Chat Creation**: Creates a private v0 chat instance with one click
-- **Preview Integration**: View the created chat directly in an embedded iframe
-- **Copy & Share**: Easy copying of chat URLs for sharing
-- **Modern UI**: Built with shadcn/ui components and Tailwind CSS
+- Bootstrap v0 chats from any public GitHub repository
+- Automatically fetch and select repository branches
+- Generate short links for both chat and demo URLs using Dub
+- Copy links to clipboard with one click
+- Modern, responsive UI built with shadcn/ui
 
-## How It Works
+## Prerequisites
 
-1. **Enter Repository Details**: Provide a GitHub repository URL (e.g., `https://github.com/vercel/next.js`) and specify the branch
-2. **Bootstrap Chat**: Click the "Bootstrap Chat" button to create a new v0 chat instance
-3. **Access Your Chat**: Get a direct link to your private v0 chat session initialized with the repository code
-4. **Start Developing**: Use the v0 chat to iterate on and improve the code from the repository
+Before you begin, ensure you have:
 
-## Tech Stack
+1. A v0 account and API key (get it from [v0.dev](https://v0.dev))
+2. A Dub account and API key (get it from [dub.co](https://dub.co))
+3. Node.js 18+ installed
+4. pnpm package manager (or npm/yarn)
 
-- **Framework**: Next.js 15 with React 19
-- **UI Components**: Radix UI primitives with shadcn/ui
-- **Styling**: Tailwind CSS with dark mode support
-- **Forms**: React Hook Form with Zod validation
-- **Icons**: Lucide React
-- **Deployment**: Vercel
-- **API Integration**: v0-sdk for chat creation
+## Setup
 
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+ and pnpm
-- A v0.dev API key
-
-### Installation
-
-1. Clone the repository:
-\`\`\`bash
-git clone <repository-url>
-cd v0-github-bootstrapper
-\`\`\`
+1. Clone this repository:
+   ```bash
+   git clone <your-repo-url>
+   cd <your-repo-name>
+   ```
 
 2. Install dependencies:
-\`\`\`bash
-pnpm install
-\`\`\`
+   ```bash
+   pnpm install
+   ```
 
-3. Set up environment variables:
-\`\`\`bash
-# Create .env.local and add your v0 API key
-V0_API_KEY=your_v0_api_key_here
-\`\`\`
+3. Create a `.env.local` file in the root directory and add your API keys:
+   ```env
+   V0_API_KEY=your_v0_api_key_here
+   DUB_API_KEY=your_dub_api_key_here
+   ```
 
 4. Run the development server:
-\`\`\`bash
-pnpm dev
-\`\`\`
+   ```bash
+   pnpm dev
+   ```
 
 5. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-## Environment Variables
+## How It Works
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `V0_API_KEY` | Your v0.dev API key for creating chat instances | Yes |
+1. **Enter a GitHub Repository URL**: Paste any public GitHub repository URL
+2. **Select a Branch**: The app automatically fetches available branches
+3. **Bootstrap Chat**: Click the button to create a v0 chat instance
+4. **Get Short Links**: The app automatically creates short links using Dub for easy sharing
 
-## Deployment
+## Dub Integration
 
-The application is configured for easy deployment on Vercel:
+The application uses the [Dub TypeScript SDK](https://github.com/dubinc/dub-ts) to create short links for generated v0 chats. When a chat is successfully created:
 
-1. Connect your repository to Vercel
-2. Add the `V0_API_KEY` environment variable in your Vercel dashboard
-3. Deploy
+1. A short link is generated for the chat URL
+2. A short link is generated for the demo URL
+3. Both short links are tagged with "v0-chat" for easy organization in your Dub dashboard
+4. The short links include descriptive titles based on the repository name
 
-**Live Demo**: [https://vercel.com/tommasos-projects-bb9d6551/v0-v0-github-bootstrapper](https://vercel.com/tommasos-projects-bb9d6551/v0-v0-github-bootstrapper)
+### Benefits of Using Dub
 
-## Development
+- **Analytics**: Track clicks and engagement on your v0 chat links
+- **Custom Domains**: Use your own domain for short links (requires Dub subscription)
+- **Link Management**: Organize and manage all your v0 chat links in one place
+- **QR Codes**: Generate QR codes for your links automatically
 
-Continue building and improving this application on v0.dev:
+## Configuration
 
-**[https://v0.dev/chat/projects/Bf8RAM3tv5J](https://v0.dev/chat/projects/Bf8RAM3tv5J)**
+### Optional Dub Features
+
+You can customize the Dub integration by modifying the `createShortLink` function in `app/actions.ts`:
+
+```typescript
+const link = await dub.links.create({
+  url: longUrl,
+  title: title || "v0 Chat",
+  tags: ["v0-chat"],
+  // Add more options:
+  // domain: "your-custom-domain.com", // Use custom domain
+  // expiresAt: "2024-12-31", // Set expiration date
+  // password: "secret", // Password protect the link
+  // targetId: "user-123", // Add custom identifier
+})
+```
+
+## Troubleshooting
+
+### Short links not being created
+
+- Ensure your `DUB_API_KEY` is correctly set in `.env.local`
+- Check the console logs for any Dub API errors
+- Verify your Dub account has sufficient quota
+
+### v0 chat creation fails
+
+- Ensure your `V0_API_KEY` is correctly set
+- Verify the GitHub repository is public
+- Check that you have selected a valid branch
+
+## Learn More
+
+- [v0 Documentation](https://v0.dev/docs)
+- [Dub Documentation](https://dub.co/docs)
+- [Dub TypeScript SDK Guide](https://dub.co/docs/sdks/typescript)
+- [Next.js Documentation](https://nextjs.org/docs)
 
 ## License
 
-This project is private and not licensed for public use.
+MIT
