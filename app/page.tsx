@@ -8,8 +8,9 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Loader2, Copy, GitBranch } from "lucide-react"
-import { SiGithub, SiV0 } from "@icons-pack/react-simple-icons"
+import { Loader2, GitBranch } from "lucide-react"
+import { SiGithub } from "@icons-pack/react-simple-icons"
+import ChatResultCard from "@/components/chat-result-card"
 
 const initialState = {
   success: false,
@@ -71,11 +72,6 @@ export default function BootstrapPage() {
     } finally {
       setIsFetchingBranches(false)
     }
-  }
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-    toast.success("Copied to clipboard!")
   }
 
   const handleSubmit = (formData: FormData) => {
@@ -186,32 +182,7 @@ export default function BootstrapPage() {
           </form>
         </Card>
 
-        {state.success && state.data && (
-          <Card className="animate-in fade-in-50">
-            <CardHeader>
-              <CardTitle>Chat Created!</CardTitle>
-              <CardDescription>Your new chat instance is ready. Open it and fork!.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label>Chat URL</Label>
-                <div className="flex items-center gap-2">
-                  <Input readOnly value={state.data.shortUrl || state.data.url} className="flex-1" />
-                  <Button variant="outline" size="icon" onClick={() => copyToClipboard(state.data.shortUrl || state.data.url)}>
-                    <Copy className="h-4 w-4" />
-                    <span className="sr-only">Copy URL</span>
-                  </Button>
-                  <a href={state.data.shortUrl || state.data.url} target="_blank" rel="noopener noreferrer">
-                    <Button variant="default" size="icon">
-                      <SiV0 className="h-4 w-4" />
-                      <span className="sr-only">Open v0 chat</span>
-                    </Button>
-                  </a>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        {state.success && state.data && <ChatResultCard chatData={state.data} />}
       </div>
     </div>
   )
