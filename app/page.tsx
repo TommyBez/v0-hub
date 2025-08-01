@@ -202,9 +202,9 @@ export default function BootstrapPage() {
                     <span className="sr-only">Copy URL</span>
                   </Button>
                   <a href={state.data.shortUrl || state.data.url} target="_blank" rel="noopener noreferrer">
-                    <Button variant="outline" size="icon">
-                      <ExternalLink className="h-4 w-4" />
-                      <span className="sr-only">Open in new tab</span>
+                    <Button variant="default" size="sm" className="gap-2">
+                      <span className="font-mono font-semibold">v0</span>
+                      <ExternalLink className="h-3.5 w-3.5" />
                     </Button>
                   </a>
                 </div>
