@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Github, Loader2, ExternalLink, Copy, GitBranch } from "lucide-react"
+import { Loader2, Copy, GitBranch } from "lucide-react"
+import { SiGithub, SiV0 } from "@icons-pack/react-simple-icons"
 
 const initialState = {
   success: false,
@@ -104,7 +105,7 @@ export default function BootstrapPage() {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-3">
-              <Github className="h-8 w-8" />
+              <SiGithub className="h-8 w-8" />
               <div>
                 <CardTitle className="text-2xl">Bootstrap Chat from GitHub</CardTitle>
                 <CardDescription>Initialize a new v0 chat instance from a public GitHub repository.</CardDescription>
@@ -201,9 +202,9 @@ export default function BootstrapPage() {
                     <span className="sr-only">Copy URL</span>
                   </Button>
                   <a href={state.data.shortUrl || state.data.url} target="_blank" rel="noopener noreferrer">
-                    <Button variant="outline" size="icon">
-                      <ExternalLink className="h-4 w-4" />
-                      <span className="sr-only">Open in new tab</span>
+                    <Button variant="default" size="icon">
+                      <SiV0 className="h-4 w-4" />
+                      <span className="sr-only">Open v0 chat</span>
                     </Button>
                   </a>
                 </div>
