@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Linkedin, X } from "lucide-react"
+import { Linkedin, Twitter } from "lucide-react"
 
 export function Footer() {
   return (
@@ -20,9 +20,9 @@ export function Footer() {
             target="_blank"
             rel="noopener noreferrer"
             className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-            aria-label="Follow on X"
+            aria-label="Follow on X (Twitter)"
           >
-            <X className="h-5 w-5" />
+            <Twitter className="h-5 w-5" />
           </Link>
           <Link
             href="https://www.linkedin.com/in/tcarnemolla"
