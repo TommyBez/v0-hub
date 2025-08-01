@@ -4,9 +4,9 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { GitBranch } from "lucide-react"
-import { SiGithub, SiV0 } from "@icons-pack/react-simple-icons"
+import { SiGithub } from "@icons-pack/react-simple-icons"
 import Link from "next/link"
-import CopyButton from "./copy-button"
+import ChatResultCard from "@/components/chat-result-card"
 
 interface PageProps {
   params: {
@@ -82,39 +82,7 @@ export default async function DynamicBootstrapPage({ params }: PageProps) {
           </CardContent>
         </Card>
 
-        {chatData && (
-          <Card className="animate-in fade-in-50">
-            <CardHeader>
-              <CardTitle>Chat Created!</CardTitle>
-              <CardDescription>Your new chat instance is ready. Open it and fork!</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label>Chat URL</Label>
-                <div className="flex items-center gap-2">
-                  <Input readOnly value={chatData.shortUrl || chatData.url} className="flex-1" />
-                  <CopyButton text={chatData.shortUrl || chatData.url} />
-                  <Link href={chatData.shortUrl || chatData.url} target="_blank" rel="noopener noreferrer">
-                    <Button variant="default" size="icon">
-                      <SiV0 className="h-4 w-4" />
-                      <span className="sr-only">Open v0 chat</span>
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-
-              {chatData.demo && (
-                <div className="space-y-2">
-                  <Label>Demo URL</Label>
-                  <div className="flex items-center gap-2">
-                    <Input readOnly value={chatData.shortDemoUrl || chatData.demo} className="flex-1" />
-                    <CopyButton text={chatData.shortDemoUrl || chatData.demo} />
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
+        {chatData && <ChatResultCard chatData={chatData} />}
       </div>
     </div>
   )
