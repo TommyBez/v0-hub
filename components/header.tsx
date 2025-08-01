@@ -1,5 +1,3 @@
-"use client"
-
 import Link from "next/link"
 import { GitBranch } from "lucide-react"
 
