@@ -1,6 +1,5 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
-import { Loader2 } from "lucide-react"
-import { SiGithub } from "@icons-pack/react-simple-icons"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function Loading() {
   return (
@@ -8,18 +7,21 @@ export default function Loading() {
       <div className="w-full max-w-2xl">
         <Card className="animate-in fade-in-50">
           <CardHeader>
-            <div className="flex items-center gap-3">
-              <SiGithub className="h-8 w-8" />
-              <div>
-                <CardTitle className="text-2xl">Bootstrapping Chat</CardTitle>
-                <CardDescription>Creating your v0 chat instance from GitHub repository...</CardDescription>
-              </div>
-            </div>
+            <CardTitle>
+              <Skeleton className="h-7 w-32" />
+            </CardTitle>
+            <CardDescription>
+              <Skeleton className="h-4 w-80 mt-1" />
+            </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-              <span className="ml-3 text-muted-foreground">Initializing chat...</span>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-16" />
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-10 flex-1" />
+                <Skeleton className="h-10 w-10" />
+                <Skeleton className="h-10 w-10" />
+              </div>
             </div>
           </CardContent>
         </Card>
