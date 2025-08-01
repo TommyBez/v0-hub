@@ -16,12 +16,14 @@ interface RepositorySelectionCardProps {
   title?: string
   description?: string
   disabled?: boolean
+  showHeader?: boolean
 }
 
 export default function RepositorySelectionCard({
   title = "Bootstrap Chat from GitHub",
   description = "Initialize a new v0 chat instance from a public GitHub repository.",
   disabled = false,
+  showHeader = true,
 }: RepositorySelectionCardProps) {
   const router = useRouter()
   
@@ -99,20 +101,25 @@ export default function RepositorySelectionCard({
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center gap-3">
-          <SiGithub className="h-8 w-8" />
-          <div>
-            <CardTitle className="text-2xl">{title}</CardTitle>
-            <CardDescription>{description}</CardDescription>
+    <Card className="relative overflow-hidden border-primary/20 shadow-xl shadow-primary/5">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent" />
+      {showHeader && (
+        <CardHeader className="relative">
+          <div className="flex items-center gap-3">
+            <div className="p-3 rounded-xl bg-primary/10 backdrop-blur-sm">
+              <SiGithub className="h-8 w-8 text-primary" />
+            </div>
+            <div>
+              <CardTitle className="text-2xl">{title}</CardTitle>
+              <CardDescription>{description}</CardDescription>
+            </div>
           </div>
-        </div>
-      </CardHeader>
+        </CardHeader>
+      )}
       <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-4">
+        <CardContent className={`relative space-y-4 ${!showHeader ? 'pt-6' : ''}`}>
           <div className="space-y-2">
-            <Label htmlFor="repoUrl">GitHub Repository URL</Label>
+            <Label htmlFor="repoUrl" className="text-base font-medium">GitHub Repository URL</Label>
             <Input
               id="repoUrl"
               name="repoUrl"
@@ -122,18 +129,19 @@ export default function RepositorySelectionCard({
               disabled={disabled || isSubmitting}
               value={repoUrl}
               onChange={(e) => setRepoUrl(e.target.value)}
+              className="h-12 text-base"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="branch">Branch</Label>
+            <Label htmlFor="branch" className="text-base font-medium">Branch</Label>
             <div className="relative">
               <Select
                 value={selectedBranch}
                 onValueChange={setSelectedBranch}
                 disabled={disabled || isSubmitting || isFetchingBranches || branches.length === 0}
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full h-12 text-base">
                   <div className="flex items-center gap-2">
                     {isFetchingBranches ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -168,19 +176,23 @@ export default function RepositorySelectionCard({
             )}
           </div>
         </CardContent>
-        <CardFooter className="mt-6">
+        <CardFooter className="relative mt-6">
           <Button 
             type="submit" 
-            className="w-full" 
+            className="w-full h-12 text-base font-semibold transition-all hover:scale-[1.02]" 
+            size="lg"
             disabled={disabled || isSubmitting || !selectedBranch || isFetchingBranches}
           >
             {isSubmitting ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Loading...
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                Loading your v0 chat...
               </>
             ) : (
-              "Create v0 chat"
+              <>
+                Create v0 chat
+                <span className="ml-2">→</span>
+              </>
             )}
           </Button>
         </CardFooter>
