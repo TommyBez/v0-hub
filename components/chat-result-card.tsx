@@ -30,7 +30,7 @@ export default function ChatResultCard({ chatData }: ChatResultCardProps) {
     <Card className="animate-in fade-in-50">
       <CardHeader>
         <CardTitle>Chat Created!</CardTitle>
-        <CardDescription>Your new chat instance is ready. Open it and fork!</CardDescription>
+        <CardDescription>Your new chat instance is ready. Open it and fork!.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
@@ -53,23 +53,6 @@ export default function ChatResultCard({ chatData }: ChatResultCardProps) {
             </a>
           </div>
         </div>
-
-        {chatData.demo && (
-          <div className="space-y-2">
-            <Label>Demo URL</Label>
-            <div className="flex items-center gap-2">
-              <Input readOnly value={chatData.shortDemoUrl || chatData.demo} className="flex-1" />
-              <Button 
-                variant="outline" 
-                size="icon" 
-                onClick={() => copyToClipboard(chatData.shortDemoUrl || chatData.demo)}
-              >
-                <Copy className="h-4 w-4" />
-                <span className="sr-only">Copy Demo URL</span>
-              </Button>
-            </div>
-          </div>
-        )}
       </CardContent>
     </Card>
   )
