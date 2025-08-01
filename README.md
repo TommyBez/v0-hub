@@ -22,26 +22,26 @@ Before you begin, ensure you have:
 ## Setup
 
 1. Clone this repository:
-   ```bash
+   \`\`\`bash
    git clone <your-repo-url>
    cd <your-repo-name>
-   ```
+   \`\`\`
 
 2. Install dependencies:
-   ```bash
+   \`\`\`bash
    pnpm install
-   ```
+   \`\`\`
 
 3. Create a `.env.local` file in the root directory and add your API keys:
-   ```env
+   \`\`\`env
    V0_API_KEY=your_v0_api_key_here
    DUB_API_KEY=your_dub_api_key_here
-   ```
+   \`\`\`
 
 4. Run the development server:
-   ```bash
+   \`\`\`bash
    pnpm dev
-   ```
+   \`\`\`
 
 5. Open [http://localhost:3000](http://localhost:3000) in your browser
 

@@ -14,9 +14,9 @@ When you create a v0 chat from a GitHub repository, the application automaticall
 
 ### 1. Chat Creation Flow
 
-```
+\`\`\`
 User enters GitHub URL → v0 creates chat → Dub creates short links → User gets shortened URLs
-```
+\`\`\`
 
 ### 2. Generated Links
 
@@ -32,9 +32,9 @@ The integration is intentionally kept simple - it only creates basic short links
 
 1. Get a Dub API key from [dub.co/settings/api-keys](https://dub.co/settings/api-keys)
 2. Add it to your `.env.local` file:
-   ```env
+   \`\`\`env
    DUB_API_KEY=your_dub_api_key_here
-   ```
+   \`\`\`
 
 That's it! No additional configuration is needed.
 
@@ -42,9 +42,9 @@ That's it! No additional configuration is needed.
 
 Run the test script to verify your Dub setup:
 
-```bash
+\`\`\`bash
 pnpm test-dub
-```
+\`\`\`
 
 This will:
 1. Create a test short link

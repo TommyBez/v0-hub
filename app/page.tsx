@@ -189,7 +189,7 @@ export default function BootstrapPage() {
           <Card className="animate-in fade-in-50">
             <CardHeader>
               <CardTitle>Chat Created!</CardTitle>
-              <CardDescription>Your new chat instance is ready. You can view it or embed it.</CardDescription>
+              <CardDescription>Your new chat instance is ready. Open it and fork!.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">

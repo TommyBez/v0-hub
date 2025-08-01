@@ -35,7 +35,7 @@ All colors in the application should use the predefined CSS custom properties fr
 
 Use Tailwind's color utility classes that reference our design system:
 
-```tsx
+\`\`\`tsx
 // ✅ Good
 <div className="bg-primary text-primary-foreground">
   <p className="text-muted-foreground">Subtitle</p>
@@ -45,13 +45,13 @@ Use Tailwind's color utility classes that reference our design system:
 <div style={{ backgroundColor: '#5854d6' }}>
   <p style={{ color: '#666' }}>Subtitle</p>
 </div>
-```
+\`\`\`
 
 ### 2. No Hardcoded Colors
 
 Never use hardcoded color values in your code:
 
-```tsx
+\`\`\`tsx
 // ❌ Bad - hardcoded hex colors
 <div className="bg-[#5854d6]" />
 
@@ -60,13 +60,13 @@ Never use hardcoded color values in your code:
 
 // ✅ Good - design system colors
 <div className="bg-primary" />
-```
+\`\`\`
 
 ### 3. Chart Colors
 
 When using the Chart component, use the `createChartConfig` utility:
 
-```tsx
+\`\`\`tsx
 import { createChartConfig } from "@/lib/chart-utils"
 
 // ✅ Good - using design system colors
@@ -88,13 +88,13 @@ const chartConfig = {
     color: "#5854d6"
   }
 }
-```
+\`\`\`
 
 ### 4. Dynamic Colors
 
 If you need to apply colors dynamically, use CSS custom properties:
 
-```tsx
+\`\`\`tsx
 // ✅ Good - using CSS variables
 <div 
   style={{
@@ -109,32 +109,32 @@ If you need to apply colors dynamically, use CSS custom properties:
     backgroundColor: props.isPrimary ? '#5854d6' : '#868e96'
   }}
 />
-```
+\`\`\`
 
 ### 5. Opacity and Color Modifications
 
 When you need transparency, use Tailwind's opacity modifiers:
 
-```tsx
+\`\`\`tsx
 // ✅ Good
 <div className="bg-primary/50" /> // 50% opacity
 <div className="text-muted-foreground/70" /> // 70% opacity
 
 // ❌ Bad
 <div style={{ backgroundColor: 'rgba(88, 84, 214, 0.5)' }} />
-```
+\`\`\`
 
 ### 6. Dark Mode Support
 
 All design system colors automatically adapt to dark mode. Never hardcode different colors for dark mode:
 
-```tsx
+\`\`\`tsx
 // ✅ Good - automatic dark mode support
 <div className="bg-background text-foreground" />
 
 // ❌ Bad - manual dark mode handling
 <div className={isDark ? 'bg-gray-900' : 'bg-white'} />
-```
+\`\`\`
 
 ## ESLint Rules
 
