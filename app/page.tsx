@@ -10,7 +10,6 @@ export default function HomePage() {
           title="Explore GitHub Repository"
           description="Enter a GitHub repository URL to explore its code and create a v0 chat instance."
           buttonText="View Repository"
-          navigateOnSubmit={true}
         />
       </div>
     </div>

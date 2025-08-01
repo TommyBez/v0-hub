@@ -16,8 +16,6 @@ interface RepositorySelectionCardProps {
   title?: string
   description?: string
   buttonText?: string
-  onSubmit?: (repoUrl: string, branch: string) => void | Promise<void>
-  navigateOnSubmit?: boolean
   disabled?: boolean
 }
 
@@ -25,8 +23,6 @@ export default function RepositorySelectionCard({
   title = "Bootstrap Chat from GitHub",
   description = "Initialize a new v0 chat instance from a public GitHub repository.",
   buttonText = "Bootstrap Chat",
-  onSubmit,
-  navigateOnSubmit = false,
   disabled = false,
 }: RepositorySelectionCardProps) {
   const router = useRouter()
@@ -92,19 +88,14 @@ export default function RepositorySelectionCard({
     setIsSubmitting(true)
 
     try {
-      if (navigateOnSubmit) {
-        // Extract owner and repo from URL
-        const match = repoUrl.match(/^https:\/\/github\.com\/([^/]+)\/([^/]+)(?:\.git)?(?:\/)?$/)
-        if (match) {
-          const [, owner, repo] = match
-          router.push(`/${owner}/${repo}/tree/${selectedBranch}`)
-        }
-      } else if (onSubmit) {
-        await onSubmit(repoUrl, selectedBranch)
+      // Extract owner and repo from URL
+      const match = repoUrl.match(/^https:\/\/github\.com\/([^/]+)\/([^/]+)(?:\.git)?(?:\/)?$/)
+      if (match) {
+        const [, owner, repo] = match
+        router.push(`/${owner}/${repo}/tree/${selectedBranch}`)
       }
     } catch (error) {
       toast.error("An error occurred")
-    } finally {
       setIsSubmitting(false)
     }
   }

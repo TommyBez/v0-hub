@@ -37,7 +37,6 @@ export default async function RepositoryPage({ params }: PageProps) {
           title="Select Branch"
           description={`Choose a branch from ${user}/${repository} to explore`}
           buttonText="View Repository"
-          navigateOnSubmit={true}
         />
       </div>
     </div>
