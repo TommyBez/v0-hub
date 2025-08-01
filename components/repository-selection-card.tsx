@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { fetchGitHubBranches } from "@/app/actions"
@@ -35,6 +35,9 @@ export default function RepositorySelectionCard({
   const [branchError, setBranchError] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [extractedBranch, setExtractedBranch] = useState<string | null>(null)
+  
+  // Use ref to persist extracted branch across renders
+  const extractedBranchRef = useRef<string | null>(null)
 
   // Function to parse GitHub URL and extract branch if present
   const parseGitHubUrl = (url: string): { baseUrl: string; branch?: string } => {
@@ -72,8 +75,12 @@ export default function RepositorySelectionCard({
     // Store extracted branch to use when branches are fetched
     if (branch) {
       setExtractedBranch(branch)
+      extractedBranchRef.current = branch
+      // Show a toast to indicate branch was extracted
+      toast.info(`Branch "${branch}" detected from URL`)
     } else {
       setExtractedBranch(null)
+      extractedBranchRef.current = null
     }
   }
 
@@ -106,15 +113,17 @@ export default function RepositorySelectionCard({
         
         // If we extracted a branch from the URL, try to match it with actual branches
         let defaultBranch: string
-        if (extractedBranch) {
+        const extractedBranchValue = extractedBranchRef.current
+        
+        if (extractedBranchValue) {
           // First, check if the extracted branch exactly matches a branch
-          if (result.branches.includes(extractedBranch)) {
-            defaultBranch = extractedBranch
+          if (result.branches.includes(extractedBranchValue)) {
+            defaultBranch = extractedBranchValue
           } else {
             // If not, check if any branch matches the beginning of the extracted string
             // This handles cases like "main/src/index.js" where "main" is the branch
             const matchingBranch = result.branches.find(branch => 
-              extractedBranch.startsWith(branch + '/') || extractedBranch === branch
+              extractedBranchValue.startsWith(branch + '/') || extractedBranchValue === branch
             )
             
             if (matchingBranch) {
@@ -136,7 +145,22 @@ export default function RepositorySelectionCard({
         }
         
         setSelectedBranch(defaultBranch)
-        toast.success(`Found ${result.branches.length} branches`)
+        
+        // Show appropriate toast message
+        if (extractedBranchValue && defaultBranch === extractedBranchValue) {
+          toast.success(`Found ${result.branches.length} branches. Selected "${extractedBranchValue}" as specified in URL.`)
+        } else if (extractedBranchValue && defaultBranch !== extractedBranchValue) {
+          const partialMatch = result.branches.find(branch => 
+            extractedBranchValue.startsWith(branch + '/')
+          )
+          if (partialMatch) {
+            toast.success(`Found ${result.branches.length} branches. Selected "${partialMatch}" from URL path.`)
+          } else {
+            toast.warning(`Found ${result.branches.length} branches. Branch "${extractedBranchValue}" not found, using "${defaultBranch}" instead.`)
+          }
+        } else {
+          toast.success(`Found ${result.branches.length} branches`)
+        }
       } else {
         setBranchError(result.error || "Failed to fetch branches")
         toast.error(result.error || "Failed to fetch branches")
