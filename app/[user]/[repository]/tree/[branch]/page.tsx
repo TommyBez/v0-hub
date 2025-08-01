@@ -2,15 +2,15 @@ import { createV0Chat, type ChatCreationResult } from "@/app/actions"
 import ChatResultCard from "@/components/chat-result-card"
 
 interface PageProps {
-  params: {
+  params: Promise<{
     user: string
     repository: string
     branch: string
-  }
+  }>
 }
 
 export default async function DynamicBootstrapPage({ params }: PageProps) {
-  const { user, repository, branch } = params
+  const { user, repository, branch } = await params
 
   // Construct the GitHub URL from params
   const repoUrl = `https://github.com/${user}/${repository}`
