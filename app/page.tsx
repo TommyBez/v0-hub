@@ -19,26 +19,26 @@ export default function HomePage() {
             {/* Badge */}
             <Badge variant="secondary" className="px-4 py-1.5 text-sm animate-fade-in">
               <Sparkles className="mr-2 h-3.5 w-3.5" />
-              Powered by v0 and GitHub
+              Powered by v0 agent and GitHub
             </Badge>
             
             {/* Main headline */}
             <div className="space-y-4 animate-fade-in animation-delay-150">
               <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-                Explore GitHub repositories
-                <span className="block text-primary">with v0</span>
+                Work on any GitHub repo
+                <span className="block text-primary">with v0 agent</span>
               </h1>
               <p className="mx-auto max-w-2xl text-lg text-muted-foreground md:text-xl">
-                Enter a GitHub repository URL, select a branch, and create a v0 chat instance 
-                to explore and understand the codebase.
+                Bootstrap a v0 agent from any GitHub repository. Let AI help you understand, 
+                modify, and improve codebases with intelligent assistance.
               </p>
             </div>
             
             {/* Main CTA Card */}
             <div className="w-full max-w-2xl animate-fade-in animation-delay-300">
               <RepositorySelectionCard
-                title="Start Exploring"
-                description="Enter any public GitHub repository URL and select a branch to begin."
+                title="Start Working"
+                description="Enter any public GitHub repository URL and select a branch to bootstrap your v0 agent."
               />
             </div>
           </div>
