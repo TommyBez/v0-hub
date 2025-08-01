@@ -63,18 +63,6 @@ For self-hosting:
    
    Open [http://localhost:3000](http://localhost:3000) and paste any GitHub repo URL
 
-## 💡 Use Cases
-
-v0hub + v0 agent is perfect for:
-
-- **Code Review**: Understand pull requests by exploring the full codebase context
-- **Learning**: Study how popular open-source projects are built
-- **Debugging**: Trace issues across complex codebases with AI assistance
-- **Contributing**: Understand a project before making your first contribution
-- **Prototyping**: Test ideas on existing codebases without local setup
-- **Documentation**: Generate explanations for undocumented code
-- **Refactoring**: Plan and execute code improvements with full context
-
 ## 🔧 How It Works
 
 1. **Paste Repository URL**: Any public GitHub repository
