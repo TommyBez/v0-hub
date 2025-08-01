@@ -28,6 +28,15 @@ interface BootstrapState {
   } | null
 }
 
+// Define the interface for the chat creation result
+export interface ChatCreationResult {
+  id: string
+  url: string
+  demo: string
+  shortUrl?: string
+  shortDemoUrl?: string
+}
+
 async function createShortLink(longUrl: string): Promise<string | null> {
   // Initialize Dub client
   const dub = new Dub({
@@ -57,6 +66,53 @@ function generateChatName(repoUrl: string, branch: string): string {
   return shouldIncludeBranch ? `[v0hub] ${repoName} - ${branch}` : `[v0hub] ${repoName}`
 }
 
+// Extracted core chat creation logic that can be used by both server actions and server components
+export async function createV0Chat(repoUrl: string, branch: string): Promise<ChatCreationResult> {
+  // The SDK automatically uses the V0_API_KEY environment variable
+  if (!process.env.V0_API_KEY) {
+    throw new Error("V0_API_KEY is not set on the server.")
+  }
+
+  // Check if Dub API key is configured
+  if (!process.env.DUB_API_KEY) {
+    console.warn("DUB_API_KEY is not set. Short links will not be generated.")
+  }
+
+  // Generate custom chat name
+  const chatName = generateChatName(repoUrl, branch)
+
+  const chat = await v0.chats.init({
+    type: "repo",
+    repo: {
+      url: repoUrl,
+      branch: branch,
+    },
+    chatPrivacy: "public",
+    name: chatName,
+  })
+
+  // Generate short links for the chat URL and demo URL
+  let shortUrl: string | undefined
+  let shortDemoUrl: string | undefined
+
+  if (process.env.DUB_API_KEY) {
+    // Create short links
+    const shortUrlResult = await createShortLink(chat.url)
+    const shortDemoUrlResult = await createShortLink(chat.demo)
+
+    if (shortUrlResult) shortUrl = shortUrlResult
+    if (shortDemoUrlResult) shortDemoUrl = shortDemoUrlResult
+  }
+
+  return {
+    id: chat.id,
+    url: chat.url,
+    demo: chat.demo,
+    shortUrl,
+    shortDemoUrl,
+  }
+}
+
 export async function bootstrapChatFromRepo(prevState: BootstrapState, formData: FormData): Promise<BootstrapState> {
   const validatedFields = bootstrapSchema.safeParse({
     repoUrl: formData.get("repoUrl"),
@@ -74,58 +130,13 @@ export async function bootstrapChatFromRepo(prevState: BootstrapState, formData:
 
   const { repoUrl, branch } = validatedFields.data
 
-  // The SDK automatically uses the V0_API_KEY environment variable
-  if (!process.env.V0_API_KEY) {
-    const message = "V0_API_KEY is not set on the server."
-    console.error(message)
-    return {
-      success: false,
-      message: "Server configuration error. Please contact support.",
-    }
-  }
-
-  // Check if Dub API key is configured
-  if (!process.env.DUB_API_KEY) {
-    console.warn("DUB_API_KEY is not set. Short links will not be generated.")
-  }
-
   try {
-    // Generate custom chat name
-    const chatName = generateChatName(repoUrl, branch)
-
-    const chat = await v0.chats.init({
-      type: "repo",
-      repo: {
-        url: repoUrl,
-        branch: branch,
-      },
-      chatPrivacy: "public",
-      name: chatName,
-    })
-
-    // Generate short links for the chat URL and demo URL
-    let shortUrl: string | undefined
-    let shortDemoUrl: string | undefined
-
-    if (process.env.DUB_API_KEY) {
-      // Create short links
-      const shortUrlResult = await createShortLink(chat.url)
-      const shortDemoUrlResult = await createShortLink(chat.demo)
-
-      if (shortUrlResult) shortUrl = shortUrlResult
-      if (shortDemoUrlResult) shortDemoUrl = shortDemoUrlResult
-    }
+    const chatData = await createV0Chat(repoUrl, branch)
 
     return {
       success: true,
       message: "Chat bootstrapped successfully!",
-      data: {
-        id: chat.id,
-        url: chat.url,
-        demo: chat.demo,
-        shortUrl,
-        shortDemoUrl,
-      },
+      data: chatData,
     }
   } catch (error) {
     console.error("Error bootstrapping chat:", error)
