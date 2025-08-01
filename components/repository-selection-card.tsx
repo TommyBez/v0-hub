@@ -15,14 +15,12 @@ import { SiGithub } from "@icons-pack/react-simple-icons"
 interface RepositorySelectionCardProps {
   title?: string
   description?: string
-  buttonText?: string
   disabled?: boolean
 }
 
 export default function RepositorySelectionCard({
   title = "Bootstrap Chat from GitHub",
   description = "Initialize a new v0 chat instance from a public GitHub repository.",
-  buttonText = "Bootstrap Chat",
   disabled = false,
 }: RepositorySelectionCardProps) {
   const router = useRouter()
@@ -182,7 +180,7 @@ export default function RepositorySelectionCard({
                 Loading...
               </>
             ) : (
-              buttonText
+              "Create v0 chat"
             )}
           </Button>
         </CardFooter>
