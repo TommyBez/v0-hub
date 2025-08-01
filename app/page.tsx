@@ -8,8 +8,8 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Loader2, ExternalLink, Copy, GitBranch } from "lucide-react"
-import { SiGithub } from "@icons-pack/react-simple-icons"
+import { Loader2, Copy, GitBranch } from "lucide-react"
+import { SiGithub, SiV0 } from "@icons-pack/react-simple-icons"
 
 const initialState = {
   success: false,
@@ -202,9 +202,9 @@ export default function BootstrapPage() {
                     <span className="sr-only">Copy URL</span>
                   </Button>
                   <a href={state.data.shortUrl || state.data.url} target="_blank" rel="noopener noreferrer">
-                    <Button variant="default" size="sm" className="gap-2">
-                      <span className="font-mono font-semibold">v0</span>
-                      <ExternalLink className="h-3.5 w-3.5" />
+                    <Button variant="default" size="icon">
+                      <SiV0 className="h-4 w-4" />
+                      <span className="sr-only">Open v0 chat</span>
                     </Button>
                   </a>
                 </div>
