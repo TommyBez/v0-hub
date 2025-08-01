@@ -201,18 +201,12 @@ importers:
       '@types/react-dom':
         specifier: ^19
         version: 19.0.0
-      dotenv:
-        specifier: ^17.2.1
-        version: 17.2.1
       postcss:
         specifier: ^8.5
         version: 8.5.0
       tailwindcss:
         specifier: ^4.1.11
         version: 4.1.11
-      tsx:
-        specifier: ^4.20.3
-        version: 4.20.3
       tw-animate-css:
         specifier: 1.3.3
         version: 1.3.3
@@ -1807,10 +1801,6 @@ packages:
 
   devalue@5.1.1:
     resolution: {integrity: sha512-maua5KUiapvEwiEAe+XnlZ3Rh0GD+qI1J/nb9vrJc3muPXvcF/8gXYTWF76+5DAqHyDUtOIImEuo0YKE9mshVw==}
-
-  dotenv@17.2.1:
-    resolution: {integrity: sha512-kQhDYKZecqnM0fCnzI5eIv5L4cAe/iRI+HqMbO/hbRdTAeXDG+M9FjipUxNfbARuEg4iHIbhnhs78BCHNbSxEQ==}
-    engines: {node: '>=12'}
 
   dub@0.64.2:
     resolution: {integrity: sha512-9Zn+kN1tix/qgPUe+8W4tX3XbcqueUuyHDuW4X+GKG/PDZ+vgXR0aQPk9gy6IWuffaJIaknwXtYslzS+2zfNTg==}
@@ -4183,8 +4173,6 @@ snapshots:
 
   devalue@5.1.1: {}
 
-  dotenv@17.2.1: {}
-
   dub@0.64.2(@modelcontextprotocol/sdk@1.17.1)(zod@3.25.67):
     dependencies:
       zod: 3.25.67
@@ -4376,6 +4364,7 @@ snapshots:
   get-tsconfig@4.10.1:
     dependencies:
       resolve-pkg-maps: 1.0.0
+    optional: true
 
   gopd@1.2.0: {}
 
@@ -4722,7 +4711,8 @@ snapshots:
 
   reselect@5.1.1: {}
 
-  resolve-pkg-maps@1.0.0: {}
+  resolve-pkg-maps@1.0.0:
+    optional: true
 
   rollup@4.46.2:
     dependencies:
@@ -4949,6 +4939,7 @@ snapshots:
       get-tsconfig: 4.10.1
     optionalDependencies:
       fsevents: 2.3.3
+    optional: true
 
   turbo-stream@2.4.1: {}
 
