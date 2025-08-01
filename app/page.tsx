@@ -29,7 +29,7 @@ export default function HomePage() {
                 <span className="block text-primary">with v0 agent</span>
               </h1>
               <p className="mx-auto max-w-2xl text-lg text-muted-foreground md:text-xl">
-                Bootstrap a v0 agent from any GitHub repository. Let AI help you understand, 
+                Bootstrap a v0 chat from any public GitHub repository. Let AI help you understand, 
                 modify, and improve codebases with intelligent assistance.
               </p>
             </div>
