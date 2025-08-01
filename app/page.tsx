@@ -19,7 +19,7 @@ export default function HomePage() {
             {/* Badge */}
             <Badge variant="secondary" className="px-4 py-1.5 text-sm animate-fade-in">
               <Sparkles className="mr-2 h-3.5 w-3.5" />
-              Powered by v0 agent and GitHub
+              Powered by v0 sdk and GitHub
             </Badge>
             
             {/* Main headline */}
