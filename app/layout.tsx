@@ -5,11 +5,13 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { Analytics } from '@vercel/analytics/next'
+import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "v0 GitHub Bootstrapper",
+  title: "v0hub - GitHub Repository Bootstrapper",
   description: "Bootstrap a v0 chat from a GitHub repository.",
   generator: "v0.dev",
 }
@@ -23,7 +25,11 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystemTransition disableTransitionOnChange>
-          {children}
+          <div className="relative flex min-h-screen flex-col">
+            <Header />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </div>
           <Toaster richColors />
         </ThemeProvider>
         <Analytics mode="production" />
