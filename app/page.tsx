@@ -53,9 +53,11 @@ export default function BootstrapPage() {
 
       if (result.success && result.branches) {
         setBranches(result.branches)
-        // Auto-select main/master branch if available
+        // Prioritize "main" over "master", then fall back to first branch
         const defaultBranch =
-          result.branches.find((branch) => branch === "main" || branch === "master") || result.branches[0]
+          result.branches.find((branch) => branch === "main") ||
+          result.branches.find((branch) => branch === "master") ||
+          result.branches[0]
         setSelectedBranch(defaultBranch)
         toast.success(`Found ${result.branches.length} branches`)
       } else {
@@ -154,10 +156,7 @@ export default function BootstrapPage() {
                     <SelectContent>
                       {branches.map((branch) => (
                         <SelectItem key={branch} value={branch}>
-                          <div className="flex items-center gap-2">
-                            
-                            {branch}
-                          </div>
+                          {branch}
                         </SelectItem>
                       ))}
                     </SelectContent>
