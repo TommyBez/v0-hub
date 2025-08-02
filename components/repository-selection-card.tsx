@@ -78,7 +78,7 @@ export default function RepositorySelectionCard({
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       if (repoUrl && repoUrl.match(/^https:\/\/github\.com\/[^/]+\/[^/]+(?:\.git)?(?:\/)?$/)) {
-        fetchBranches(repoUrl)
+        fetchBranches(repoUrl, extractedBranch)
       } else {
         setBranches([])
         setSelectedBranch("")
@@ -88,9 +88,9 @@ export default function RepositorySelectionCard({
     }, 500)
 
     return () => clearTimeout(timeoutId)
-  }, [repoUrl])
+  }, [repoUrl, extractedBranch])
 
-  const fetchBranches = async (url: string) => {
+  const fetchBranches = async (url: string, targetBranch?: string) => {
     setIsFetchingBranches(true)
     setBranchError("")
     setBranches([])
@@ -103,23 +103,23 @@ export default function RepositorySelectionCard({
         setBranches(result.branches)
         
         // Determine default branch priority:
-        // 1. Extracted branch from URL (if it exists in the repository)
+        // 1. Target branch (extracted from URL, if it exists in the repository)
         // 2. "main" branch
         // 3. "master" branch  
         // 4. First branch in the list
         let defaultBranch: string
         
-        if (extractedBranch && result.branches.includes(extractedBranch)) {
-          defaultBranch = extractedBranch
-          toast.success(`Using branch "${extractedBranch}" from URL`)
+        if (targetBranch && result.branches.includes(targetBranch)) {
+          defaultBranch = targetBranch
+          toast.success(`Using branch "${targetBranch}" from URL`)
         } else {
           defaultBranch =
             result.branches.find((branch) => branch === "main") ||
             result.branches.find((branch) => branch === "master") ||
             result.branches[0]
           
-          if (extractedBranch && !result.branches.includes(extractedBranch)) {
-            toast.warning(`Branch "${extractedBranch}" not found. Using "${defaultBranch}" instead.`)
+          if (targetBranch && !result.branches.includes(targetBranch)) {
+            toast.warning(`Branch "${targetBranch}" not found. Using "${defaultBranch}" instead.`)
           } else {
             toast.success(`Found ${result.branches.length} branches`)
           }
