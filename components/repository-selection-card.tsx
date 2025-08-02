@@ -76,7 +76,7 @@ export default function RepositorySelectionCard({
     setIsFetchingBranches(true)
     setBranchError("")
     setBranches([])
-    setSelectedBranch("")
+    // Do not reset the selected branch here so we can preserve a pre-selected value (e.g., extracted from the URL)
 
     try {
       const result = await fetchGitHubBranches(url)
