@@ -30,7 +30,7 @@ export default function RepositorySelectionCard({
   // Branch fetching state
   const [repoUrl, setRepoUrl] = useState("")
   const [branches, setBranches] = useState<string[]>([])
-  const [selectedBranch, setSelectedBranch] = useState("")
+  const [selectedBranch, setSelectedBranch] = useState<string | undefined>(undefined)
   const [isFetchingBranches, setIsFetchingBranches] = useState(false)
   const [branchError, setBranchError] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -40,7 +40,7 @@ export default function RepositorySelectionCard({
     const timeoutId = setTimeout(() => {
       if (!repoUrl) {
         setBranches([])
-        setSelectedBranch("")
+        setSelectedBranch(undefined)
         setBranchError("")
         return
       }
@@ -64,7 +64,7 @@ export default function RepositorySelectionCard({
         fetchBranches(repoUrl)
       } else {
         setBranches([])
-        setSelectedBranch("")
+        setSelectedBranch(undefined)
         setBranchError("")
       }
     }, 500)
@@ -160,7 +160,7 @@ export default function RepositorySelectionCard({
             <Label htmlFor="branch" className="text-base font-medium">Branch</Label>
             <div className="relative">
               <Select
-                value={selectedBranch}
+                value={selectedBranch || undefined}
                 onValueChange={setSelectedBranch}
                 disabled={disabled || isSubmitting || isFetchingBranches || branches.length === 0}
               >
