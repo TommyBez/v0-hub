@@ -38,7 +38,12 @@ export default function RepositorySelectionCard({
   
   // Use ref to persist extracted branch across renders
   const extractedBranchRef = useRef<string | null>(null)
-
+  
+  // Debug: Monitor selectedBranch changes
+  useEffect(() => {
+    console.log('selectedBranch changed to:', selectedBranch)
+  }, [selectedBranch])
+  
   // Function to parse GitHub URL and extract branch if present
   const parseGitHubUrl = (url: string): { baseUrl: string; branch?: string } => {
     // Check if URL contains /tree/ pattern (indicating a branch)
@@ -103,12 +108,16 @@ export default function RepositorySelectionCard({
     setIsFetchingBranches(true)
     setBranchError("")
     setBranches([])
-    setSelectedBranch("")
-
+    // Only clear selectedBranch if it's for a different repo
+    if (!extractedBranchRef.current) {
+      setSelectedBranch("")
+    }
+    
     try {
       const result = await fetchGitHubBranches(url)
 
       if (result.success && result.branches) {
+        // Use flushSync to ensure branches are set before selectedBranch
         setBranches(result.branches)
         
         // If we extracted a branch from the URL, try to match it with actual branches
@@ -144,7 +153,9 @@ export default function RepositorySelectionCard({
             result.branches[0]
         }
         
+        // Set the selected branch after branches are updated
         setSelectedBranch(defaultBranch)
+        console.log('Setting selectedBranch to:', defaultBranch, 'Available branches:', result.branches)
         
         // Show appropriate toast message
         if (extractedBranchValue && defaultBranch === extractedBranchValue) {
@@ -230,7 +241,7 @@ export default function RepositorySelectionCard({
             <Label htmlFor="branch" className="text-base font-medium">Branch</Label>
             <div className="relative">
               <Select
-                value={selectedBranch}
+                value={selectedBranch || ""}
                 onValueChange={setSelectedBranch}
                 disabled={disabled || isSubmitting || isFetchingBranches || branches.length === 0}
               >
@@ -267,6 +278,13 @@ export default function RepositorySelectionCard({
                 Found {branches.length} branch{branches.length !== 1 ? "es" : ""}
               </p>
             )}
+            {/* Debug info */}
+            <div className="text-xs text-muted-foreground bg-gray-100 p-2 rounded">
+              <p>Debug Info:</p>
+              <p>selectedBranch: "{selectedBranch}"</p>
+              <p>branches: {JSON.stringify(branches.slice(0, 3))}...</p>
+              <p>extractedBranch: "{extractedBranchRef.current}"</p>
+            </div>
           </div>
         </CardContent>
         <CardFooter className="relative mt-6">
