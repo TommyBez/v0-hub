@@ -39,10 +39,13 @@ export default function RepositorySelectionCard({
   // Use ref to persist extracted branch across renders
   const extractedBranchRef = useRef<string | null>(null)
   
-  // Debug: Monitor selectedBranch changes
+  // Clear extracted branch when repo changes without branch info
   useEffect(() => {
-    console.log('selectedBranch changed to:', selectedBranch)
-  }, [selectedBranch])
+    // If repoUrl changed and doesn't contain /tree/, clear the extracted branch
+    if (repoUrl && !repoUrl.includes('/tree/')) {
+      extractedBranchRef.current = null
+    }
+  }, [repoUrl])
   
   // Function to parse GitHub URL and extract branch if present
   const parseGitHubUrl = (url: string): { baseUrl: string; branch?: string } => {
@@ -154,8 +157,10 @@ export default function RepositorySelectionCard({
         }
         
         // Set the selected branch after branches are updated
-        setSelectedBranch(defaultBranch)
-        console.log('Setting selectedBranch to:', defaultBranch, 'Available branches:', result.branches)
+        // Small delay to ensure DOM is ready
+        setTimeout(() => {
+          setSelectedBranch(defaultBranch)
+        }, 100)
         
         // Show appropriate toast message
         if (extractedBranchValue && defaultBranch === extractedBranchValue) {
@@ -241,7 +246,8 @@ export default function RepositorySelectionCard({
             <Label htmlFor="branch" className="text-base font-medium">Branch</Label>
             <div className="relative">
               <Select
-                value={selectedBranch || ""}
+                key={branches.join(',')}
+                value={selectedBranch || undefined}
                 onValueChange={setSelectedBranch}
                 disabled={disabled || isSubmitting || isFetchingBranches || branches.length === 0}
               >
@@ -282,6 +288,8 @@ export default function RepositorySelectionCard({
             <div className="text-xs text-muted-foreground bg-gray-100 p-2 rounded">
               <p>Debug Info:</p>
               <p>selectedBranch: "{selectedBranch}"</p>
+              <p>selectedBranch type: {typeof selectedBranch}</p>
+              <p>selectedBranch in branches: {branches.includes(selectedBranch) ? 'YES' : 'NO'}</p>
               <p>branches: {JSON.stringify(branches.slice(0, 3))}...</p>
               <p>extractedBranch: "{extractedBranchRef.current}"</p>
             </div>
