@@ -38,7 +38,29 @@ export default function RepositorySelectionCard({
   // Debounce repo URL changes
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      if (repoUrl && repoUrl.match(/^https:\/\/github\.com\/[^/]+\/[^/]+(?:\.git)?(?:\/)?$/)) {
+      if (!repoUrl) {
+        setBranches([])
+        setSelectedBranch("")
+        setBranchError("")
+        return
+      }
+
+      // If the user pasted a full branch link, extract the base repo URL and the branch name
+      const branchUrlMatch = repoUrl.match(/^https:\/\/github\.com\/([^/]+)\/([^/]+)\/tree\/(.+?)(?:\/?$)/)
+      if (branchUrlMatch) {
+        const [, owner, repo, branch] = branchUrlMatch
+        const baseUrl = `https://github.com/${owner}/${repo}`
+
+        // Prefill the branch select with the detected branch
+        setSelectedBranch(branch)
+        // Replace the URL in the input with the cleaned base URL
+        setRepoUrl(baseUrl)
+        // We return here because the effect will run again with the cleaned URL
+        return
+      }
+
+      // Match simple repo URLs (with optional .git and trailing slash)
+      if (repoUrl.match(/^https:\/\/github\.com\/[^/]+\/[^/]+(?:\.git)?(?:\/?$)/)) {
         fetchBranches(repoUrl)
       } else {
         setBranches([])
@@ -61,8 +83,9 @@ export default function RepositorySelectionCard({
 
       if (result.success && result.branches) {
         setBranches(result.branches)
-        // Prioritize "main" over "master", then fall back to first branch
+        // Determine the default branch: prioritize previously selected (if available and valid), then "main", then "master", then first branch
         const defaultBranch =
+          (selectedBranch && result.branches.includes(selectedBranch) && selectedBranch) ||
           result.branches.find((branch) => branch === "main") ||
           result.branches.find((branch) => branch === "master") ||
           result.branches[0]
