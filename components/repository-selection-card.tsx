@@ -65,25 +65,29 @@ export default function RepositorySelectionCard({
   const handleRepoUrlChange = (value: string) => {
     const { cleanUrl, extractedBranch } = parseGitHubUrl(value)
     
+    // Update state
     setRepoUrl(cleanUrl)
+    
+    // Store the extracted branch for use in fetchBranches
     setExtractedBranch(extractedBranch)
     
     // If we extracted a branch, show a helpful message
-    if (extractedBranch && extractedBranch !== selectedBranch) {
+    if (extractedBranch) {
       toast.info(`Detected branch "${extractedBranch}" in URL`)
     }
   }
 
-  // Debounce repo URL changes
+  // Debounce repo URL changes and trigger branch fetching
   useEffect(() => {
+    // Clear previous state immediately when URL changes
+    setBranches([])
+    setSelectedBranch("")
+    setBranchError("")
+    
     const timeoutId = setTimeout(() => {
       if (repoUrl && repoUrl.match(/^https:\/\/github\.com\/[^/]+\/[^/]+(?:\.git)?(?:\/)?$/)) {
+        console.log('Fetching branches with extracted branch:', extractedBranch) // Debug log
         fetchBranches(repoUrl, extractedBranch)
-      } else {
-        setBranches([])
-        setSelectedBranch("")
-        setBranchError("")
-        setExtractedBranch(undefined)
       }
     }, 500)
 
@@ -91,6 +95,8 @@ export default function RepositorySelectionCard({
   }, [repoUrl, extractedBranch])
 
   const fetchBranches = async (url: string, targetBranch?: string) => {
+    console.log('fetchBranches called with:', { url, targetBranch }) // Debug log
+    
     setIsFetchingBranches(true)
     setBranchError("")
     setBranches([])
@@ -100,6 +106,7 @@ export default function RepositorySelectionCard({
       const result = await fetchGitHubBranches(url)
 
       if (result.success && result.branches) {
+        console.log('Branches fetched successfully:', result.branches) // Debug log
         setBranches(result.branches)
         
         // Determine default branch priority:
@@ -111,12 +118,15 @@ export default function RepositorySelectionCard({
         
         if (targetBranch && result.branches.includes(targetBranch)) {
           defaultBranch = targetBranch
+          console.log('Using target branch from URL:', defaultBranch) // Debug log
           toast.success(`Using branch "${targetBranch}" from URL`)
         } else {
           defaultBranch =
             result.branches.find((branch) => branch === "main") ||
             result.branches.find((branch) => branch === "master") ||
             result.branches[0]
+          
+          console.log('Using default branch:', defaultBranch) // Debug log
           
           if (targetBranch && !result.branches.includes(targetBranch)) {
             toast.warning(`Branch "${targetBranch}" not found. Using "${defaultBranch}" instead.`)
@@ -125,6 +135,7 @@ export default function RepositorySelectionCard({
           }
         }
         
+        console.log('Setting selected branch to:', defaultBranch) // Debug log
         setSelectedBranch(defaultBranch)
       } else {
         setBranchError(result.error || "Failed to fetch branches")
