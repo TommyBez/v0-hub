@@ -5,12 +5,15 @@ interface PageProps {
   params: Promise<{
     user: string
     repository: string
-    branch: string
+    branch: string[]
   }>
 }
 
 export default async function DynamicBootstrapPage({ params }: PageProps) {
   const { user, repository, branch } = await params
+  
+  // Join the branch array with slashes to handle branch names with slashes
+  const fullBranchName = branch.join('/')
 
   // Construct the GitHub URL from params
   const repoUrl = `https://github.com/${user}/${repository}`
@@ -20,7 +23,7 @@ export default async function DynamicBootstrapPage({ params }: PageProps) {
 
   try {
     // Create the v0 chat
-    chatData = await createV0Chat(repoUrl, branch)
+    chatData = await createV0Chat(repoUrl, fullBranchName)
   } catch (err) {
     error = err instanceof Error ? err.message : "Failed to bootstrap chat"
     console.error("Error bootstrapping chat:", err)
