@@ -1,5 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { db, users, type NewUser, type User } from './index';
+import { currentUser } from '@clerk/nextjs/server';
+import { cache } from 'react';
 
 // Create a new user
 export async function createUser(data: NewUser): Promise<User> {
@@ -39,6 +41,23 @@ export async function findOrCreateUser(data: {
     v0token: data.v0token,
   });
 }
+
+// Sync current Clerk user with database (combines currentUser + findOrCreateUser)
+async function syncCurrentUser(): Promise<User | null> {
+  const user = await currentUser();
+  
+  if (!user || !user.emailAddresses?.[0]?.emailAddress) {
+    return null;
+  }
+  
+  return findOrCreateUser({
+    clerkId: user.id,
+    email: user.emailAddresses[0].emailAddress,
+  });
+}
+
+// Export cached version of syncCurrentUser
+export const getCachedUser = cache(syncCurrentUser);
 
 // Update user's v0token
 export async function updateUserV0Token(clerkId: string, v0token: string): Promise<User | null> {
