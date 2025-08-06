@@ -23,7 +23,7 @@ export function Header() {
             <Link href="/tokens">
               <Button variant="ghost" size="sm" className="gap-2">
                 <Key className="h-4 w-4" />
-                <span className="hidden sm:inline">API Tokens</span>
+                <span className="hidden sm:inline">API Token</span>
               </Button>
             </Link>
           </SignedIn>

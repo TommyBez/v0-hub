@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { fetchGitHubBranches, getTokens, type V0Token } from "@/app/actions"
+import { fetchGitHubBranches, getUserToken } from "@/app/actions"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -49,31 +49,27 @@ export default function RepositorySelectionCard({
   
   // Private chat state
   const [isPrivateChat, setIsPrivateChat] = useState(false)
-  const [tokens, setTokens] = useState<V0Token[]>([])
-  const [selectedTokenId, setSelectedTokenId] = useState<string>("")
-  const [loadingTokens, setLoadingTokens] = useState(false)
+  const [hasToken, setHasToken] = useState(false)
   const [showAuthDialog, setShowAuthDialog] = useState(false)
+  const [showTokenDialog, setShowTokenDialog] = useState(false)
 
-  // Load tokens when private chat is enabled and user is signed in
+  // Check if user has token when private chat is enabled
   useEffect(() => {
     if (isPrivateChat && isSignedIn) {
-      loadTokens()
+      checkUserToken()
     }
   }, [isPrivateChat, isSignedIn])
 
-  const loadTokens = async () => {
-    setLoadingTokens(true)
+  const checkUserToken = async () => {
     try {
-      const userTokens = await getTokens()
-      setTokens(userTokens)
-      if (userTokens.length > 0) {
-        setSelectedTokenId(userTokens[0].id)
+      const { hasToken } = await getUserToken()
+      setHasToken(hasToken)
+      if (!hasToken) {
+        setShowTokenDialog(true)
+        setIsPrivateChat(false)
       }
     } catch (error) {
-      console.error("Failed to load tokens:", error)
-      toast.error("Failed to load your tokens")
-    } finally {
-      setLoadingTokens(false)
+      console.error("Failed to check token:", error)
     }
   }
 
@@ -134,11 +130,6 @@ export default function RepositorySelectionCard({
     e.preventDefault()
     
     if (!repoUrl || !selectedBranch) return
-    
-    if (isPrivateChat && !selectedTokenId) {
-      toast.error("Please select a token for private chat")
-      return
-    }
 
     setIsSubmitting(true)
 
@@ -148,8 +139,7 @@ export default function RepositorySelectionCard({
       if (match) {
         const [, owner, repo] = match
         const params = new URLSearchParams()
-        if (isPrivateChat && selectedTokenId) {
-          params.set("token", selectedTokenId)
+        if (isPrivateChat) {
           params.set("private", "true")
         }
         const queryString = params.toString()
@@ -261,47 +251,6 @@ export default function RepositorySelectionCard({
                   disabled={disabled || isSubmitting}
                 />
               </div>
-
-              {isPrivateChat && isSignedIn && (
-                <div className="space-y-2">
-                  <Label htmlFor="token" className="text-base font-medium">Select Token</Label>
-                  {loadingTokens ? (
-                    <div className="flex items-center justify-center py-4">
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                    </div>
-                  ) : tokens.length === 0 ? (
-                    <div className="text-center py-4 space-y-2">
-                      <p className="text-sm text-muted-foreground">No tokens found</p>
-                      <Link href="/tokens">
-                        <Button variant="outline" size="sm">
-                          <Key className="h-4 w-4 mr-2" />
-                          Add Token
-                        </Button>
-                      </Link>
-                    </div>
-                  ) : (
-                    <Select
-                      value={selectedTokenId}
-                      onValueChange={setSelectedTokenId}
-                      disabled={disabled || isSubmitting}
-                    >
-                      <SelectTrigger className="w-full h-12 text-base">
-                        <SelectValue placeholder="Select a token" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {tokens.map((token) => (
-                          <SelectItem key={token.id} value={token.id}>
-                            <div className="flex items-center gap-2">
-                              <Key className="h-4 w-4" />
-                              {token.name}
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                </div>
-              )}
             </div>
           </CardContent>
           <CardFooter className="relative mt-6">
@@ -313,8 +262,7 @@ export default function RepositorySelectionCard({
                 disabled || 
                 isSubmitting || 
                 !selectedBranch || 
-                isFetchingBranches ||
-                (isPrivateChat && (!selectedTokenId || tokens.length === 0))
+                isFetchingBranches
               }
             >
               {isSubmitting ? (
@@ -339,7 +287,7 @@ export default function RepositorySelectionCard({
           <DialogHeader>
             <DialogTitle>Sign In Required</DialogTitle>
             <DialogDescription>
-              You need to sign in to create private chats with your own v0 tokens.
+              You need to sign in to create private chats with your own v0 token.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -348,6 +296,28 @@ export default function RepositorySelectionCard({
             </Button>
             <Link href="/sign-in">
               <Button>Sign In</Button>
+            </Link>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showTokenDialog} onOpenChange={setShowTokenDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>v0 API Token Required</DialogTitle>
+            <DialogDescription>
+              You need to add your v0 API token before creating private chats.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowTokenDialog(false)}>
+              Cancel
+            </Button>
+            <Link href="/tokens">
+              <Button>
+                <Key className="h-4 w-4 mr-2" />
+                Add Token
+              </Button>
             </Link>
           </DialogFooter>
         </DialogContent>

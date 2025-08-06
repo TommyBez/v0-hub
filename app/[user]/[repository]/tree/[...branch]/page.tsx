@@ -20,17 +20,16 @@ export default async function DynamicBootstrapPage({ params, searchParams }: Pag
   // Construct the GitHub URL from params
   const repoUrl = `https://github.com/${user}/${repository}`
   
-  // Check for token parameter
-  const tokenId = searchParamsData.token as string | undefined
+  // Check if this should be a private chat
   const isPrivate = searchParamsData.private === 'true'
 
   let chatData: ChatCreationResult | null = null
   let error: string | null = null
 
   try {
-    // Create the v0 chat with or without token
-    if (tokenId && isPrivate) {
-      chatData = await createV0ChatWithToken(repoUrl, fullBranchName, tokenId)
+    // Create the v0 chat with or without user token
+    if (isPrivate) {
+      chatData = await createV0ChatWithToken(repoUrl, fullBranchName, true)
     } else {
       chatData = await createV0Chat(repoUrl, fullBranchName)
     }

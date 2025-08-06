@@ -13,9 +13,9 @@ export default async function TokensPage() {
     <div className="container py-10">
       <div className="mx-auto max-w-4xl">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">v0 API Tokens</h1>
+          <h1 className="text-3xl font-bold tracking-tight">v0 API Token</h1>
           <p className="text-muted-foreground mt-2">
-            Manage your personal v0 API tokens to create private chats. Your tokens are encrypted and stored securely.
+            Manage your personal v0 API token to create private chats. Your token is encrypted and stored securely.
           </p>
         </div>
         

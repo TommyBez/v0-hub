@@ -9,8 +9,8 @@ v0hub lets you paste a GitHub repository URL and create a v0 chat session for th
 ### Key Features
 
 - **Public Chats**: Create public v0 chats using the default API key
-- **Private Chats**: Sign in to create private chats using your personal v0 tokens
-- **Token Management**: Securely store and manage multiple v0 API tokens
+- **Private Chats**: Sign in to create private chats using your personal v0 token
+- **Secure Token Storage**: Your v0 API token is encrypted and stored securely
 - **Branch Selection**: Automatically fetches and lets you select repository branches
 - **URL Shortening**: Optional integration with Dub for creating short links
 
@@ -77,19 +77,17 @@ v0hub lets you paste a GitHub repository URL and create a v0 chat session for th
 
 ### Private Chats (Sign-in Required)
 1. Sign in with Clerk authentication
-2. Add your v0 API tokens via the "API Tokens" page
+2. Add your v0 API token via the "API Token" page
 3. Enter a GitHub repository URL
 4. Toggle "Private Chat" option
-5. Select your token
-6. Click "Create private chat"
+5. Click "Create private chat"
 
-## Managing API Tokens
+## Managing Your API Token
 
-1. Click "API Tokens" in the header (when signed in)
-2. Add new tokens with a friendly name
-3. Tokens are encrypted and stored securely
-4. Edit or delete tokens as needed
-5. Track when tokens were last used
+1. Click "API Token" in the header (when signed in)
+2. Enter your v0 API token
+3. Your token is encrypted and stored securely
+4. You can update or delete your token at any time
 
 ## Tech Stack
 
@@ -128,9 +126,9 @@ pnpm db:studio   # Open Drizzle Studio
 ## Security
 
 - User tokens are encrypted using AES-256-CBC encryption
-- Tokens are never exposed in the UI
-- Each user can only access their own tokens
-- Soft delete is used to maintain audit trails
+- Tokens are never exposed in the UI (masked display)
+- Each user can only access their own token
+- HTTPS is required in production
 
 ## License
 

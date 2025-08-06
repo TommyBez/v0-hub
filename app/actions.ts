@@ -5,17 +5,9 @@ import { v0, createClient } from "v0-sdk"
 import { Dub } from "dub"
 import { 
   getCachedUser,
-  getUserV0Tokens,
-  createV0Token,
-  updateV0Token,
-  deleteV0Token,
-  getDecryptedToken,
-  migrateLegacyToken,
-  type V0Token 
+  updateUserV0Token,
+  getDecryptedV0Token
 } from "@/db/queries"
-
-// Export V0Token type for client components
-export type { V0Token } from "@/db/queries"
 
 // Define the schema for input validation
 const bootstrapSchema = z.object({
@@ -204,61 +196,42 @@ export async function fetchGitHubBranches(
 
 // Token Management Server Actions
 
-export async function getTokens(): Promise<V0Token[]> {
+export async function getUserToken(): Promise<{ hasToken: boolean }> {
   const user = await getCachedUser()
   if (!user) throw new Error("Not authenticated")
   
-  // Check if user has legacy token and migrate if needed
-  if (user.v0token) {
-    await migrateLegacyToken(user.id)
-  }
-  
-  return getUserV0Tokens(user.id)
+  return { hasToken: !!user.v0token }
 }
 
-export async function addToken(name: string, token: string): Promise<V0Token> {
+export async function saveUserToken(token: string): Promise<void> {
   const user = await getCachedUser()
   if (!user) throw new Error("Not authenticated")
   
-  return createV0Token({
-    userId: user.id,
-    name,
-    token,
-  })
+  await updateUserV0Token(user.clerkId, token)
 }
 
-export async function updateToken(
-  tokenId: string,
-  data: { name?: string; token?: string }
-): Promise<V0Token | null> {
+export async function deleteUserToken(): Promise<void> {
   const user = await getCachedUser()
   if (!user) throw new Error("Not authenticated")
   
-  return updateV0Token(tokenId, user.id, data)
-}
-
-export async function deleteToken(tokenId: string): Promise<boolean> {
-  const user = await getCachedUser()
-  if (!user) throw new Error("Not authenticated")
-  
-  return deleteV0Token(tokenId, user.id)
+  await updateUserV0Token(user.clerkId, null)
 }
 
 // Modified createV0Chat to support user tokens
 export async function createV0ChatWithToken(
   repoUrl: string,
   branch: string,
-  tokenId?: string
+  useUserToken: boolean = false
 ): Promise<ChatCreationResult> {
   let apiKey = process.env.V0_API_KEY
   
-  // If tokenId is provided, use user's token
-  if (tokenId) {
+  // If user token is requested, use it
+  if (useUserToken) {
     const user = await getCachedUser()
     if (!user) throw new Error("Not authenticated")
     
-    const token = await getDecryptedToken(tokenId, user.id)
-    if (!token) throw new Error("Invalid token")
+    const token = await getDecryptedV0Token(user.clerkId)
+    if (!token) throw new Error("No token found. Please add your v0 API token.")
     
     apiKey = token
   } else if (!apiKey) {
@@ -282,7 +255,7 @@ export async function createV0ChatWithToken(
       url: repoUrl,
       branch: branch,
     },
-    chatPrivacy: tokenId ? "private" : "public",
+    chatPrivacy: useUserToken ? "private" : "public",
     message: `Please analyze this repository and help me understand its structure and purpose.`,
     name: chatName,
   })
