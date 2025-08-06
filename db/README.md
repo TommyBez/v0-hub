@@ -9,13 +9,24 @@ This project uses Drizzle ORM with Neon (PostgreSQL) for database management.
    - Create a new project and database
    - Copy the connection string from the dashboard
 
-2. **Configure Environment Variables**
-   - Copy the connection string to your `.env` file:
+2. **Set up Clerk Authentication**
+   - Sign up for a free account at [Clerk](https://clerk.com)
+   - Create a new application
+   - Copy your API keys from the dashboard
+
+3. **Configure Environment Variables**
+   - Copy the `.env.example` file to `.env`
+   - Add your Clerk API keys:
+   ```
+   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_your-key
+   CLERK_SECRET_KEY=sk_test_your-key
+   ```
+   - Add your Neon database connection string:
    ```
    DATABASE_URL=postgresql://[user]:[password]@[neon-hostname]/[database-name]?sslmode=require
    ```
 
-3. **Generate and Run Migrations**
+4. **Generate and Run Migrations**
    ```bash
    # Generate migrations from schema
    pnpm db:generate
@@ -24,7 +35,7 @@ This project uses Drizzle ORM with Neon (PostgreSQL) for database management.
    pnpm db:push
    ```
 
-4. **Database Management Commands**
+5. **Database Management Commands**
    - `pnpm db:generate` - Generate migration files from schema changes
    - `pnpm db:migrate` - Run migrations (production)
    - `pnpm db:push` - Push schema changes directly (development)
