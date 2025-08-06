@@ -7,14 +7,7 @@ import { Toaster } from "@/components/ui/sonner"
 import { Analytics } from '@vercel/analytics/next'
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import {
-  ClerkProvider,
-  SignInButton,
-  SignUpButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from "@clerk/nextjs"
+import { ClerkProvider } from "@clerk/nextjs"
 
 const inter = Inter({ subsets: ["latin"] })
 
