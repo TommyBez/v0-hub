@@ -1,5 +1,3 @@
-"use client"
-
 import RepositorySelectionCard from "@/components/repository-selection-card"
 import { Sparkles } from "lucide-react"
 import { Badge } from "@/components/ui/badge"

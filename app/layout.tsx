@@ -8,6 +8,7 @@ import { Analytics } from '@vercel/analytics/next'
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { ClerkProvider } from "@clerk/nextjs"
+import { getCachedUser } from "@/db/queries"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -17,11 +18,22 @@ export const metadata: Metadata = {
   generator: "v0.dev",
 }
 
-export default function RootLayout({
+// Force dynamic rendering for all pages since we're using authentication
+export const dynamic = 'force-dynamic'
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  // Sync user with database if authenticated
+  try {
+    await getCachedUser()
+  } catch (error) {
+    // Log error but don't block rendering
+    console.error('Error syncing user with database:', error)
+  }
+
   return (
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
