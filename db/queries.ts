@@ -44,16 +44,21 @@ export async function findOrCreateUser(data: {
 
 // Sync current Clerk user with database (combines currentUser + findOrCreateUser)
 async function syncCurrentUser(): Promise<User | null> {
-  const user = await currentUser();
-  
-  if (!user || !user.emailAddresses?.[0]?.emailAddress) {
+  try {
+    const user = await currentUser();
+    
+    if (!user || !user.emailAddresses?.[0]?.emailAddress) {
+      return null;
+    }
+    
+    return findOrCreateUser({
+      clerkId: user.id,
+      email: user.emailAddresses[0].emailAddress,
+    });
+  } catch (error) {
+    console.error('Error in syncCurrentUser:', error);
     return null;
   }
-  
-  return findOrCreateUser({
-    clerkId: user.id,
-    email: user.emailAddresses[0].emailAddress,
-  });
 }
 
 // Export cached version of syncCurrentUser
