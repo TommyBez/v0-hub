@@ -9,6 +9,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@clerk/nextjs": "^6.28.1",
     "@hookform/resolvers": "^3.10.0",
     "@icons-pack/react-simple-icons": "^13.7.0",
     "@modelcontextprotocol/sdk": "latest",

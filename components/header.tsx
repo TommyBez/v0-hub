@@ -1,6 +1,13 @@
 import Link from "next/link"
 import { GitBranch } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
+import {
+  SignInButton,
+  SignUpButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+} from "@clerk/nextjs"
 
 export function Header() {
   return (
@@ -10,7 +17,24 @@ export function Header() {
           <GitBranch className="h-6 w-6" />
           <span className="font-bold text-xl">v0hub</span>
         </Link>
-        <ThemeToggle />
+        <div className="flex items-center gap-4">
+          <SignedOut>
+            <SignInButton mode="modal">
+              <button className="text-sm font-medium hover:underline underline-offset-4">
+                Sign In
+              </button>
+            </SignInButton>
+            <SignUpButton mode="modal">
+              <button className="text-sm font-medium hover:underline underline-offset-4">
+                Sign Up
+              </button>
+            </SignUpButton>
+          </SignedOut>
+          <SignedIn>
+            <UserButton afterSignOutUrl="/" />
+          </SignedIn>
+          <ThemeToggle />
+        </div>
       </div>
     </header>
   )
