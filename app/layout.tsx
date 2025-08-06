@@ -18,6 +18,9 @@ export const metadata: Metadata = {
   generator: "v0.dev",
 }
 
+// Force dynamic rendering for all pages since we're using authentication
+export const dynamic = 'force-dynamic'
+
 export default async function RootLayout({
   children,
 }: Readonly<{

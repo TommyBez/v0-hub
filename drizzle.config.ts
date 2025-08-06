@@ -3,10 +3,8 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-const databaseUrl = process.env.DATABASE_URL || 'postgresql://user:pass@host/db';
-
 if (!process.env.DATABASE_URL) {
-  console.warn('DATABASE_URL is not set. Using placeholder for build.');
+  throw new Error('DATABASE_URL is not set');
 }
 
 export default {
@@ -14,7 +12,7 @@ export default {
   out: './db/migrations',
   dialect: 'postgresql',
   dbCredentials: {
-    url: databaseUrl,
+    url: process.env.DATABASE_URL,
   },
   verbose: true,
   strict: true,
