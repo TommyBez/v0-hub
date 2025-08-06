@@ -1,6 +1,7 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
+import { cache } from "react"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
@@ -18,6 +19,9 @@ export const metadata: Metadata = {
   generator: "v0.dev",
 }
 
+// Create a cached version of findOrCreateUser
+const cachedFindOrCreateUser = cache(findOrCreateUser)
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -27,7 +31,7 @@ export default async function RootLayout({
   const user = await currentUser()
   if (user && user.emailAddresses?.[0]?.emailAddress) {
     try {
-      await findOrCreateUser({
+      await cachedFindOrCreateUser({
         clerkId: user.id,
         email: user.emailAddresses[0].emailAddress,
       })
