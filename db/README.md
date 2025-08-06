@@ -43,7 +43,7 @@ The database includes a `users` table with the following fields:
 ## Usage Examples
 
 ```typescript
-import { createUser, getUserByClerkId, updateUserV0Token } from '@/db/queries';
+import { createUser, getUserByClerkId, updateUserV0Token, findOrCreateUser } from '@/db/queries';
 
 // Create a new user
 const newUser = await createUser({
@@ -54,6 +54,13 @@ const newUser = await createUser({
 
 // Get user by Clerk ID
 const user = await getUserByClerkId('clerk_user_id');
+
+// Find or create user (useful for authentication flows)
+const user = await findOrCreateUser({
+  clerkId: 'clerk_user_id',
+  email: 'user@example.com',
+  v0token: 'optional_token' // optional
+});
 
 // Update user's v0token
 const updatedUser = await updateUserV0Token('clerk_user_id', 'new_token');
@@ -66,16 +73,14 @@ This database schema is designed to work with Clerk authentication. After a user
 Example middleware or API route:
 ```typescript
 import { currentUser } from '@clerk/nextjs/server';
-import { getUserByClerkId, createUser } from '@/db/queries';
+import { findOrCreateUser } from '@/db/queries';
 
 const user = await currentUser();
 if (user) {
-  let dbUser = await getUserByClerkId(user.id);
-  if (!dbUser) {
-    dbUser = await createUser({
-      email: user.emailAddresses[0].emailAddress,
-      clerkId: user.id,
-    });
-  }
+  // This will find the user or create a new one if it doesn't exist
+  const dbUser = await findOrCreateUser({
+    clerkId: user.id,
+    email: user.emailAddresses[0].emailAddress,
+  });
 }
 ```

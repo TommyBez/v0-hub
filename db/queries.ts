@@ -19,6 +19,27 @@ export async function getUserByEmail(email: string): Promise<User | null> {
   return user || null;
 }
 
+// Find or create a user by Clerk ID
+export async function findOrCreateUser(data: {
+  clerkId: string;
+  email: string;
+  v0token?: string;
+}): Promise<User> {
+  // First, try to find the user
+  const existingUser = await getUserByClerkId(data.clerkId);
+  
+  if (existingUser) {
+    return existingUser;
+  }
+  
+  // If not found, create a new user
+  return createUser({
+    clerkId: data.clerkId,
+    email: data.email,
+    v0token: data.v0token,
+  });
+}
+
 // Update user's v0token
 export async function updateUserV0Token(clerkId: string, v0token: string): Promise<User | null> {
   const [updatedUser] = await db
