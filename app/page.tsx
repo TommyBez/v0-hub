@@ -3,9 +3,6 @@
 import RepositorySelectionCard from "@/components/repository-selection-card"
 import { Sparkles } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { SignedIn, SignedOut } from "@clerk/nextjs"
-import { UserProfile } from "@/components/user-profile"
-import Link from "next/link"
 
 export default function HomePage() {
   return (
@@ -35,24 +32,6 @@ export default function HomePage() {
                 Bootstrap a v0 chat from any public GitHub repository. Let AI help you understand, 
                 modify, and improve codebases with intelligent assistance.
               </p>
-            </div>
-            
-            {/* Authentication Status */}
-            <div className="w-full max-w-2xl space-y-4">
-              <SignedIn>
-                <UserProfile />
-                <Link href="/protected" className="text-sm text-primary hover:underline">
-                  Visit protected page →
-                </Link>
-              </SignedIn>
-              
-              <SignedOut>
-                <div className="p-4 border rounded-lg bg-muted/50">
-                  <p className="text-sm text-muted-foreground">
-                    Sign in to access personalized features and save your projects.
-                  </p>
-                </div>
-              </SignedOut>
             </div>
             
             {/* Main CTA Card */}
