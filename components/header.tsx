@@ -31,10 +31,7 @@ export function Header() {
             </SignUpButton>
           </SignedOut>
           <SignedIn>
-            <UserButton 
-              afterSignOutUrl="/"
-              showName={false}
-            />
+            <UserButton afterSignOutUrl="/" />
           </SignedIn>
           <ThemeToggle />
         </div>
