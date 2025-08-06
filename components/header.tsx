@@ -8,7 +8,6 @@ import {
   SignedOut,
   UserButton,
 } from "@clerk/nextjs"
-import { Suspense } from "react"
 
 export function Header() {
   return (
@@ -32,13 +31,10 @@ export function Header() {
             </SignUpButton>
           </SignedOut>
           <SignedIn>
-            <Suspense
-              fallback={
-                <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
-              }
-            >
-              <UserButton afterSignOutUrl="/" />
-            </Suspense>
+            <UserButton 
+              afterSignOutUrl="/"
+              showName={false}
+            />
           </SignedIn>
           <ThemeToggle />
         </div>
