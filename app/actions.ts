@@ -1,8 +1,21 @@
 "use server"
 
 import { z } from "zod"
-import { v0 } from "v0-sdk"
+import { v0, createClient } from "v0-sdk"
 import { Dub } from "dub"
+import { 
+  getCachedUser,
+  getUserV0Tokens,
+  createV0Token,
+  updateV0Token,
+  deleteV0Token,
+  getDecryptedToken,
+  migrateLegacyToken,
+  type V0Token 
+} from "@/db/queries"
+
+// Export V0Token type for client components
+export type { V0Token } from "@/db/queries"
 
 // Define the schema for input validation
 const bootstrapSchema = z.object({
@@ -186,5 +199,112 @@ export async function fetchGitHubBranches(
   } catch (error) {
     console.error("Error fetching branches:", error)
     return { success: false, error: "Failed to fetch branches" }
+  }
+}
+
+// Token Management Server Actions
+
+export async function getTokens(): Promise<V0Token[]> {
+  const user = await getCachedUser()
+  if (!user) throw new Error("Not authenticated")
+  
+  // Check if user has legacy token and migrate if needed
+  if (user.v0token) {
+    await migrateLegacyToken(user.id)
+  }
+  
+  return getUserV0Tokens(user.id)
+}
+
+export async function addToken(name: string, token: string): Promise<V0Token> {
+  const user = await getCachedUser()
+  if (!user) throw new Error("Not authenticated")
+  
+  return createV0Token({
+    userId: user.id,
+    name,
+    token,
+  })
+}
+
+export async function updateToken(
+  tokenId: string,
+  data: { name?: string; token?: string }
+): Promise<V0Token | null> {
+  const user = await getCachedUser()
+  if (!user) throw new Error("Not authenticated")
+  
+  return updateV0Token(tokenId, user.id, data)
+}
+
+export async function deleteToken(tokenId: string): Promise<boolean> {
+  const user = await getCachedUser()
+  if (!user) throw new Error("Not authenticated")
+  
+  return deleteV0Token(tokenId, user.id)
+}
+
+// Modified createV0Chat to support user tokens
+export async function createV0ChatWithToken(
+  repoUrl: string,
+  branch: string,
+  tokenId?: string
+): Promise<ChatCreationResult> {
+  let apiKey = process.env.V0_API_KEY
+  
+  // If tokenId is provided, use user's token
+  if (tokenId) {
+    const user = await getCachedUser()
+    if (!user) throw new Error("Not authenticated")
+    
+    const token = await getDecryptedToken(tokenId, user.id)
+    if (!token) throw new Error("Invalid token")
+    
+    apiKey = token
+  } else if (!apiKey) {
+    throw new Error("No API key available. Please provide a token or set V0_API_KEY.")
+  }
+  
+  // Check if Dub API key is configured
+  if (!process.env.DUB_API_KEY) {
+    console.warn("DUB_API_KEY is not set. Short links will not be generated.")
+  }
+
+  // Generate custom chat name
+  const chatName = generateChatName(repoUrl, branch)
+  
+  // Create a custom v0 client with the specific token
+  const client = createClient({ token: apiKey })
+
+  const chat = await client.chats.init({
+    type: "repo",
+    repo: {
+      url: repoUrl,
+      branch: branch,
+    },
+    chatPrivacy: tokenId ? "private" : "public",
+    message: `Please analyze this repository and help me understand its structure and purpose.`,
+    name: chatName,
+  })
+
+  // Generate short links for the chat URL and demo URL
+  let shortUrl: string | undefined
+  let shortDemoUrl: string | undefined
+
+  if (process.env.DUB_API_KEY) {
+    // Create short links
+    const shortUrlResult = await createShortLink(chat.url)
+    const shortDemoUrlResult = await createShortLink(chat.demo)
+
+    if (shortUrlResult) shortUrl = shortUrlResult
+    if (shortDemoUrlResult) shortDemoUrl = shortDemoUrlResult
+  }
+
+  return {
+    id: chat.id,
+    url: chat.url,
+    demo: chat.demo,
+    shortUrl,
+    shortDemoUrl,
   }
 }

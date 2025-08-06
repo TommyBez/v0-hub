@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { GitBranch } from "lucide-react"
+import { GitBranch, Key } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import {
   SignInButton,
@@ -8,6 +8,7 @@ import {
   SignedOut,
   UserButton,
 } from "@clerk/nextjs"
+import { Button } from "@/components/ui/button"
 
 export function Header() {
   return (
@@ -18,6 +19,14 @@ export function Header() {
           <span className="font-bold text-xl">v0hub</span>
         </Link>
         <div className="flex items-center gap-4">
+          <SignedIn>
+            <Link href="/tokens">
+              <Button variant="ghost" size="sm" className="gap-2">
+                <Key className="h-4 w-4" />
+                <span className="hidden sm:inline">API Tokens</span>
+              </Button>
+            </Link>
+          </SignedIn>
           <SignedOut>
             <SignInButton mode="modal">
               <button className="text-sm font-medium hover:underline underline-offset-4">
