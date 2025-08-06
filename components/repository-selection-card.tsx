@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2, GitBranch, Lock, Globe, Key } from "lucide-react"
 import { SiGithub } from "@icons-pack/react-simple-icons"
 import { Switch } from "@/components/ui/switch"
-import { useAuth } from "@clerk/nextjs"
+import { useAuth, SignIn } from "@clerk/nextjs"
 import Link from "next/link"
 import {
   Dialog,
@@ -283,21 +283,17 @@ export default function RepositorySelectionCard({
       </Card>
 
       <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Sign In Required</DialogTitle>
-            <DialogDescription>
-              You need to sign in to create private chats with your own v0 token.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAuthDialog(false)}>
-              Cancel
-            </Button>
-            <Link href="/sign-in">
-              <Button>Sign In</Button>
-            </Link>
-          </DialogFooter>
+        <DialogContent className="max-w-md p-0 overflow-hidden">
+          <SignIn 
+            appearance={{
+              elements: {
+                rootBox: "w-full",
+                card: "shadow-none border-0",
+              }
+            }}
+            afterSignInUrl={window.location.pathname}
+            signUpUrl={undefined}
+          />
         </DialogContent>
       </Dialog>
 
