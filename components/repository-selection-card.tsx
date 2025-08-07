@@ -3,17 +3,16 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { fetchGitHubBranches, getUserToken } from "@/app/actions"
+import { fetchGitHubBranches, getUserToken, saveUserToken } from "@/app/actions"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Loader2, GitBranch, Lock, Globe, Key } from "lucide-react"
+import { Loader2, GitBranch, Lock, Globe, Key, Eye, EyeOff } from "lucide-react"
 import { SiGithub } from "@icons-pack/react-simple-icons"
 import { Switch } from "@/components/ui/switch"
 import { useAuth, useClerk } from "@clerk/nextjs"
-import Link from "next/link"
 import {
   Dialog,
   DialogContent,
@@ -52,6 +51,11 @@ export default function RepositorySelectionCard({
   const [isPrivateChat, setIsPrivateChat] = useState(false)
   const [hasToken, setHasToken] = useState(false)
   const [showTokenDialog, setShowTokenDialog] = useState(false)
+  
+  // Token form state
+  const [tokenValue, setTokenValue] = useState("")
+  const [showToken, setShowToken] = useState(false)
+  const [isSavingToken, setIsSavingToken] = useState(false)
 
   // Check if user has token when private chat is enabled
   useEffect(() => {
@@ -124,6 +128,29 @@ export default function RepositorySelectionCard({
       return
     }
     setIsPrivateChat(checked)
+  }
+
+  const handleSaveToken = async () => {
+    if (!tokenValue.trim()) {
+      toast.error("Please enter a token")
+      return
+    }
+
+    setIsSavingToken(true)
+    try {
+      await saveUserToken(tokenValue.trim())
+      toast.success("Token saved successfully")
+      setTokenValue("")
+      setShowToken(false)
+      setShowTokenDialog(false)
+      setHasToken(true)
+      setIsPrivateChat(true) // Enable private chat after saving token
+    } catch (error) {
+      toast.error("Failed to save token")
+      console.error(error)
+    } finally {
+      setIsSavingToken(false)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -282,24 +309,81 @@ export default function RepositorySelectionCard({
         </form>
       </Card>
 
-      <Dialog open={showTokenDialog} onOpenChange={setShowTokenDialog}>
+      <Dialog open={showTokenDialog} onOpenChange={(open) => {
+        setShowTokenDialog(open)
+        if (!open) {
+          setTokenValue("")
+          setShowToken(false)
+        }
+      }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>v0 API Token Required</DialogTitle>
+            <DialogTitle>Add v0 API Token</DialogTitle>
             <DialogDescription>
-              You need to add your v0 API token before creating private chats.
+              Add your v0 API token to create private chats. Get your token from{" "}
+              <a 
+                href="https://v0.dev/settings" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="underline underline-offset-4 hover:text-primary"
+              >
+                v0.dev settings
+              </a>
+              .
             </DialogDescription>
           </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="dialog-token">API Token</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="dialog-token"
+                  type={showToken ? "text" : "password"}
+                  placeholder="Your v0 API token"
+                  value={tokenValue}
+                  onChange={(e) => setTokenValue(e.target.value)}
+                  disabled={isSavingToken}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setShowToken(!showToken)}
+                  disabled={!tokenValue || isSavingToken}
+                >
+                  {showToken ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowTokenDialog(false)}>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowTokenDialog(false)}
+              disabled={isSavingToken}
+            >
               Cancel
             </Button>
-            <Link href="/tokens">
-              <Button>
-                <Key className="h-4 w-4 mr-2" />
-                Add Token
-              </Button>
-            </Link>
+            <Button 
+              onClick={handleSaveToken}
+              disabled={isSavingToken || !tokenValue.trim()}
+            >
+              {isSavingToken ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Key className="h-4 w-4 mr-2" />
+                  Save Token
+                </>
+              )}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
