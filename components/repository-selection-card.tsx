@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2, GitBranch, Lock, Globe, Key } from "lucide-react"
 import { SiGithub } from "@icons-pack/react-simple-icons"
 import { Switch } from "@/components/ui/switch"
-import { useAuth, SignIn } from "@clerk/nextjs"
+import { useAuth, useClerk } from "@clerk/nextjs"
 import Link from "next/link"
 import {
   Dialog,
@@ -38,6 +38,7 @@ export default function RepositorySelectionCard({
 }: RepositorySelectionCardProps) {
   const router = useRouter()
   const { isSignedIn } = useAuth()
+  const { openSignIn } = useClerk()
   
   // Branch fetching state
   const [repoUrl, setRepoUrl] = useState("")
@@ -50,7 +51,6 @@ export default function RepositorySelectionCard({
   // Private chat state
   const [isPrivateChat, setIsPrivateChat] = useState(false)
   const [hasToken, setHasToken] = useState(false)
-  const [showAuthDialog, setShowAuthDialog] = useState(false)
   const [showTokenDialog, setShowTokenDialog] = useState(false)
 
   // Check if user has token when private chat is enabled
@@ -120,7 +120,7 @@ export default function RepositorySelectionCard({
 
   const handlePrivateChatToggle = (checked: boolean) => {
     if (checked && !isSignedIn) {
-      setShowAuthDialog(true)
+      openSignIn()
       return
     }
     setIsPrivateChat(checked)
@@ -281,21 +281,6 @@ export default function RepositorySelectionCard({
           </CardFooter>
         </form>
       </Card>
-
-      <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
-        <DialogContent className="max-w-md p-0 overflow-hidden">
-          <SignIn 
-            appearance={{
-              elements: {
-                rootBox: "w-full",
-                card: "shadow-none border-0",
-              }
-            }}
-            afterSignInUrl={window.location.pathname}
-            signUpUrl={undefined}
-          />
-        </DialogContent>
-      </Dialog>
 
       <Dialog open={showTokenDialog} onOpenChange={setShowTokenDialog}>
         <DialogContent>
