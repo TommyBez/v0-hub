@@ -1,18 +1,10 @@
 import { Suspense } from 'react'
-import { redirect } from 'next/navigation'
 import { TokenManager } from '@/components/token-manager'
-import { getCachedUser } from '@/db/queries'
 import { getUserToken } from '@/app/actions'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 
 export default async function TokenPage() {
-  const user = await getCachedUser()
-
-  if (!user) {
-    redirect('/')
-  }
-
   const tokenStatusPromise = getUserToken()
 
   return (
