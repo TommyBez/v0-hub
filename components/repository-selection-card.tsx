@@ -1,5 +1,4 @@
 import { SiGithub } from '@icons-pack/react-simple-icons'
-import { Animated } from '@/components/animated'
 import RepositoryForm from '@/components/repository-form'
 import {
   Card,
@@ -22,26 +21,24 @@ export default function RepositorySelectionCard({
   showHeader = true,
 }: RepositorySelectionCardProps) {
   return (
-    <Animated className="relative overflow-hidden" hoverScale={1.01}>
-      <Card className="relative overflow-hidden border-primary/20 shadow-primary/5 shadow-xl">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent" />
-        {showHeader && (
-          <CardHeader className="relative">
-            <div className="flex items-center gap-3">
-              <div className="rounded-xl bg-primary/10 p-3 backdrop-blur-sm">
-                <SiGithub className="h-8 w-8 text-primary" />
-              </div>
-              <div>
-                <CardTitle className="text-2xl">{title}</CardTitle>
-                <CardDescription>{description}</CardDescription>
-              </div>
+    <Card className="relative overflow-hidden border-primary/20 shadow-primary/5 shadow-xl">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent" />
+      {showHeader && (
+        <CardHeader className="relative">
+          <div className="flex items-center gap-3">
+            <div className="rounded-xl bg-primary/10 p-3 backdrop-blur-sm">
+              <SiGithub className="h-8 w-8 text-primary" />
             </div>
-          </CardHeader>
-        )}
-        <CardContent>
-          <RepositoryForm showHeader={showHeader} />
-        </CardContent>
-      </Card>
-    </Animated>
+            <div>
+              <CardTitle className="text-2xl">{title}</CardTitle>
+              <CardDescription>{description}</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+      )}
+      <CardContent>
+        <RepositoryForm showHeader={showHeader} />
+      </CardContent>
+    </Card>
   )
 }

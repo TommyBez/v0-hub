@@ -1,7 +1,8 @@
 'use client'
 
 import { GitBranch, Loader2 } from 'lucide-react'
-import { useCallback, useEffect, useState } from 'react'
+import { animate } from 'motion'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { fetchGitHubBranches } from '@/app/actions'
 import { Label } from '@/components/ui/label'
@@ -31,6 +32,11 @@ export default function BranchSelector({
   const [selectedBranch, setSelectedBranch] = useState('')
   const [isFetchingBranches, setIsFetchingBranches] = useState(false)
   const [branchError, setBranchError] = useState('')
+
+  const triggerRef = useRef<HTMLDivElement | null>(null)
+  const iconRef = useRef<HTMLSpanElement | null>(null)
+  const infoRef = useRef<HTMLParagraphElement | null>(null)
+  const errorRef = useRef<HTMLParagraphElement | null>(null)
 
   const fetchBranches = useCallback(
     async (url: string) => {
@@ -85,6 +91,47 @@ export default function BranchSelector({
     onBranchChange(branch)
   }
 
+  // Animate trigger bounce when branch value changes
+  useEffect(() => {
+    if (!(triggerRef.current && selectedBranch)) {
+      return
+    }
+    animate(triggerRef.current, { scale: [0.98, 1] }, { duration: 0.12 })
+  }, [selectedBranch])
+
+  // Animate icon when loader/icon swap occurs
+  useEffect(() => {
+    if (!iconRef.current) {
+      return
+    }
+    animate(
+      iconRef.current,
+      { opacity: [0, 1], scale: [0.9, 1] },
+      { duration: 0.15 },
+    )
+  }, [])
+
+  // Animate info and error appearances
+  useEffect(() => {
+    if (branches.length > 0 && infoRef.current) {
+      animate(
+        infoRef.current,
+        { opacity: [0, 1], y: [4, 0] },
+        { duration: 0.2 },
+      )
+    }
+  }, [branches.length])
+
+  useEffect(() => {
+    if (branchError && errorRef.current) {
+      animate(
+        errorRef.current,
+        { opacity: [0, 1], y: [4, 0] },
+        { duration: 0.2 },
+      )
+    }
+  }, [branchError])
+
   const getPlaceholder = () => {
     if (isFetchingBranches) {
       return 'Fetching branches...'
@@ -100,7 +147,7 @@ export default function BranchSelector({
       <Label className="font-medium text-base" htmlFor="branch">
         Branch
       </Label>
-      <div className="relative">
+      <div className="relative" ref={triggerRef}>
         <Select
           disabled={isSubmitting || isFetchingBranches || branches.length === 0}
           onValueChange={handleBranchChange}
@@ -108,11 +155,13 @@ export default function BranchSelector({
         >
           <SelectTrigger className="h-12 w-full text-base">
             <div className="flex items-center gap-2">
-              {isFetchingBranches ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <GitBranch className="h-4 w-4" />
-              )}
+              <span className="inline-flex" ref={iconRef}>
+                {isFetchingBranches ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <GitBranch className="h-4 w-4" />
+                )}
+              </span>
               <SelectValue placeholder={getPlaceholder()} />
             </div>
           </SelectTrigger>
@@ -125,9 +174,13 @@ export default function BranchSelector({
           </SelectContent>
         </Select>
       </div>
-      {branchError && <p className="text-destructive text-sm">{branchError}</p>}
+      {branchError && (
+        <p className="text-destructive text-sm" ref={errorRef}>
+          {branchError}
+        </p>
+      )}
       {branches.length > 0 && (
-        <p className="text-muted-foreground text-sm">
+        <p className="text-muted-foreground text-sm" ref={infoRef}>
           Found {branches.length} branch
           {branches.length !== 1 ? 'es' : ''}
         </p>
