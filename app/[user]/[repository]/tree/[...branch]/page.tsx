@@ -35,21 +35,20 @@ export default async function DynamicBootstrapPage({
   const repoUrl = `https://github.com/${user}/${repository}`
   const isPrivate = searchParamsData.private === 'true'
 
+  const basePromise: Promise<ChatCreationResult> = isPrivate
+    ? createV0ChatWithToken(repoUrl, fullBranchName, true)
+    : createV0Chat(repoUrl, fullBranchName)
+
   const chatResultPromise: Promise<{
     chatData: ChatCreationResult | null
     error: string | null
-  }> = (async () => {
-    try {
-      const chatData = isPrivate
-        ? await createV0ChatWithToken(repoUrl, fullBranchName, true)
-        : await createV0Chat(repoUrl, fullBranchName)
-      return { chatData, error: null }
-    } catch (err) {
+  }> = basePromise
+    .then((chatData) => ({ chatData, error: null }))
+    .catch((err) => {
       const message = err instanceof Error ? err.message : 'Failed to bootstrap chat'
       logger.error(`Error bootstrapping chat: ${err}`)
       return { chatData: null, error: message }
-    }
-  })()
+    })
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-gray-50 p-4 dark:bg-gray-950">
