@@ -5,6 +5,7 @@ import { Globe, Loader2, Lock } from 'lucide-react'
 import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
+import { span as MotionSpan } from 'motion/react-client'
 import BranchSelector from '@/components/branch-selector'
 import TokenDialog from '@/components/token-dialog'
 import { Button } from '@/components/ui/button'
@@ -126,11 +127,19 @@ export default function RepositoryForm({
                   <FormItem className="flex items-center justify-between">
                     <div className="space-y-0.5">
                       <FormLabel className="flex items-center gap-2 font-medium text-base">
-                        {field.value ? (
-                          <Lock className="h-4 w-4" />
-                        ) : (
-                          <Globe className="h-4 w-4" />
-                        )}
+                        <MotionSpan
+                          key={field.value ? 'private' : 'public'}
+                          className="inline-flex"
+                          initial={{ opacity: 0.85, scale: 0.9, y: -1 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          transition={{ duration: 0.18, ease: 'easeOut' }}
+                        >
+                          {field.value ? (
+                            <Lock className="h-4 w-4" />
+                          ) : (
+                            <Globe className="h-4 w-4" />
+                          )}
+                        </MotionSpan>
                         {field.value ? 'Private Chat' : 'Public Chat'}
                       </FormLabel>
                       <FormDescription>
@@ -156,7 +165,7 @@ export default function RepositoryForm({
           </div>
           <div className="relative mt-6">
             <Button
-              className="h-12 w-full font-semibold text-base transition-all hover:scale-[1.02]"
+              className="h-12 w-full font-semibold text-base"
               disabled={isSubmitting || !watchedBranch}
               size="lg"
               type="submit"
@@ -168,11 +177,15 @@ export default function RepositoryForm({
                 </>
               ) : (
                 <>
-                  {watchedIsPrivateChat ? (
-                    <Lock className="mr-2 h-5 w-5" />
-                  ) : null}
-                  Create {watchedIsPrivateChat ? 'private' : 'v0'} chat
-                  <span className="ml-2">→</span>
+                  {watchedIsPrivateChat ? <Lock className="mr-2 h-5 w-5" /> : null}
+                  <MotionSpan
+                    key={watchedIsPrivateChat ? 'private-cta' : 'public-cta'}
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    Create {watchedIsPrivateChat ? 'private' : 'v0'} chat
+                  </MotionSpan>
                 </>
               )}
             </Button>
