@@ -1,6 +1,7 @@
 import { Sparkles } from 'lucide-react'
 import RepositorySelectionCard from '@/components/repository-selection-card'
 import { Badge } from '@/components/ui/badge'
+import { Animated } from '@/components/animated'
 
 export default function HomePage() {
   return (
@@ -13,7 +14,7 @@ export default function HomePage() {
         <div className="-bottom-40 -left-40 absolute h-80 w-80 rounded-full bg-primary/5 blur-3xl" />
 
         <div className="container relative mx-auto max-w-6xl">
-          <div className="flex flex-col items-center space-y-8 text-center">
+          <Animated className="flex flex-col items-center space-y-8 text-center">
             {/* Badge */}
             <Badge
               className="animate-fade-in px-4 py-1.5 text-sm"
@@ -40,7 +41,7 @@ export default function HomePage() {
             <div className="animation-delay-300 w-full max-w-2xl animate-fade-in">
               <RepositorySelectionCard showHeader={false} />
             </div>
-          </div>
+          </Animated>
         </div>
       </section>
     </div>

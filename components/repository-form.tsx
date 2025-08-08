@@ -21,6 +21,7 @@ import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { useFormSubmission } from '@/hooks/use-form-submission'
 import { useTokenManager } from '@/hooks/use-token-manager'
+import { Animated } from '@/components/animated'
 
 const formSchema = z.object({
   repoUrl: z.string().url('Please enter a valid GitHub URL'),
@@ -83,99 +84,107 @@ export default function RepositoryForm({
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className={`relative space-y-4 ${showHeader ? '' : 'pt-6'}`}>
-            <FormField
-              control={form.control}
-              name="repoUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="font-medium text-base">
-                    GitHub Repository URL
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      className="h-12 text-base"
-                      disabled={isSubmitting}
-                      placeholder="https://github.com/vercel/next.js"
-                      type="url"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div>
-              <BranchSelector
-                isSubmitting={isSubmitting}
-                onBranchChange={handleBranchChange}
-                repoUrl={watchedRepoUrl}
-              />
-              {form.formState.errors.branch && (
-                <p className="mt-2 text-destructive text-sm">
-                  {form.formState.errors.branch.message}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-4 border-t pt-4">
+            <Animated>
               <FormField
                 control={form.control}
-                name="isPrivateChat"
+                name="repoUrl"
                 render={({ field }) => (
-                  <FormItem className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <FormLabel className="flex items-center gap-2 font-medium text-base">
-                        {field.value ? (
-                          <Lock className="h-4 w-4" />
-                        ) : (
-                          <Globe className="h-4 w-4" />
-                        )}
-                        {field.value ? 'Private Chat' : 'Public Chat'}
-                      </FormLabel>
-                      <FormDescription>
-                        {field.value
-                          ? 'Uses your personal v0 token'
-                          : 'Uses the default v0 token'}
-                      </FormDescription>
-                    </div>
+                  <FormItem>
+                    <FormLabel className="font-medium text-base">
+                      GitHub Repository URL
+                    </FormLabel>
                     <FormControl>
-                      <Switch
-                        checked={field.value}
+                      <Input
+                        className="h-12 text-base"
                         disabled={isSubmitting}
-                        onCheckedChange={(checked) => {
-                          field.onChange(checked)
-                          handlePrivateChatToggle(checked)
-                        }}
+                        placeholder="https://github.com/vercel/next.js"
+                        type="url"
+                        {...field}
                       />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
-            </div>
+            </Animated>
+
+            <Animated>
+              <div>
+                <BranchSelector
+                  isSubmitting={isSubmitting}
+                  onBranchChange={handleBranchChange}
+                  repoUrl={watchedRepoUrl}
+                />
+                {form.formState.errors.branch && (
+                  <p className="mt-2 text-destructive text-sm">
+                    {form.formState.errors.branch.message}
+                  </p>
+                )}
+              </div>
+            </Animated>
+
+            <Animated>
+              <div className="space-y-4 border-t pt-4">
+                <FormField
+                  control={form.control}
+                  name="isPrivateChat"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <FormLabel className="flex items-center gap-2 font-medium text-base">
+                          {field.value ? (
+                            <Lock className="h-4 w-4" />
+                          ) : (
+                            <Globe className="h-4 w-4" />
+                          )}
+                          {field.value ? 'Private Chat' : 'Public Chat'}
+                        </FormLabel>
+                        <FormDescription>
+                          {field.value
+                            ? 'Uses your personal v0 token'
+                            : 'Uses the default v0 token'}
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          disabled={isSubmitting}
+                          onCheckedChange={(checked) => {
+                            field.onChange(checked)
+                            handlePrivateChatToggle(checked)
+                          }}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </Animated>
           </div>
           <div className="relative mt-6">
-            <Button
-              className="h-12 w-full font-semibold text-base transition-all hover:scale-[1.02]"
-              disabled={isSubmitting || !watchedBranch}
-              size="lg"
-              type="submit"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Loading your v0 chat...
-                </>
-              ) : (
-                <>
-                  {watchedIsPrivateChat ? (
-                    <Lock className="mr-2 h-5 w-5" />
-                  ) : null}
-                  Create {watchedIsPrivateChat ? 'private' : 'v0'} chat
-                  <span className="ml-2">→</span>
-                </>
-              )}
-            </Button>
+            <Animated as="div" hoverScale={1.01} tapScale={0.99}>
+              <Button
+                className="h-12 w-full font-semibold text-base transition-all hover:scale-[1.02]"
+                disabled={isSubmitting || !watchedBranch}
+                size="lg"
+                type="submit"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Loading your v0 chat...
+                  </>
+                ) : (
+                  <>
+                    {watchedIsPrivateChat ? (
+                      <Lock className="mr-2 h-5 w-5" />
+                    ) : null}
+                    Create {watchedIsPrivateChat ? 'private' : 'v0'} chat
+                    <span className="ml-2">→</span>
+                  </>
+                )}
+              </Button>
+            </Animated>
           </div>
         </form>
       </Form>
