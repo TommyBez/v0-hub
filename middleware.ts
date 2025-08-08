@@ -1,9 +1,14 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 
 const isProtectedRoute = createRouteMatcher(['/token(.*)'])
+const isBranchRoute = createRouteMatcher(['/:user/:repository/tree/:path*'])
 
 export default clerkMiddleware(async (auth, req) => {
   if (isProtectedRoute(req)) {
+    await auth.protect()
+  }
+
+  if (isBranchRoute(req) && req.nextUrl.searchParams.get('private') === 'true') {
     await auth.protect()
   }
 })
