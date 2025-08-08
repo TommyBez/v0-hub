@@ -1,7 +1,7 @@
 import { Sparkles } from 'lucide-react'
+import { Animated } from '@/components/animated'
 import RepositorySelectionCard from '@/components/repository-selection-card'
 import { Badge } from '@/components/ui/badge'
-import { Animated } from '@/components/animated'
 
 export default function HomePage() {
   return (

@@ -5,6 +5,7 @@ import { Globe, Loader2, Lock } from 'lucide-react'
 import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
+import { Animated } from '@/components/animated'
 import BranchSelector from '@/components/branch-selector'
 import TokenDialog from '@/components/token-dialog'
 import { Button } from '@/components/ui/button'
@@ -21,7 +22,6 @@ import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { useFormSubmission } from '@/hooks/use-form-submission'
 import { useTokenManager } from '@/hooks/use-token-manager'
-import { Animated } from '@/components/animated'
 
 const formSchema = z.object({
   repoUrl: z.string().url('Please enter a valid GitHub URL'),

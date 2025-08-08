@@ -1,4 +1,5 @@
 import { SiGithub } from '@icons-pack/react-simple-icons'
+import { Animated } from '@/components/animated'
 import RepositoryForm from '@/components/repository-form'
 import {
   Card,
@@ -7,7 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Animated } from '@/components/animated'
 
 interface RepositorySelectionCardProps {
   title?: string
@@ -22,7 +22,7 @@ export default function RepositorySelectionCard({
   showHeader = true,
 }: RepositorySelectionCardProps) {
   return (
-    <Animated hoverScale={1.01} className="relative overflow-hidden">
+    <Animated className="relative overflow-hidden" hoverScale={1.01}>
       <Card className="relative overflow-hidden border-primary/20 shadow-primary/5 shadow-xl">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent" />
         {showHeader && (

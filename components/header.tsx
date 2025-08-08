@@ -7,16 +7,21 @@ import {
 } from '@clerk/nextjs'
 import { GitBranch, Key } from 'lucide-react'
 import Link from 'next/link'
+import { Animated } from '@/components/animated'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { Button } from '@/components/ui/button'
-import { Animated } from '@/components/animated'
 
 export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         <Link href="/">
-          <Animated as="span" className="flex items-center space-x-2" hoverScale={1.01} tapScale={0.99}>
+          <Animated
+            as="span"
+            className="flex items-center space-x-2"
+            hoverScale={1.01}
+            tapScale={0.99}
+          >
             <GitBranch className="h-6 w-6" />
             <span className="font-bold text-xl">v0hub</span>
           </Animated>
