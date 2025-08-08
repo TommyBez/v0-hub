@@ -137,11 +137,6 @@ export function TokenManager({ userId }: TokenManagerProps) {
                 onChange={(e) => setTokenValue(e.target.value)}
                 disabled={isSaving}
               />
-              {hasToken && tokenValue === "" && (
-                <div className="absolute inset-0 flex items-center px-3 pointer-events-none">
-                  <span className="text-muted-foreground">••••••••••••••••</span>
-                </div>
-              )}
             </div>
             <Button
               variant="outline"
@@ -185,7 +180,7 @@ export function TokenManager({ userId }: TokenManagerProps) {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Delete Token</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Are you sure you want to delete your v0 API token? You won't be able to create private chats without it.
+                    Are you sure you want to delete your v0 API token? You won&apos;t be able to create private chats without it.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
