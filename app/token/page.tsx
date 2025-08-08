@@ -6,15 +6,14 @@ import { getUserToken } from '@/app/actions'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 
-export const dynamic = 'force-dynamic'
-
 export default async function TokenPage() {
-  const tokenStatusPromise = getUserToken()
   const user = await getCachedUser()
 
   if (!user) {
     redirect('/')
   }
+
+  const tokenStatusPromise = getUserToken()
 
   return (
     <div className="container py-10">
