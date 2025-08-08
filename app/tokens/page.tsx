@@ -20,7 +20,7 @@ export default async function TokensPage() {
           </p>
         </div>
 
-        <TokenManager userId={user.id} />
+        <TokenManager />
       </div>
     </div>
   )
