@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { Linkedin } from "lucide-react"
-import { SiX } from "@icons-pack/react-simple-icons"
+import { SiX, SiGithub } from "@icons-pack/react-simple-icons"
 
 export function Footer() {
   return (
@@ -16,6 +16,15 @@ export function Footer() {
         </div>
         
         <div className="flex items-center space-x-4">
+          <Link
+            href="https://github.com/TommyBez/v0-hub"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+            aria-label="GitHub"
+          >
+            <SiGithub className="h-5 w-5" />
+          </Link>
           <Link
             href="https://x.com/TommyBez85"
             target="_blank"
