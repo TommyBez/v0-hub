@@ -186,7 +186,6 @@ export default function RepositoryForm({
                   >
                     Create {watchedIsPrivateChat ? 'private' : 'v0'} chat
                   </MotionSpan>
-                  <span className="ml-2">→</span>
                 </>
               )}
             </Button>
