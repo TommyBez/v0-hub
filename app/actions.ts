@@ -102,8 +102,8 @@ export async function createV0Chat(repoUrl: string, branch: string): Promise<Cha
 
   if (process.env.DUB_API_KEY) {
     // Create short links
-    const shortUrlResult = await createShortLink(chat.url)
-    const shortDemoUrlResult = await createShortLink(chat.demo)
+    const shortUrlResult = await createShortLink(chat.webUrl)
+    const shortDemoUrlResult = await createShortLink(chat.latestVersion?.demoUrl || "")
 
     if (shortUrlResult) shortUrl = shortUrlResult
     if (shortDemoUrlResult) shortDemoUrl = shortDemoUrlResult
@@ -111,8 +111,8 @@ export async function createV0Chat(repoUrl: string, branch: string): Promise<Cha
 
   return {
     id: chat.id,
-    url: chat.url,
-    demo: chat.demo,
+    url: chat.webUrl,
+    demo: chat.latestVersion?.demoUrl || "",
     shortUrl,
     shortDemoUrl,
   }
@@ -247,7 +247,7 @@ export async function createV0ChatWithToken(
   const chatName = generateChatName(repoUrl, branch)
   
   // Create a custom v0 client with the specific token
-  const client = createClient({ token: apiKey })
+  const client = createClient({ apiKey: apiKey })
 
   const chat = await client.chats.init({
     type: "repo",
@@ -256,7 +256,6 @@ export async function createV0ChatWithToken(
       branch: branch,
     },
     chatPrivacy: useUserToken ? "private" : "public",
-    message: `Please analyze this repository and help me understand its structure and purpose.`,
     name: chatName,
   })
 
@@ -266,8 +265,8 @@ export async function createV0ChatWithToken(
 
   if (process.env.DUB_API_KEY) {
     // Create short links
-    const shortUrlResult = await createShortLink(chat.url)
-    const shortDemoUrlResult = await createShortLink(chat.demo)
+    const shortUrlResult = await createShortLink(chat.webUrl)
+    const shortDemoUrlResult = await createShortLink(chat.latestVersion?.demoUrl || "")
 
     if (shortUrlResult) shortUrl = shortUrlResult
     if (shortDemoUrlResult) shortDemoUrl = shortDemoUrlResult
@@ -275,8 +274,8 @@ export async function createV0ChatWithToken(
 
   return {
     id: chat.id,
-    url: chat.url,
-    demo: chat.demo,
+    url: chat.webUrl,
+    demo: chat.latestVersion?.demoUrl || "",
     shortUrl,
     shortDemoUrl,
   }
