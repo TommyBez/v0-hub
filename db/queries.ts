@@ -1,38 +1,43 @@
+import crypto from 'node:crypto'
 import { currentUser } from '@clerk/nextjs/server'
-import crypto from 'crypto'
 import { eq } from 'drizzle-orm'
 import { cache } from 'react'
+import { logger } from '@/lib/logger'
 import { db, type NewUser, type User, users } from './index'
 
 // Encryption utilities
-const ENCRYPTION_KEY =
-  process.env.ENCRYPTION_KEY || crypto.randomBytes(32).toString('hex')
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY
+  ? Buffer.from(process.env.ENCRYPTION_KEY, 'hex')
+  : crypto.randomBytes(32)
 const IV_LENGTH = 16
 
 function encrypt(text: string): string {
   const iv = crypto.randomBytes(IV_LENGTH)
   const cipher = crypto.createCipheriv(
     'aes-256-cbc',
-    Buffer.from(ENCRYPTION_KEY, 'hex'),
-    iv,
+    ENCRYPTION_KEY as crypto.CipherKey,
+    iv as crypto.BinaryLike,
   )
-  let encrypted = cipher.update(text)
-  encrypted = Buffer.concat([encrypted, cipher.final()])
-  return iv.toString('hex') + ':' + encrypted.toString('hex')
+  const encrypted = cipher.update(text, 'utf8', 'hex') + cipher.final('hex')
+  return `${iv.toString('hex')}:${encrypted}`
 }
 
 function decrypt(text: string): string {
   const textParts = text.split(':')
-  const iv = Buffer.from(textParts.shift()!, 'hex')
-  const encryptedText = Buffer.from(textParts.join(':'), 'hex')
+  const firstPart = textParts.shift()
+  if (!firstPart) {
+    return ''
+  }
+  const iv = Buffer.from(firstPart, 'hex')
+  const encryptedText = textParts.join(':')
   const decipher = crypto.createDecipheriv(
     'aes-256-cbc',
-    Buffer.from(ENCRYPTION_KEY, 'hex'),
-    iv,
+    ENCRYPTION_KEY as crypto.CipherKey,
+    iv as crypto.BinaryLike,
   )
-  let decrypted = decipher.update(encryptedText)
-  decrypted = Buffer.concat([decrypted, decipher.final()])
-  return decrypted.toString()
+  const decrypted =
+    decipher.update(encryptedText, 'hex', 'utf8') + decipher.final('utf8')
+  return decrypted
 }
 
 // Create a new user
@@ -79,7 +84,7 @@ async function syncCurrentUser(): Promise<User | null> {
   try {
     const user = await currentUser()
 
-    if (!(user && user.emailAddresses?.[0]?.emailAddress)) {
+    if (!user?.emailAddresses?.[0]?.emailAddress) {
       return null
     }
 
@@ -88,7 +93,7 @@ async function syncCurrentUser(): Promise<User | null> {
       email: user.emailAddresses[0].emailAddress,
     })
   } catch (error) {
-    console.error('Error in syncCurrentUser:', error)
+    logger.error(`Error in syncCurrentUser: ${error}`)
     return null
   }
 }
@@ -117,12 +122,14 @@ export async function getDecryptedV0Token(
   clerkId: string,
 ): Promise<string | null> {
   const user = await getUserByClerkId(clerkId)
-  if (!(user && user.v0token)) return null
+  if (!user?.v0token) {
+    return null
+  }
 
   try {
     return decrypt(user.v0token)
   } catch (error) {
-    console.error('Error decrypting token:', error)
+    logger.error(`Error decrypting token: ${error}`)
     return null
   }
 }

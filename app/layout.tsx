@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 // Force dynamic rendering for all pages since we're using authentication
 export const dynamic = 'force-dynamic'
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode

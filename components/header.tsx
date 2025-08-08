@@ -29,18 +29,18 @@ export function Header() {
           </SignedIn>
           <SignedOut>
             <SignInButton mode="modal">
-              <button className="font-medium text-sm underline-offset-4 hover:underline">
+              <Button size="sm" type="button" variant="link">
                 Sign In
-              </button>
+              </Button>
             </SignInButton>
             <SignUpButton mode="modal">
-              <button className="font-medium text-sm underline-offset-4 hover:underline">
+              <Button size="sm" type="button" variant="link">
                 Sign Up
-              </button>
+              </Button>
             </SignUpButton>
           </SignedOut>
           <SignedIn>
-            <UserButton afterSignOutUrl="/" />
+            <UserButton />
           </SignedIn>
           <ThemeToggle />
         </div>

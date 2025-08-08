@@ -4,6 +4,7 @@ import {
   createV0ChatWithToken,
 } from '@/app/actions'
 import ChatResultCard from '@/components/chat-result-card'
+import { logger } from '@/lib/logger'
 
 interface PageProps {
   params: Promise<{
@@ -42,7 +43,7 @@ export default async function DynamicBootstrapPage({
     }
   } catch (err) {
     error = err instanceof Error ? err.message : 'Failed to bootstrap chat'
-    console.error('Error bootstrapping chat:', err)
+    logger.error(`Error bootstrapping chat: ${err}`)
   }
 
   return (

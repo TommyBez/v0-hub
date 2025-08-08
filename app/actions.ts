@@ -7,16 +7,18 @@ import {
   getDecryptedV0Token,
   updateUserV0Token,
 } from '@/db/queries'
+import { logger } from '@/lib/logger'
+
+const GITHUB_REPO_URL_REGEX = /^https:\/\/github\.com\/[^/]+\/[^/]+$/
+const GITHUB_REPO_URL_REGEX_WITH_BRANCH =
+  /^https:\/\/github\.com\/([^/]+)\/([^/]+)(?:\.git)?(?:\/)?$/
 
 // Define the schema for input validation
 const bootstrapSchema = z.object({
-  repoUrl: z
-    .string()
-    .url()
-    .regex(/^https:\/\/github\.com\/[^/]+\/[^/]+$/, {
-      message:
-        'Please enter a valid GitHub repository URL (e.g., https://github.com/user/repo).',
-    }),
+  repoUrl: z.string().url().regex(GITHUB_REPO_URL_REGEX, {
+    message:
+      'Please enter a valid GitHub repository URL (e.g., https://github.com/user/repo).',
+  }),
   branch: z.string().min(1, { message: 'Branch name cannot be empty.' }),
 })
 
@@ -40,11 +42,12 @@ export interface ChatCreationResult {
 
 function generateChatName(repoUrl: string, branch: string): string {
   // Extract repository name from URL
-  const match = repoUrl.match(/^https:\/\/github\.com\/[^/]+\/([^/]+)$/)
-  const repoName = match ? match[1] : 'repository'
+  const match = repoUrl.match(GITHUB_REPO_URL_REGEX_WITH_BRANCH)
+  const repoName = match ? match[2] : 'repository'
 
   // Omit branch if it's main or master
-  const shouldIncludeBranch = branch !== 'main' && branch !== 'master'
+  const shouldIncludeBranch =
+    branch !== 'main' && branch !== 'master' && branch !== 'main'
 
   return shouldIncludeBranch
     ? `[v0hub] ${repoName} - ${branch}`
@@ -82,7 +85,7 @@ export async function createV0Chat(
 }
 
 export async function bootstrapChatFromRepo(
-  prevState: BootstrapState,
+  _prevState: BootstrapState,
   formData: FormData,
 ): Promise<BootstrapState> {
   const validatedFields = bootstrapSchema.safeParse({
@@ -111,7 +114,7 @@ export async function bootstrapChatFromRepo(
       data: chatData,
     }
   } catch (error) {
-    console.error('Error bootstrapping chat:', error)
+    logger.error(`Error bootstrapping chat: ${error}`)
     const errorMessage =
       error instanceof Error ? error.message : 'An unknown error occurred.'
     return {
@@ -127,9 +130,7 @@ export async function fetchGitHubBranches(
 ): Promise<{ success: boolean; branches?: string[]; error?: string }> {
   try {
     // Extract owner and repo from URL
-    const match = repoUrl.match(
-      /^https:\/\/github\.com\/([^/]+)\/([^/]+)(?:\.git)?(?:\/)?$/,
-    )
+    const match = repoUrl.match(GITHUB_REPO_URL_REGEX_WITH_BRANCH)
     if (!match) {
       return { success: false, error: 'Invalid GitHub repository URL' }
     }
@@ -165,7 +166,7 @@ export async function fetchGitHubBranches(
 
     return { success: true, branches: branchNames }
   } catch (error) {
-    console.error('Error fetching branches:', error)
+    logger.error(`Error fetching branches: ${error}`)
     return { success: false, error: 'Failed to fetch branches' }
   }
 }
@@ -174,21 +175,27 @@ export async function fetchGitHubBranches(
 
 export async function getUserToken(): Promise<{ hasToken: boolean }> {
   const user = await getCachedUser()
-  if (!user) throw new Error('Not authenticated')
+  if (!user) {
+    throw new Error('Not authenticated')
+  }
 
   return { hasToken: !!user.v0token }
 }
 
 export async function saveUserToken(token: string): Promise<void> {
   const user = await getCachedUser()
-  if (!user) throw new Error('Not authenticated')
+  if (!user) {
+    throw new Error('Not authenticated')
+  }
 
   await updateUserV0Token(user.clerkId, token)
 }
 
 export async function deleteUserToken(): Promise<void> {
   const user = await getCachedUser()
-  if (!user) throw new Error('Not authenticated')
+  if (!user) {
+    throw new Error('Not authenticated')
+  }
 
   await updateUserV0Token(user.clerkId, null)
 }
@@ -204,10 +211,14 @@ export async function createV0ChatWithToken(
   // If user token is requested, use it
   if (useUserToken) {
     const user = await getCachedUser()
-    if (!user) throw new Error('Not authenticated')
+    if (!user) {
+      throw new Error('Not authenticated')
+    }
 
     const token = await getDecryptedV0Token(user.clerkId)
-    if (!token) throw new Error('No token found. Please add your v0 API token.')
+    if (!token) {
+      throw new Error('No token found. Please add your v0 API token.')
+    }
 
     apiKey = token
   } else if (!apiKey) {

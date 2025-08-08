@@ -25,12 +25,9 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { logger } from '@/lib/logger'
 
-interface TokenManagerProps {
-  userId: string
-}
-
-export function TokenManager({ userId }: TokenManagerProps) {
+export function TokenManager() {
   const [hasToken, setHasToken] = useState(false)
   const [tokenValue, setTokenValue] = useState('')
   const [showToken, setShowToken] = useState(false)
@@ -39,15 +36,15 @@ export function TokenManager({ userId }: TokenManagerProps) {
 
   useEffect(() => {
     loadTokenStatus()
-  }, [])
+  })
 
   const loadTokenStatus = async () => {
     try {
-      const { hasToken } = await getUserToken()
-      setHasToken(hasToken)
+      const { hasToken: hasTokenStatus } = await getUserToken()
+      setHasToken(hasTokenStatus)
     } catch (error) {
       toast.error('Failed to load token status')
-      console.error(error)
+      logger.error(`Failed to load token status: ${error}`)
     } finally {
       setIsLoading(false)
     }
@@ -68,7 +65,7 @@ export function TokenManager({ userId }: TokenManagerProps) {
       setShowToken(false)
     } catch (error) {
       toast.error('Failed to save token')
-      console.error(error)
+      logger.error(`Failed to save token: ${error}`)
     } finally {
       setIsSaving(false)
     }
@@ -82,7 +79,7 @@ export function TokenManager({ userId }: TokenManagerProps) {
       setTokenValue('')
     } catch (error) {
       toast.error('Failed to delete token')
-      console.error(error)
+      logger.error(`Failed to delete token: ${error}`)
     }
   }
 
