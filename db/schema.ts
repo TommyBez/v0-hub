@@ -6,7 +6,7 @@ export const users = pgTable('users', {
   id: uuid('id').defaultRandom().primaryKey(),
   email: text('email').notNull().unique(),
   clerkId: text('clerk_id').notNull().unique(),
-  v0token: text('v0token'),
+  v0token: text('v0token'), // Encrypted v0 API token
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

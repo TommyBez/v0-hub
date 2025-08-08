@@ -4,9 +4,10 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Copy } from "lucide-react"
+import { Copy, Lock, Globe } from "lucide-react"
 import { SiV0 } from "@icons-pack/react-simple-icons"
 import { toast } from "sonner"
+import { Badge } from "@/components/ui/badge"
 
 interface ChatData {
   id: string
@@ -18,9 +19,10 @@ interface ChatData {
 
 interface ChatResultCardProps {
   chatData: ChatData
+  isPrivate?: boolean
 }
 
-export default function ChatResultCard({ chatData }: ChatResultCardProps) {
+export default function ChatResultCard({ chatData, isPrivate = false }: ChatResultCardProps) {
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
     toast.success("Copied to clipboard!")
@@ -29,8 +31,25 @@ export default function ChatResultCard({ chatData }: ChatResultCardProps) {
   return (
     <Card className="animate-in fade-in-50">
       <CardHeader>
-        <CardTitle>Chat Created!</CardTitle>
-        <CardDescription>Your new chat instance is ready. Open it and fork!.</CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Chat Created!</CardTitle>
+            <CardDescription>Your new chat instance is ready. Open it and fork!.</CardDescription>
+          </div>
+          <Badge variant={isPrivate ? "default" : "secondary"} className="gap-1">
+            {isPrivate ? (
+              <>
+                <Lock className="h-3 w-3" />
+                Private
+              </>
+            ) : (
+              <>
+                <Globe className="h-3 w-3" />
+                Public
+              </>
+            )}
+          </Badge>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">

@@ -1,8 +1,13 @@
 "use server"
 
 import { z } from "zod"
-import { v0 } from "v0-sdk"
+import { v0, createClient } from "v0-sdk"
 import { Dub } from "dub"
+import { 
+  getCachedUser,
+  updateUserV0Token,
+  getDecryptedV0Token
+} from "@/db/queries"
 
 // Define the schema for input validation
 const bootstrapSchema = z.object({
@@ -186,5 +191,93 @@ export async function fetchGitHubBranches(
   } catch (error) {
     console.error("Error fetching branches:", error)
     return { success: false, error: "Failed to fetch branches" }
+  }
+}
+
+// Token Management Server Actions
+
+export async function getUserToken(): Promise<{ hasToken: boolean }> {
+  const user = await getCachedUser()
+  if (!user) throw new Error("Not authenticated")
+  
+  return { hasToken: !!user.v0token }
+}
+
+export async function saveUserToken(token: string): Promise<void> {
+  const user = await getCachedUser()
+  if (!user) throw new Error("Not authenticated")
+  
+  await updateUserV0Token(user.clerkId, token)
+}
+
+export async function deleteUserToken(): Promise<void> {
+  const user = await getCachedUser()
+  if (!user) throw new Error("Not authenticated")
+  
+  await updateUserV0Token(user.clerkId, null)
+}
+
+// Modified createV0Chat to support user tokens
+export async function createV0ChatWithToken(
+  repoUrl: string,
+  branch: string,
+  useUserToken: boolean = false
+): Promise<ChatCreationResult> {
+  let apiKey = process.env.V0_API_KEY
+  
+  // If user token is requested, use it
+  if (useUserToken) {
+    const user = await getCachedUser()
+    if (!user) throw new Error("Not authenticated")
+    
+    const token = await getDecryptedV0Token(user.clerkId)
+    if (!token) throw new Error("No token found. Please add your v0 API token.")
+    
+    apiKey = token
+  } else if (!apiKey) {
+    throw new Error("No API key available. Please provide a token or set V0_API_KEY.")
+  }
+  
+  // Check if Dub API key is configured
+  if (!process.env.DUB_API_KEY) {
+    console.warn("DUB_API_KEY is not set. Short links will not be generated.")
+  }
+
+  // Generate custom chat name
+  const chatName = generateChatName(repoUrl, branch)
+  
+  // Create a custom v0 client with the specific token
+  const client = createClient({ token: apiKey })
+
+  const chat = await client.chats.init({
+    type: "repo",
+    repo: {
+      url: repoUrl,
+      branch: branch,
+    },
+    chatPrivacy: useUserToken ? "private" : "public",
+    message: `Please analyze this repository and help me understand its structure and purpose.`,
+    name: chatName,
+  })
+
+  // Generate short links for the chat URL and demo URL
+  let shortUrl: string | undefined
+  let shortDemoUrl: string | undefined
+
+  if (process.env.DUB_API_KEY) {
+    // Create short links
+    const shortUrlResult = await createShortLink(chat.url)
+    const shortDemoUrlResult = await createShortLink(chat.demo)
+
+    if (shortUrlResult) shortUrl = shortUrlResult
+    if (shortDemoUrlResult) shortDemoUrl = shortDemoUrlResult
+  }
+
+  return {
+    id: chat.id,
+    url: chat.url,
+    demo: chat.demo,
+    shortUrl,
+    shortDemoUrl,
   }
 }

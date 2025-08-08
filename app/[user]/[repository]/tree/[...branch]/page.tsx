@@ -1,4 +1,4 @@
-import { createV0Chat, type ChatCreationResult } from "@/app/actions"
+import { createV0Chat, createV0ChatWithToken, type ChatCreationResult } from "@/app/actions"
 import ChatResultCard from "@/components/chat-result-card"
 
 interface PageProps {
@@ -7,23 +7,32 @@ interface PageProps {
     repository: string
     branch: string[]
   }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
-export default async function DynamicBootstrapPage({ params }: PageProps) {
+export default async function DynamicBootstrapPage({ params, searchParams }: PageProps) {
   const { user, repository, branch } = await params
+  const searchParamsData = await searchParams
   
   // Join the branch array with slashes to handle branch names with slashes
   const fullBranchName = branch.join('/')
 
   // Construct the GitHub URL from params
   const repoUrl = `https://github.com/${user}/${repository}`
+  
+  // Check if this should be a private chat
+  const isPrivate = searchParamsData.private === 'true'
 
   let chatData: ChatCreationResult | null = null
   let error: string | null = null
 
   try {
-    // Create the v0 chat
-    chatData = await createV0Chat(repoUrl, fullBranchName)
+    // Create the v0 chat with or without user token
+    if (isPrivate) {
+      chatData = await createV0ChatWithToken(repoUrl, fullBranchName, true)
+    } else {
+      chatData = await createV0Chat(repoUrl, fullBranchName)
+    }
   } catch (err) {
     error = err instanceof Error ? err.message : "Failed to bootstrap chat"
     console.error("Error bootstrapping chat:", err)
@@ -38,7 +47,7 @@ export default async function DynamicBootstrapPage({ params }: PageProps) {
             <p className="text-sm">{error}</p>
           </div>
         ) : (
-          chatData && <ChatResultCard chatData={chatData} />
+          chatData && <ChatResultCard chatData={chatData} isPrivate={isPrivate} />
         )}
       </div>
     </div>
