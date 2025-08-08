@@ -1,17 +1,23 @@
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export default function Loading() {
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-gray-50 dark:bg-gray-950 p-4">
+    <div className="flex min-h-screen w-full items-center justify-center bg-gray-50 p-4 dark:bg-gray-950">
       <div className="w-full max-w-2xl">
-        <Card className="animate-in fade-in-50">
+        <Card className="fade-in-50 animate-in">
           <CardHeader>
             <CardTitle>
               <Skeleton className="h-7 w-32" />
             </CardTitle>
             <CardDescription>
-              <Skeleton className="h-4 w-80 mt-1" />
+              <Skeleton className="mt-1 h-4 w-80" />
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">

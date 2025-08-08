@@ -1,6 +1,6 @@
-import { redirect } from "next/navigation"
-import { fetchGitHubBranches } from "@/app/actions"
-import RepositorySelectionCard from "@/components/repository-selection-card"
+import { redirect } from 'next/navigation'
+import { fetchGitHubBranches } from '@/app/actions'
+import RepositorySelectionCard from '@/components/repository-selection-card'
 
 interface PageProps {
   params: Promise<{
@@ -18,9 +18,9 @@ export default async function RepositoryPage({ params }: PageProps) {
 
   if (result.success && result.branches) {
     // Check if main or master branch exists
-    const mainBranch = result.branches.find((branch) => branch === "main")
-    const masterBranch = result.branches.find((branch) => branch === "master")
-    
+    const mainBranch = result.branches.find((branch) => branch === 'main')
+    const masterBranch = result.branches.find((branch) => branch === 'master')
+
     // Redirect to main or master branch if available
     if (mainBranch) {
       redirect(`/${user}/${repository}/tree/main`)
@@ -31,11 +31,11 @@ export default async function RepositoryPage({ params }: PageProps) {
 
   // If no main/master branch or error fetching branches, show branch selection
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-gray-50 dark:bg-gray-950 p-4">
+    <div className="flex min-h-screen w-full items-center justify-center bg-gray-50 p-4 dark:bg-gray-950">
       <div className="w-full max-w-2xl">
         <RepositorySelectionCard
-          title="Select Branch"
           description={`Choose a branch from ${user}/${repository} to explore`}
+          title="Select Branch"
         />
       </div>
     </div>
