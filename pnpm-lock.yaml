@@ -140,9 +140,6 @@ importers:
       drizzle-zod:
         specifier: ^0.8.3
         version: 0.8.3(drizzle-orm@0.44.4(@neondatabase/serverless@1.0.1)(@types/pg@8.15.5))(zod@3.25.67)
-      dub:
-        specifier: latest
-        version: 0.64.2(@modelcontextprotocol/sdk@1.17.1)(zod@3.25.67)
       embla-carousel-react:
         specifier: latest
         version: 8.6.0(react@19.0.0)
@@ -2521,16 +2518,6 @@ packages:
     peerDependencies:
       drizzle-orm: '>=0.36.0'
       zod: ^3.25.0 || ^4.0.0
-
-  dub@0.64.2:
-    resolution: {integrity: sha512-9Zn+kN1tix/qgPUe+8W4tX3XbcqueUuyHDuW4X+GKG/PDZ+vgXR0aQPk9gy6IWuffaJIaknwXtYslzS+2zfNTg==}
-    hasBin: true
-    peerDependencies:
-      '@modelcontextprotocol/sdk': '>=1.5.0 <1.10.0'
-      zod: ^3
-    peerDependenciesMeta:
-      '@modelcontextprotocol/sdk':
-        optional: true
 
   dunder-proto@1.0.1:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
@@ -6225,12 +6212,6 @@ snapshots:
     dependencies:
       drizzle-orm: 0.44.4(@neondatabase/serverless@1.0.1)(@types/pg@8.15.5)
       zod: 3.25.67
-
-  dub@0.64.2(@modelcontextprotocol/sdk@1.17.1)(zod@3.25.67):
-    dependencies:
-      zod: 3.25.67
-    optionalDependencies:
-      '@modelcontextprotocol/sdk': 1.17.1
 
   dunder-proto@1.0.1:
     dependencies:

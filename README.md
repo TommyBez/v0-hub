@@ -12,7 +12,7 @@ v0hub lets you paste a GitHub repository URL and create a v0 chat session for th
 - **Private Chats**: Sign in to create private chats using your personal v0 token
 - **Secure Token Storage**: Your v0 API token is encrypted and stored securely
 - **Branch Selection**: Automatically fetches and lets you select repository branches
-- **URL Shortening**: Optional integration with Dub for creating short links
+ - **URL Shortening**: Removed. Previously used Dub; now we link directly to v0 URLs.
 
 ## Requirements
 
@@ -21,7 +21,7 @@ v0hub lets you paste a GitHub repository URL and create a v0 chat session for th
 - Neon Database (PostgreSQL)
 - Clerk account for authentication
 - v0 API key from [v0.dev](https://v0.dev) (optional for public chats)
-- Dub API key from [dub.co](https://dub.co) (optional, for URL shortening)
+ 
 
 ## Setup
 
@@ -51,8 +51,7 @@ v0hub lets you paste a GitHub repository URL and create a v0 chat session for th
    # Token Encryption
    ENCRYPTION_KEY=your_32_byte_hex_encryption_key  # Generate with: openssl rand -hex 32
    
-   # Optional
-   DUB_API_KEY=your_dub_api_key
+    
    ```
 
 4. Set up the database:
@@ -100,7 +99,6 @@ v0hub lets you paste a GitHub repository URL and create a v0 chat session for th
 - Drizzle ORM
 - Neon Database (PostgreSQL)
 - v0-sdk
-- Dub SDK (optional)
 
 ## Scripts
 
@@ -121,7 +119,7 @@ pnpm db:studio   # Open Drizzle Studio
 - `CLERK_SECRET_KEY` - Required. Clerk secret key
 - `ENCRYPTION_KEY` - Required. 32-byte hex key for token encryption
 - `V0_API_KEY` - Optional. Default v0 API key for public chats
-- `DUB_API_KEY` - Optional. For URL shortening
+ 
 
 ## Security
 

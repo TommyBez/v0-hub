@@ -2,7 +2,6 @@
 
 import { z } from "zod"
 import { v0, createClient } from "v0-sdk"
-import { Dub } from "dub"
 import { 
   getCachedUser,
   updateUserV0Token,
@@ -28,8 +27,6 @@ interface BootstrapState {
     id: string
     url: string
     demo: string
-    shortUrl?: string
-    shortDemoUrl?: string
   } | null
 }
 
@@ -38,26 +35,6 @@ export interface ChatCreationResult {
   id: string
   url: string
   demo: string
-  shortUrl?: string
-  shortDemoUrl?: string
-}
-
-async function createShortLink(longUrl: string): Promise<string | null> {
-  // Initialize Dub client
-  const dub = new Dub({
-    token: process.env.DUB_API_KEY,
-  })
-
-  try {
-    const link = await dub.links.create({
-      url: longUrl,
-    })
-
-    return link.shortLink
-  } catch (error) {
-    console.error("Error creating short link:", error)
-    return null
-  }
 }
 
 function generateChatName(repoUrl: string, branch: string): string {
@@ -78,11 +55,6 @@ export async function createV0Chat(repoUrl: string, branch: string): Promise<Cha
     throw new Error("V0_API_KEY is not set on the server.")
   }
 
-  // Check if Dub API key is configured
-  if (!process.env.DUB_API_KEY) {
-    console.warn("DUB_API_KEY is not set. Short links will not be generated.")
-  }
-
   // Generate custom chat name
   const chatName = generateChatName(repoUrl, branch)
 
@@ -96,25 +68,10 @@ export async function createV0Chat(repoUrl: string, branch: string): Promise<Cha
     name: chatName,
   })
 
-  // Generate short links for the chat URL and demo URL
-  let shortUrl: string | undefined
-  let shortDemoUrl: string | undefined
-
-  if (process.env.DUB_API_KEY) {
-    // Create short links
-    const shortUrlResult = await createShortLink(chat.webUrl)
-    const shortDemoUrlResult = await createShortLink(chat.latestVersion?.demoUrl || "")
-
-    if (shortUrlResult) shortUrl = shortUrlResult
-    if (shortDemoUrlResult) shortDemoUrl = shortDemoUrlResult
-  }
-
   return {
     id: chat.id,
     url: chat.webUrl,
     demo: chat.latestVersion?.demoUrl || "",
-    shortUrl,
-    shortDemoUrl,
   }
 }
 
@@ -237,11 +194,6 @@ export async function createV0ChatWithToken(
   } else if (!apiKey) {
     throw new Error("No API key available. Please provide a token or set V0_API_KEY.")
   }
-  
-  // Check if Dub API key is configured
-  if (!process.env.DUB_API_KEY) {
-    console.warn("DUB_API_KEY is not set. Short links will not be generated.")
-  }
 
   // Generate custom chat name
   const chatName = generateChatName(repoUrl, branch)
@@ -259,24 +211,9 @@ export async function createV0ChatWithToken(
     name: chatName,
   })
 
-  // Generate short links for the chat URL and demo URL
-  let shortUrl: string | undefined
-  let shortDemoUrl: string | undefined
-
-  if (process.env.DUB_API_KEY) {
-    // Create short links
-    const shortUrlResult = await createShortLink(chat.webUrl)
-    const shortDemoUrlResult = await createShortLink(chat.latestVersion?.demoUrl || "")
-
-    if (shortUrlResult) shortUrl = shortUrlResult
-    if (shortDemoUrlResult) shortDemoUrl = shortDemoUrlResult
-  }
-
   return {
     id: chat.id,
     url: chat.webUrl,
     demo: chat.latestVersion?.demoUrl || "",
-    shortUrl,
-    shortDemoUrl,
   }
 }

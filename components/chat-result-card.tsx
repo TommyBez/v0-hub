@@ -13,8 +13,6 @@ interface ChatData {
   id: string
   url: string
   demo: string
-  shortUrl?: string
-  shortDemoUrl?: string
 }
 
 interface ChatResultCardProps {
@@ -55,16 +53,16 @@ export default function ChatResultCard({ chatData, isPrivate = false }: ChatResu
         <div className="space-y-2">
           <Label>Chat URL</Label>
           <div className="flex items-center gap-2">
-            <Input readOnly value={chatData.shortUrl || chatData.url} className="flex-1" />
+            <Input readOnly value={chatData.url} className="flex-1" />
             <Button 
               variant="outline" 
               size="icon" 
-              onClick={() => copyToClipboard(chatData.shortUrl || chatData.url)}
+              onClick={() => copyToClipboard(chatData.url)}
             >
               <Copy className="h-4 w-4" />
               <span className="sr-only">Copy URL</span>
             </Button>
-            <a href={chatData.shortUrl || chatData.url} target="_blank" rel="noopener noreferrer">
+            <a href={chatData.url} target="_blank" rel="noopener noreferrer">
               <Button variant="default" size="icon">
                 <SiV0 className="h-4 w-4" />
                 <span className="sr-only">Open v0 chat</span>
