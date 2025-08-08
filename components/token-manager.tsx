@@ -1,9 +1,9 @@
 'use client'
 
 import { Eye, EyeOff, Key, Save, Trash2 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { use, useState } from 'react'
 import { toast } from 'sonner'
-import { deleteUserToken, getUserToken, saveUserToken } from '@/app/actions'
+import { deleteUserToken, saveUserToken } from '@/app/actions'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,28 +27,12 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { logger } from '@/lib/logger'
 
-export function TokenManager() {
-  const [hasToken, setHasToken] = useState(false)
+export function TokenManager({ tokenStatusPromise }: { tokenStatusPromise: Promise<{ hasToken: boolean }> }) {
+  const { hasToken: initialHasToken } = use(tokenStatusPromise)
+  const [hasToken, setHasToken] = useState(initialHasToken)
   const [tokenValue, setTokenValue] = useState('')
   const [showToken, setShowToken] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
-
-  useEffect(() => {
-    loadTokenStatus()
-  })
-
-  const loadTokenStatus = async () => {
-    try {
-      const { hasToken: hasTokenStatus } = await getUserToken()
-      setHasToken(hasTokenStatus)
-    } catch (error) {
-      toast.error('Failed to load token status')
-      logger.error(`Failed to load token status: ${error}`)
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
   const handleSaveToken = async () => {
     if (!tokenValue.trim()) {
@@ -81,16 +65,6 @@ export function TokenManager() {
       toast.error('Failed to delete token')
       logger.error(`Failed to delete token: ${error}`)
     }
-  }
-
-  if (isLoading) {
-    return (
-      <Card>
-        <CardContent className="flex items-center justify-center py-10">
-          <div className="text-muted-foreground">Loading...</div>
-        </CardContent>
-      </Card>
-    )
   }
 
   return (

@@ -20,7 +20,7 @@ export function Header() {
         </Link>
         <div className="flex items-center gap-4">
           <SignedIn>
-            <Link href="/tokens">
+            <Link href="/token">
               <Button className="gap-2" size="sm" variant="ghost">
                 <Key className="h-4 w-4" />
                 <span className="hidden sm:inline">API Token</span>
