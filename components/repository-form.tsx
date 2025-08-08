@@ -2,10 +2,10 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Globe, Loader2, Lock } from 'lucide-react'
-import { animate } from 'motion'
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
+import { span as MotionSpan } from 'motion/react-client'
 import BranchSelector from '@/components/branch-selector'
 import TokenDialog from '@/components/token-dialog'
 import { Button } from '@/components/ui/button'
@@ -79,35 +79,6 @@ export default function RepositoryForm({
   const watchedRepoUrl = form.watch('repoUrl')
   const watchedBranch = form.watch('branch')
 
-  // Refs for targeted animations
-  const privacyIconRef = useRef<HTMLSpanElement | null>(null)
-  const ctaTextRef = useRef<HTMLSpanElement | null>(null)
-
-  // Animate privacy icon pop on toggle
-  useEffect(() => {
-    if (!privacyIconRef.current) {
-      return
-    }
-    animate(
-      privacyIconRef.current,
-      { scale: [0.85, 1] },
-      { duration: 0.18, easing: 'ease-out' },
-    )
-  }, [])
-
-  // Animate CTA text crossfade/slide on toggle
-  useEffect(() => {
-    if (!ctaTextRef.current) {
-      return
-    }
-    ctaTextRef.current.style.opacity = '0'
-    animate(
-      ctaTextRef.current,
-      { opacity: [0, 1], y: [4, 0] },
-      { duration: 0.2 },
-    )
-  }, [])
-
   return (
     <>
       <Form {...form}>
@@ -156,13 +127,19 @@ export default function RepositoryForm({
                   <FormItem className="flex items-center justify-between">
                     <div className="space-y-0.5">
                       <FormLabel className="flex items-center gap-2 font-medium text-base">
-                        <span className="inline-flex" ref={privacyIconRef}>
+                        <MotionSpan
+                          key={field.value ? 'private' : 'public'}
+                          className="inline-flex"
+                          initial={{ opacity: 0.85, scale: 0.9, y: -1 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          transition={{ duration: 0.18, ease: 'easeOut' }}
+                        >
                           {field.value ? (
                             <Lock className="h-4 w-4" />
                           ) : (
                             <Globe className="h-4 w-4" />
                           )}
-                        </span>
+                        </MotionSpan>
                         {field.value ? 'Private Chat' : 'Public Chat'}
                       </FormLabel>
                       <FormDescription>
@@ -200,12 +177,15 @@ export default function RepositoryForm({
                 </>
               ) : (
                 <>
-                  {watchedIsPrivateChat ? (
-                    <Lock className="mr-2 h-5 w-5" />
-                  ) : null}
-                  <span ref={ctaTextRef}>
+                  {watchedIsPrivateChat ? <Lock className="mr-2 h-5 w-5" /> : null}
+                  <MotionSpan
+                    key={watchedIsPrivateChat ? 'private-cta' : 'public-cta'}
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
                     Create {watchedIsPrivateChat ? 'private' : 'v0'} chat
-                  </span>
+                  </MotionSpan>
                   <span className="ml-2">→</span>
                 </>
               )}
