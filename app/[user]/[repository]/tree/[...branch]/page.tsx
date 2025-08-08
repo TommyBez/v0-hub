@@ -1,5 +1,9 @@
-import { createV0Chat, createV0ChatWithToken, type ChatCreationResult } from "@/app/actions"
-import ChatResultCard from "@/components/chat-result-card"
+import {
+  type ChatCreationResult,
+  createV0Chat,
+  createV0ChatWithToken,
+} from '@/app/actions'
+import ChatResultCard from '@/components/chat-result-card'
 
 interface PageProps {
   params: Promise<{
@@ -10,16 +14,19 @@ interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
-export default async function DynamicBootstrapPage({ params, searchParams }: PageProps) {
+export default async function DynamicBootstrapPage({
+  params,
+  searchParams,
+}: PageProps) {
   const { user, repository, branch } = await params
   const searchParamsData = await searchParams
-  
+
   // Join the branch array with slashes to handle branch names with slashes
   const fullBranchName = branch.join('/')
 
   // Construct the GitHub URL from params
   const repoUrl = `https://github.com/${user}/${repository}`
-  
+
   // Check if this should be a private chat
   const isPrivate = searchParamsData.private === 'true'
 
@@ -34,20 +41,22 @@ export default async function DynamicBootstrapPage({ params, searchParams }: Pag
       chatData = await createV0Chat(repoUrl, fullBranchName)
     }
   } catch (err) {
-    error = err instanceof Error ? err.message : "Failed to bootstrap chat"
-    console.error("Error bootstrapping chat:", err)
+    error = err instanceof Error ? err.message : 'Failed to bootstrap chat'
+    console.error('Error bootstrapping chat:', err)
   }
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-gray-50 dark:bg-gray-950 p-4">
+    <div className="flex min-h-screen w-full items-center justify-center bg-gray-50 p-4 dark:bg-gray-950">
       <div className="w-full max-w-2xl">
         {error ? (
           <div className="rounded-lg bg-destructive/10 p-4 text-destructive">
-            <p className="text-sm font-medium">Error</p>
+            <p className="font-medium text-sm">Error</p>
             <p className="text-sm">{error}</p>
           </div>
         ) : (
-          chatData && <ChatResultCard chatData={chatData} isPrivate={isPrivate} />
+          chatData && (
+            <ChatResultCard chatData={chatData} isPrivate={isPrivate} />
+          )
         )}
       </div>
     </div>

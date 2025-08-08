@@ -1,18 +1,9 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { toast } from "sonner"
-import { Key, Eye, EyeOff, Save, Trash2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Eye, EyeOff, Key, Save, Trash2 } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
+import { deleteUserToken, getUserToken, saveUserToken } from '@/app/actions'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,12 +14,17 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { 
-  getUserToken, 
-  saveUserToken, 
-  deleteUserToken
-} from "@/app/actions"
+} from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 interface TokenManagerProps {
   userId: string
@@ -36,7 +32,7 @@ interface TokenManagerProps {
 
 export function TokenManager({ userId }: TokenManagerProps) {
   const [hasToken, setHasToken] = useState(false)
-  const [tokenValue, setTokenValue] = useState("")
+  const [tokenValue, setTokenValue] = useState('')
   const [showToken, setShowToken] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
@@ -50,7 +46,7 @@ export function TokenManager({ userId }: TokenManagerProps) {
       const { hasToken } = await getUserToken()
       setHasToken(hasToken)
     } catch (error) {
-      toast.error("Failed to load token status")
+      toast.error('Failed to load token status')
       console.error(error)
     } finally {
       setIsLoading(false)
@@ -59,19 +55,19 @@ export function TokenManager({ userId }: TokenManagerProps) {
 
   const handleSaveToken = async () => {
     if (!tokenValue.trim()) {
-      toast.error("Please enter a token")
+      toast.error('Please enter a token')
       return
     }
 
     setIsSaving(true)
     try {
       await saveUserToken(tokenValue.trim())
-      toast.success("Token saved successfully")
-      setTokenValue("")
+      toast.success('Token saved successfully')
+      setTokenValue('')
       setHasToken(true)
       setShowToken(false)
     } catch (error) {
-      toast.error("Failed to save token")
+      toast.error('Failed to save token')
       console.error(error)
     } finally {
       setIsSaving(false)
@@ -81,11 +77,11 @@ export function TokenManager({ userId }: TokenManagerProps) {
   const handleDeleteToken = async () => {
     try {
       await deleteUserToken()
-      toast.success("Token deleted successfully")
+      toast.success('Token deleted successfully')
       setHasToken(false)
-      setTokenValue("")
+      setTokenValue('')
     } catch (error) {
-      toast.error("Failed to delete token")
+      toast.error('Failed to delete token')
       console.error(error)
     }
   }
@@ -108,20 +104,20 @@ export function TokenManager({ userId }: TokenManagerProps) {
           v0 API Token
         </CardTitle>
         <CardDescription>
-          {hasToken 
-            ? "Your v0 API token is stored securely. You can update or remove it below."
-            : "Add your v0 API token to create private chats. Get your token from "}
+          {hasToken
+            ? 'Your v0 API token is stored securely. You can update or remove it below.'
+            : 'Add your v0 API token to create private chats. Get your token from '}
           {!hasToken && (
-            <a 
-              href="https://v0.dev/settings" 
-              target="_blank" 
-              rel="noopener noreferrer"
+            <a
               className="underline underline-offset-4 hover:text-primary"
+              href="https://v0.dev/settings"
+              rel="noopener noreferrer"
+              target="_blank"
             >
               v0.dev settings
             </a>
           )}
-          {!hasToken && "."}
+          {!hasToken && '.'}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -130,19 +126,21 @@ export function TokenManager({ userId }: TokenManagerProps) {
           <div className="flex gap-2">
             <div className="relative flex-1">
               <Input
-                id="token"
-                type={showToken ? "text" : "password"}
-                placeholder={hasToken ? "Enter new token to update" : "Your v0 API token"}
-                value={tokenValue}
-                onChange={(e) => setTokenValue(e.target.value)}
                 disabled={isSaving}
+                id="token"
+                onChange={(e) => setTokenValue(e.target.value)}
+                placeholder={
+                  hasToken ? 'Enter new token to update' : 'Your v0 API token'
+                }
+                type={showToken ? 'text' : 'password'}
+                value={tokenValue}
               />
             </div>
             <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setShowToken(!showToken)}
               disabled={!tokenValue}
+              onClick={() => setShowToken(!showToken)}
+              size="icon"
+              variant="outline"
             >
               {showToken ? (
                 <EyeOff className="h-4 w-4" />
@@ -152,27 +150,27 @@ export function TokenManager({ userId }: TokenManagerProps) {
             </Button>
           </div>
           {hasToken && (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-sm">
               Leave empty to keep your current token
             </p>
           )}
         </div>
 
         <div className="flex gap-2">
-          <Button 
-            onClick={handleSaveToken}
-            disabled={isSaving || !tokenValue.trim()}
+          <Button
             className="flex-1"
+            disabled={isSaving || !tokenValue.trim()}
+            onClick={handleSaveToken}
           >
-            <Save className="h-4 w-4 mr-2" />
-            {hasToken ? "Update Token" : "Save Token"}
+            <Save className="mr-2 h-4 w-4" />
+            {hasToken ? 'Update Token' : 'Save Token'}
           </Button>
-          
+
           {hasToken && (
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="outline" disabled={isSaving}>
-                  <Trash2 className="h-4 w-4 mr-2" />
+                <Button disabled={isSaving} variant="outline">
+                  <Trash2 className="mr-2 h-4 w-4" />
                   Delete
                 </Button>
               </AlertDialogTrigger>
@@ -180,14 +178,15 @@ export function TokenManager({ userId }: TokenManagerProps) {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Delete Token</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Are you sure you want to delete your v0 API token? You won&apos;t be able to create private chats without it.
+                    Are you sure you want to delete your v0 API token? You
+                    won&apos;t be able to create private chats without it.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction
-                    onClick={handleDeleteToken}
                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    onClick={handleDeleteToken}
                   >
                     Delete
                   </AlertDialogAction>

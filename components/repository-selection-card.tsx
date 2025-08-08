@@ -1,18 +1,21 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { toast } from "sonner"
-import { fetchGitHubBranches, getUserToken, saveUserToken } from "@/app/actions"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Loader2, GitBranch, Lock, Globe, Key, Eye, EyeOff } from "lucide-react"
-import { SiGithub } from "@icons-pack/react-simple-icons"
-import { Switch } from "@/components/ui/switch"
-import { useAuth, useClerk } from "@clerk/nextjs"
+import { useAuth, useClerk } from '@clerk/nextjs'
+import { SiGithub } from '@icons-pack/react-simple-icons'
+import { Eye, EyeOff, GitBranch, Globe, Key, Loader2, Lock } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
+import { fetchGitHubBranches, getUserToken, saveUserToken } from '@/app/actions'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -20,7 +23,17 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
 
 interface RepositorySelectionCardProps {
   title?: string
@@ -30,30 +43,30 @@ interface RepositorySelectionCardProps {
 }
 
 export default function RepositorySelectionCard({
-  title = "Bootstrap Chat from GitHub",
-  description = "Initialize a new v0 chat instance from a public GitHub repository.",
+  title = 'Bootstrap Chat from GitHub',
+  description = 'Initialize a new v0 chat instance from a public GitHub repository.',
   disabled = false,
   showHeader = true,
 }: RepositorySelectionCardProps) {
   const router = useRouter()
   const { isSignedIn } = useAuth()
   const { openSignIn } = useClerk()
-  
+
   // Branch fetching state
-  const [repoUrl, setRepoUrl] = useState("")
+  const [repoUrl, setRepoUrl] = useState('')
   const [branches, setBranches] = useState<string[]>([])
-  const [selectedBranch, setSelectedBranch] = useState("")
+  const [selectedBranch, setSelectedBranch] = useState('')
   const [isFetchingBranches, setIsFetchingBranches] = useState(false)
-  const [branchError, setBranchError] = useState("")
+  const [branchError, setBranchError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
-  
+
   // Private chat state
   const [isPrivateChat, setIsPrivateChat] = useState(false)
   const [hasToken, setHasToken] = useState(false)
   const [showTokenDialog, setShowTokenDialog] = useState(false)
-  
+
   // Token form state
-  const [tokenValue, setTokenValue] = useState("")
+  const [tokenValue, setTokenValue] = useState('')
   const [showToken, setShowToken] = useState(false)
   const [isSavingToken, setIsSavingToken] = useState(false)
 
@@ -73,19 +86,22 @@ export default function RepositorySelectionCard({
         setIsPrivateChat(false)
       }
     } catch (error) {
-      console.error("Failed to check token:", error)
+      console.error('Failed to check token:', error)
     }
   }
 
   // Debounce repo URL changes
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      if (repoUrl && repoUrl.match(/^https:\/\/github\.com\/[^/]+\/[^/]+(?:\.git)?(?:\/)?$/)) {
+      if (
+        repoUrl &&
+        repoUrl.match(/^https:\/\/github\.com\/[^/]+\/[^/]+(?:\.git)?(?:\/)?$/)
+      ) {
         fetchBranches(repoUrl)
       } else {
         setBranches([])
-        setSelectedBranch("")
-        setBranchError("")
+        setSelectedBranch('')
+        setBranchError('')
       }
     }, 500)
 
@@ -94,9 +110,9 @@ export default function RepositorySelectionCard({
 
   const fetchBranches = async (url: string) => {
     setIsFetchingBranches(true)
-    setBranchError("")
+    setBranchError('')
     setBranches([])
-    setSelectedBranch("")
+    setSelectedBranch('')
 
     try {
       const result = await fetchGitHubBranches(url)
@@ -105,18 +121,18 @@ export default function RepositorySelectionCard({
         setBranches(result.branches)
         // Prioritize "main" over "master", then fall back to first branch
         const defaultBranch =
-          result.branches.find((branch) => branch === "main") ||
-          result.branches.find((branch) => branch === "master") ||
+          result.branches.find((branch) => branch === 'main') ||
+          result.branches.find((branch) => branch === 'master') ||
           result.branches[0]
         setSelectedBranch(defaultBranch)
         toast.success(`Found ${result.branches.length} branches`)
       } else {
-        setBranchError(result.error || "Failed to fetch branches")
-        toast.error(result.error || "Failed to fetch branches")
+        setBranchError(result.error || 'Failed to fetch branches')
+        toast.error(result.error || 'Failed to fetch branches')
       }
     } catch (error) {
-      setBranchError("Failed to fetch branches")
-      toast.error("Failed to fetch branches")
+      setBranchError('Failed to fetch branches')
+      toast.error('Failed to fetch branches')
     } finally {
       setIsFetchingBranches(false)
     }
@@ -132,21 +148,21 @@ export default function RepositorySelectionCard({
 
   const handleSaveToken = async () => {
     if (!tokenValue.trim()) {
-      toast.error("Please enter a token")
+      toast.error('Please enter a token')
       return
     }
 
     setIsSavingToken(true)
     try {
       await saveUserToken(tokenValue.trim())
-      toast.success("Token saved successfully")
-      setTokenValue("")
+      toast.success('Token saved successfully')
+      setTokenValue('')
       setShowToken(false)
       setShowTokenDialog(false)
       setHasToken(true)
       setIsPrivateChat(true) // Enable private chat after saving token
     } catch (error) {
-      toast.error("Failed to save token")
+      toast.error('Failed to save token')
       console.error(error)
     } finally {
       setIsSavingToken(false)
@@ -155,38 +171,40 @@ export default function RepositorySelectionCard({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
-    if (!repoUrl || !selectedBranch) return
+
+    if (!(repoUrl && selectedBranch)) return
 
     setIsSubmitting(true)
 
     try {
       // Extract owner and repo from URL
-      const match = repoUrl.match(/^https:\/\/github\.com\/([^/]+)\/([^/]+)(?:\.git)?(?:\/)?$/)
+      const match = repoUrl.match(
+        /^https:\/\/github\.com\/([^/]+)\/([^/]+)(?:\.git)?(?:\/)?$/,
+      )
       if (match) {
         const [, owner, repo] = match
         const params = new URLSearchParams()
         if (isPrivateChat) {
-          params.set("private", "true")
+          params.set('private', 'true')
         }
         const queryString = params.toString()
-        const url = `/${owner}/${repo}/tree/${selectedBranch}${queryString ? `?${queryString}` : ""}`
+        const url = `/${owner}/${repo}/tree/${selectedBranch}${queryString ? `?${queryString}` : ''}`
         router.push(url)
       }
     } catch (error) {
-      toast.error("An error occurred")
+      toast.error('An error occurred')
       setIsSubmitting(false)
     }
   }
 
   return (
     <>
-      <Card className="relative overflow-hidden border-primary/20 shadow-xl shadow-primary/5">
+      <Card className="relative overflow-hidden border-primary/20 shadow-primary/5 shadow-xl">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent" />
         {showHeader && (
           <CardHeader className="relative">
             <div className="flex items-center gap-3">
-              <div className="p-3 rounded-xl bg-primary/10 backdrop-blur-sm">
+              <div className="rounded-xl bg-primary/10 p-3 backdrop-blur-sm">
                 <SiGithub className="h-8 w-8 text-primary" />
               </div>
               <div>
@@ -197,31 +215,42 @@ export default function RepositorySelectionCard({
           </CardHeader>
         )}
         <form onSubmit={handleSubmit}>
-          <CardContent className={`relative space-y-4 ${!showHeader ? 'pt-6' : ''}`}>
+          <CardContent
+            className={`relative space-y-4 ${showHeader ? '' : 'pt-6'}`}
+          >
             <div className="space-y-2">
-              <Label htmlFor="repoUrl" className="text-base font-medium">GitHub Repository URL</Label>
+              <Label className="font-medium text-base" htmlFor="repoUrl">
+                GitHub Repository URL
+              </Label>
               <Input
+                className="h-12 text-base"
+                disabled={disabled || isSubmitting}
                 id="repoUrl"
                 name="repoUrl"
+                onChange={(e) => setRepoUrl(e.target.value)}
                 placeholder="https://github.com/vercel/next.js"
                 required
                 type="url"
-                disabled={disabled || isSubmitting}
                 value={repoUrl}
-                onChange={(e) => setRepoUrl(e.target.value)}
-                className="h-12 text-base"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="branch" className="text-base font-medium">Branch</Label>
+              <Label className="font-medium text-base" htmlFor="branch">
+                Branch
+              </Label>
               <div className="relative">
                 <Select
-                  value={selectedBranch}
+                  disabled={
+                    disabled ||
+                    isSubmitting ||
+                    isFetchingBranches ||
+                    branches.length === 0
+                  }
                   onValueChange={setSelectedBranch}
-                  disabled={disabled || isSubmitting || isFetchingBranches || branches.length === 0}
+                  value={selectedBranch}
                 >
-                  <SelectTrigger className="w-full h-12 text-base">
+                  <SelectTrigger className="h-12 w-full text-base">
                     <div className="flex items-center gap-2">
                       {isFetchingBranches ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -231,10 +260,10 @@ export default function RepositorySelectionCard({
                       <SelectValue
                         placeholder={
                           isFetchingBranches
-                            ? "Fetching branches..."
+                            ? 'Fetching branches...'
                             : branches.length === 0
-                              ? "Enter repository URL first"
-                              : "Select a branch"
+                              ? 'Enter repository URL first'
+                              : 'Select a branch'
                         }
                       />
                     </div>
@@ -248,49 +277,57 @@ export default function RepositorySelectionCard({
                   </SelectContent>
                 </Select>
               </div>
-              {branchError && <p className="text-sm text-destructive">{branchError}</p>}
+              {branchError && (
+                <p className="text-destructive text-sm">{branchError}</p>
+              )}
               {branches.length > 0 && (
-                <p className="text-sm text-muted-foreground">
-                  Found {branches.length} branch{branches.length !== 1 ? "es" : ""}
+                <p className="text-muted-foreground text-sm">
+                  Found {branches.length} branch
+                  {branches.length !== 1 ? 'es' : ''}
                 </p>
               )}
             </div>
 
-            <div className="space-y-4 pt-4 border-t">
+            <div className="space-y-4 border-t pt-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label htmlFor="private-chat" className="text-base font-medium flex items-center gap-2">
+                  <Label
+                    className="flex items-center gap-2 font-medium text-base"
+                    htmlFor="private-chat"
+                  >
                     {isPrivateChat ? (
                       <Lock className="h-4 w-4" />
                     ) : (
                       <Globe className="h-4 w-4" />
                     )}
-                    {isPrivateChat ? "Private Chat" : "Public Chat"}
+                    {isPrivateChat ? 'Private Chat' : 'Public Chat'}
                   </Label>
-                  <p className="text-sm text-muted-foreground">
-                    {isPrivateChat ? "Uses your personal v0 token" : "Uses the default v0 token"}
+                  <p className="text-muted-foreground text-sm">
+                    {isPrivateChat
+                      ? 'Uses your personal v0 token'
+                      : 'Uses the default v0 token'}
                   </p>
                 </div>
                 <Switch
-                  id="private-chat"
                   checked={isPrivateChat}
-                  onCheckedChange={handlePrivateChatToggle}
                   disabled={disabled || isSubmitting}
+                  id="private-chat"
+                  onCheckedChange={handlePrivateChatToggle}
                 />
               </div>
             </div>
           </CardContent>
           <CardFooter className="relative mt-6">
-            <Button 
-              type="submit" 
-              className="w-full h-12 text-base font-semibold transition-all hover:scale-[1.02]" 
-              size="lg"
+            <Button
+              className="h-12 w-full font-semibold text-base transition-all hover:scale-[1.02]"
               disabled={
-                disabled || 
-                isSubmitting || 
-                !selectedBranch || 
+                disabled ||
+                isSubmitting ||
+                !selectedBranch ||
                 isFetchingBranches
               }
+              size="lg"
+              type="submit"
             >
               {isSubmitting ? (
                 <>
@@ -300,7 +337,7 @@ export default function RepositorySelectionCard({
               ) : (
                 <>
                   {isPrivateChat ? <Lock className="mr-2 h-5 w-5" /> : null}
-                  Create {isPrivateChat ? "private" : "v0"} chat
+                  Create {isPrivateChat ? 'private' : 'v0'} chat
                   <span className="ml-2">→</span>
                 </>
               )}
@@ -309,23 +346,26 @@ export default function RepositorySelectionCard({
         </form>
       </Card>
 
-      <Dialog open={showTokenDialog} onOpenChange={(open) => {
-        setShowTokenDialog(open)
-        if (!open) {
-          setTokenValue("")
-          setShowToken(false)
-        }
-      }}>
+      <Dialog
+        onOpenChange={(open) => {
+          setShowTokenDialog(open)
+          if (!open) {
+            setTokenValue('')
+            setShowToken(false)
+          }
+        }}
+        open={showTokenDialog}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Add v0 API Token</DialogTitle>
             <DialogDescription>
-              Add your v0 API token to create private chats. Get your token from{" "}
-              <a 
-                href="https://v0.dev/settings" 
-                target="_blank" 
-                rel="noopener noreferrer"
+              Add your v0 API token to create private chats. Get your token from{' '}
+              <a
                 className="underline underline-offset-4 hover:text-primary"
+                href="https://v0.dev/settings"
+                rel="noopener noreferrer"
+                target="_blank"
               >
                 v0.dev settings
               </a>
@@ -337,19 +377,19 @@ export default function RepositorySelectionCard({
               <Label htmlFor="dialog-token">API Token</Label>
               <div className="flex gap-2">
                 <Input
-                  id="dialog-token"
-                  type={showToken ? "text" : "password"}
-                  placeholder="Your v0 API token"
-                  value={tokenValue}
-                  onChange={(e) => setTokenValue(e.target.value)}
                   disabled={isSavingToken}
+                  id="dialog-token"
+                  onChange={(e) => setTokenValue(e.target.value)}
+                  placeholder="Your v0 API token"
+                  type={showToken ? 'text' : 'password'}
+                  value={tokenValue}
                 />
                 <Button
+                  disabled={!tokenValue || isSavingToken}
+                  onClick={() => setShowToken(!showToken)}
+                  size="icon"
                   type="button"
                   variant="outline"
-                  size="icon"
-                  onClick={() => setShowToken(!showToken)}
-                  disabled={!tokenValue || isSavingToken}
                 >
                   {showToken ? (
                     <EyeOff className="h-4 w-4" />
@@ -361,25 +401,25 @@ export default function RepositorySelectionCard({
             </div>
           </div>
           <DialogFooter>
-            <Button 
-              variant="outline" 
-              onClick={() => setShowTokenDialog(false)}
+            <Button
               disabled={isSavingToken}
+              onClick={() => setShowTokenDialog(false)}
+              variant="outline"
             >
               Cancel
             </Button>
-            <Button 
-              onClick={handleSaveToken}
+            <Button
               disabled={isSavingToken || !tokenValue.trim()}
+              onClick={handleSaveToken}
             >
               {isSavingToken ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Saving...
                 </>
               ) : (
                 <>
-                  <Key className="h-4 w-4 mr-2" />
+                  <Key className="mr-2 h-4 w-4" />
                   Save Token
                 </>
               )}

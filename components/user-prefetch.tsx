@@ -1,5 +1,4 @@
-import { getCachedUser } from "@/db/queries"
-
+import { getCachedUser } from '@/db/queries'
 
 export default async function UserPrefetch() {
   try {
