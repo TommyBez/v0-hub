@@ -63,10 +63,14 @@ export function DialogContent({
   const isMobile = useIsMobile()
 
   if (isMobile) {
+    const mobileBodyPadding =
+      '[&>*:not([data-slot=drawer-header]):not([data-slot=drawer-footer])]:px-[2px] md:[&>*:not([data-slot=drawer-header]):not([data-slot=drawer-footer])]:px-0'
     return (
       <BaseDrawerContent
         className={
-          typeof className === 'string' ? `px-[2px] ${className}` : 'px-[2px]'
+          typeof className === 'string'
+            ? `${mobileBodyPadding} ${className}`
+            : mobileBodyPadding
         }
         {...props}
       >
