@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { useIsMobile } from '@/hooks/use-media-query'
+import { useIsMobile } from '@/hooks/use-mobile'
 import {
   Dialog,
   DialogClose,
