@@ -15,15 +15,15 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet'
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from '@/components/ui/drawer'
 
 interface ResponsiveDialogProps {
   open?: boolean
@@ -36,9 +36,9 @@ export function ResponsiveDialog({ open, onOpenChange, children }: ResponsiveDia
 
   if (isMobile) {
     return (
-      <Sheet open={open} onOpenChange={onOpenChange}>
+      <Drawer open={open} onOpenChange={onOpenChange}>
         {children}
-      </Sheet>
+      </Drawer>
     )
   }
 
@@ -53,7 +53,7 @@ export function ResponsiveDialogTrigger({ children, ...props }: React.ComponentP
   const isMobile = useIsMobile()
 
   if (isMobile) {
-    return <SheetTrigger {...props}>{children}</SheetTrigger>
+    return <DrawerTrigger {...props}>{children}</DrawerTrigger>
   }
 
   return <DialogTrigger {...props}>{children}</DialogTrigger>
@@ -70,9 +70,9 @@ export function ResponsiveDialogContent({ children, className, showCloseButton =
 
   if (isMobile) {
     return (
-      <SheetContent side="bottom" className={className} {...props}>
+      <DrawerContent className={className} {...props}>
         {children}
-      </SheetContent>
+      </DrawerContent>
     )
   }
 
@@ -88,9 +88,9 @@ export function ResponsiveDialogHeader({ children, className, ...props }: React.
 
   if (isMobile) {
     return (
-      <SheetHeader className={className} {...props}>
+      <DrawerHeader className={className} {...props}>
         {children}
-      </SheetHeader>
+      </DrawerHeader>
     )
   }
 
@@ -106,9 +106,9 @@ export function ResponsiveDialogFooter({ children, className, ...props }: React.
 
   if (isMobile) {
     return (
-      <SheetFooter className={className} {...props}>
+      <DrawerFooter className={className} {...props}>
         {children}
-      </SheetFooter>
+      </DrawerFooter>
     )
   }
 
@@ -124,9 +124,9 @@ export function ResponsiveDialogTitle({ children, className, ...props }: React.C
 
   if (isMobile) {
     return (
-      <SheetTitle className={className} {...props}>
+      <DrawerTitle className={className} {...props}>
         {children}
-      </SheetTitle>
+      </DrawerTitle>
     )
   }
 
@@ -142,9 +142,9 @@ export function ResponsiveDialogDescription({ children, className, ...props }: R
 
   if (isMobile) {
     return (
-      <SheetDescription className={className} {...props}>
+      <DrawerDescription className={className} {...props}>
         {children}
-      </SheetDescription>
+      </DrawerDescription>
     )
   }
 
@@ -159,7 +159,7 @@ export function ResponsiveDialogClose({ children, ...props }: React.ComponentPro
   const isMobile = useIsMobile()
 
   if (isMobile) {
-    return <SheetClose {...props}>{children}</SheetClose>
+    return <DrawerClose {...props}>{children}</DrawerClose>
   }
 
   return <DialogClose {...props}>{children}</DialogClose>
