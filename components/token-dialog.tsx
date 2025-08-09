@@ -81,7 +81,7 @@ export default function TokenDialog({
             .
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 py-4">
+        <div className="space-y-4 px-0.5 py-4 md:px-0">
           <div className="space-y-2">
             <Label htmlFor="dialog-token">API Key</Label>
             <div className="flex gap-2">
