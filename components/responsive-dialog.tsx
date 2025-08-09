@@ -64,7 +64,13 @@ export function DialogContent({
 
   if (isMobile) {
     return (
-      <BaseSheetContent className={className} side="bottom" {...props}>
+      <BaseSheetContent
+        className={
+          typeof className === 'string' ? `px-[2px] ${className}` : 'px-[2px]'
+        }
+        side="bottom"
+        {...props}
+      >
         {children}
       </BaseSheetContent>
     )
