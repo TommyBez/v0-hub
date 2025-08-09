@@ -6,13 +6,13 @@ import { toast } from 'sonner'
 import { saveUserToken } from '@/app/actions'
 import { Button } from '@/components/ui/button'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogDescription,
+  ResponsiveDialogFooter,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from '@/components/responsive-dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { logger } from '@/lib/logger'
@@ -55,7 +55,7 @@ export default function TokenDialog({
   }
 
   return (
-    <Dialog
+    <ResponsiveDialog
       onOpenChange={(isOpen) => {
         onOpenChange(isOpen)
         if (!isOpen) {
@@ -65,10 +65,10 @@ export default function TokenDialog({
       }}
       open={open}
     >
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Add v0 API Key</DialogTitle>
-          <DialogDescription>
+      <ResponsiveDialogContent>
+        <ResponsiveDialogHeader>
+          <ResponsiveDialogTitle>Add v0 API Key</ResponsiveDialogTitle>
+          <ResponsiveDialogDescription>
             Add your v0 API key to create private chats. Get your key from{' '}
             <a
               className="underline underline-offset-4 hover:text-primary"
@@ -79,8 +79,8 @@ export default function TokenDialog({
               v0.dev settings
             </a>
             .
-          </DialogDescription>
-        </DialogHeader>
+          </ResponsiveDialogDescription>
+        </ResponsiveDialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="dialog-token">API Key</Label>
@@ -109,7 +109,7 @@ export default function TokenDialog({
             </div>
           </div>
         </div>
-        <DialogFooter>
+        <ResponsiveDialogFooter>
           <Button
             disabled={isSavingToken}
             onClick={() => onOpenChange(false)}
@@ -133,8 +133,8 @@ export default function TokenDialog({
               </>
             )}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </ResponsiveDialogFooter>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   )
 }
