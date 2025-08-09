@@ -12,21 +12,21 @@ import {
   DialogTrigger as BaseDialogTrigger,
 } from '@/components/ui/dialog'
 import {
-  Sheet as BaseSheet,
-  SheetClose as BaseSheetClose,
-  SheetContent as BaseSheetContent,
-  SheetDescription as BaseSheetDescription,
-  SheetFooter as BaseSheetFooter,
-  SheetHeader as BaseSheetHeader,
-  SheetTitle as BaseSheetTitle,
-  SheetTrigger as BaseSheetTrigger,
-} from '@/components/ui/sheet'
+  Drawer as BaseDrawer,
+  DrawerClose as BaseDrawerClose,
+  DrawerContent as BaseDrawerContent,
+  DrawerDescription as BaseDrawerDescription,
+  DrawerFooter as BaseDrawerFooter,
+  DrawerHeader as BaseDrawerHeader,
+  DrawerTitle as BaseDrawerTitle,
+  DrawerTrigger as BaseDrawerTrigger,
+} from '@/components/ui/drawer'
 import { useIsMobile } from '@/hooks/use-mobile'
 
 // Root
 export function Dialog(props: React.ComponentProps<typeof BaseDialog>) {
   const isMobile = useIsMobile()
-  return isMobile ? <BaseSheet {...props} /> : <BaseDialog {...props} />
+  return isMobile ? <BaseDrawer {...props} /> : <BaseDialog {...props} />
 }
 
 // Trigger
@@ -35,7 +35,7 @@ export function DialogTrigger(
 ) {
   const isMobile = useIsMobile()
   return isMobile ? (
-    <BaseSheetTrigger {...props} />
+    <BaseDrawerTrigger {...props} />
   ) : (
     <BaseDialogTrigger {...props} />
   )
@@ -47,7 +47,7 @@ export function DialogClose(
 ) {
   const isMobile = useIsMobile()
   return isMobile ? (
-    <BaseSheetClose {...props} />
+    <BaseDrawerClose {...props} />
   ) : (
     <BaseDialogClose {...props} />
   )
@@ -64,15 +64,14 @@ export function DialogContent({
 
   if (isMobile) {
     return (
-      <BaseSheetContent
+      <BaseDrawerContent
         className={
           typeof className === 'string' ? `px-[2px] ${className}` : 'px-[2px]'
         }
-        side="bottom"
         {...props}
       >
         {children}
-      </BaseSheetContent>
+      </BaseDrawerContent>
     )
   }
 
@@ -93,7 +92,7 @@ export function DialogHeader(
 ) {
   const isMobile = useIsMobile()
   return isMobile ? (
-    <BaseSheetHeader {...props} />
+    <BaseDrawerHeader {...props} />
   ) : (
     <BaseDialogHeader {...props} />
   )
@@ -105,7 +104,7 @@ export function DialogFooter(
 ) {
   const isMobile = useIsMobile()
   return isMobile ? (
-    <BaseSheetFooter {...props} />
+    <BaseDrawerFooter {...props} />
   ) : (
     <BaseDialogFooter {...props} />
   )
@@ -117,7 +116,7 @@ export function DialogTitle(
 ) {
   const isMobile = useIsMobile()
   return isMobile ? (
-    <BaseSheetTitle {...props} />
+    <BaseDrawerTitle {...props} />
   ) : (
     <BaseDialogTitle {...props} />
   )
@@ -129,7 +128,7 @@ export function DialogDescription(
 ) {
   const isMobile = useIsMobile()
   return isMobile ? (
-    <BaseSheetDescription {...props} />
+    <BaseDrawerDescription {...props} />
   ) : (
     <BaseDialogDescription {...props} />
   )
