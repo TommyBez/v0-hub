@@ -217,13 +217,13 @@ export async function createV0ChatWithToken(
 
     const token = await getDecryptedV0Token(user.clerkId)
     if (!token) {
-      throw new Error('No token found. Please add your v0 API token.')
+      throw new Error('No token found. Please add your v0 API key.')
     }
 
     apiKey = token
   } else if (!apiKey) {
     throw new Error(
-      'No API key available. Please provide a token or set V0_API_KEY.',
+      'No API key available. Please provide an API key or set V0_API_KEY.',
     )
   }
 

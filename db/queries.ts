@@ -117,7 +117,7 @@ export async function updateUserV0Token(
   return updatedUser || null
 }
 
-// Get decrypted v0 token for a user
+// Get decrypted v0 api key for a user
 export async function getDecryptedV0Token(
   clerkId: string,
 ): Promise<string | null> {

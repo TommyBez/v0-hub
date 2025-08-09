@@ -36,20 +36,20 @@ export function TokenManager({ tokenStatusPromise }: { tokenStatusPromise: Promi
 
   const handleSaveToken = async () => {
     if (!tokenValue.trim()) {
-      toast.error('Please enter a token')
+      toast.error('Please enter a key')
       return
     }
 
     setIsSaving(true)
     try {
       await saveUserToken(tokenValue.trim())
-      toast.success('Token saved successfully')
+      toast.success('Key saved successfully')
       setTokenValue('')
       setHasToken(true)
       setShowToken(false)
     } catch (error) {
-      toast.error('Failed to save token')
-      logger.error(`Failed to save token: ${error}`)
+      toast.error('Failed to save key')
+      logger.error(`Failed to save key: ${error}`)
     } finally {
       setIsSaving(false)
     }
@@ -58,12 +58,12 @@ export function TokenManager({ tokenStatusPromise }: { tokenStatusPromise: Promi
   const handleDeleteToken = async () => {
     try {
       await deleteUserToken()
-      toast.success('Token deleted successfully')
+      toast.success('Key deleted successfully')
       setHasToken(false)
       setTokenValue('')
     } catch (error) {
-      toast.error('Failed to delete token')
-      logger.error(`Failed to delete token: ${error}`)
+      toast.error('Failed to delete key')
+      logger.error(`Failed to delete key: ${error}`)
     }
   }
 
@@ -72,12 +72,12 @@ export function TokenManager({ tokenStatusPromise }: { tokenStatusPromise: Promi
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Key className="h-5 w-5" />
-          v0 API Token
+          v0 API Key
         </CardTitle>
         <CardDescription>
           {hasToken
-            ? 'Your v0 API token is stored securely. You can update or remove it below.'
-            : 'Add your v0 API token to create private chats. Get your token from '}
+            ? 'Your v0 API key is stored securely. You can update or remove it below.'
+            : 'Add your v0 API key to create private chats. Get your key from '}
           {!hasToken && (
             <a
               className="underline underline-offset-4 hover:text-primary"
@@ -93,7 +93,7 @@ export function TokenManager({ tokenStatusPromise }: { tokenStatusPromise: Promi
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="token">API Token</Label>
+          <Label htmlFor="token">API Key</Label>
           <div className="flex gap-2">
             <div className="relative flex-1">
               <Input
@@ -101,7 +101,7 @@ export function TokenManager({ tokenStatusPromise }: { tokenStatusPromise: Promi
                 id="token"
                 onChange={(e) => setTokenValue(e.target.value)}
                 placeholder={
-                  hasToken ? 'Enter new token to update' : 'Your v0 API token'
+                  hasToken ? 'Enter new key to update' : 'Your v0 API key'
                 }
                 type={showToken ? 'text' : 'password'}
                 value={tokenValue}
@@ -122,7 +122,7 @@ export function TokenManager({ tokenStatusPromise }: { tokenStatusPromise: Promi
           </div>
           {hasToken && (
             <p className="text-muted-foreground text-sm">
-              Leave empty to keep your current token
+              Leave empty to keep your current key
             </p>
           )}
         </div>
@@ -134,7 +134,7 @@ export function TokenManager({ tokenStatusPromise }: { tokenStatusPromise: Promi
             onClick={handleSaveToken}
           >
             <Save className="mr-2 h-4 w-4" />
-            {hasToken ? 'Update Token' : 'Save Token'}
+            {hasToken ? 'Update Key' : 'Save Key'}
           </Button>
 
           {hasToken && (
@@ -147,9 +147,9 @@ export function TokenManager({ tokenStatusPromise }: { tokenStatusPromise: Promi
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Delete Token</AlertDialogTitle>
+                  <AlertDialogTitle>Delete Key</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Are you sure you want to delete your v0 API token? You
+                    Are you sure you want to delete your v0 API key? You
                     won&apos;t be able to create private chats without it.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
@@ -159,6 +159,7 @@ export function TokenManager({ tokenStatusPromise }: { tokenStatusPromise: Promi
                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                     onClick={handleDeleteToken}
                   >
+                    <Trash2 className="mr-2 h-4 w-4" />
                     Delete
                   </AlertDialogAction>
                 </AlertDialogFooter>

@@ -34,21 +34,21 @@ export default function TokenDialog({
 
   const handleSaveToken = async () => {
     if (!tokenValue.trim()) {
-      toast.error('Please enter a token')
+      toast.error('Please enter a key')
       return
     }
 
     setIsSavingToken(true)
     try {
       await saveUserToken(tokenValue.trim())
-      toast.success('Token saved successfully')
+      toast.success('Key saved successfully')
       setTokenValue('')
       setShowToken(false)
       onOpenChange(false)
       onTokenSaved()
     } catch (saveError) {
-      toast.error('Failed to save token')
-      logger.error(`Failed to save token: ${saveError}`)
+      toast.error('Failed to save key')
+      logger.error(`Failed to save key: ${saveError}`)
     } finally {
       setIsSavingToken(false)
     }
@@ -67,9 +67,9 @@ export default function TokenDialog({
     >
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add v0 API Token</DialogTitle>
+          <DialogTitle>Add v0 API Key</DialogTitle>
           <DialogDescription>
-            Add your v0 API token to create private chats. Get your token from{' '}
+            Add your v0 API key to create private chats. Get your key from{' '}
             <a
               className="underline underline-offset-4 hover:text-primary"
               href="https://v0.dev/settings"
@@ -83,13 +83,13 @@ export default function TokenDialog({
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="dialog-token">API Token</Label>
+            <Label htmlFor="dialog-token">API Key</Label>
             <div className="flex gap-2">
               <Input
                 disabled={isSavingToken}
                 id="dialog-token"
                 onChange={(e) => setTokenValue(e.target.value)}
-                placeholder="Your v0 API token"
+                placeholder="Your v0 API key"
                 type={showToken ? 'text' : 'password'}
                 value={tokenValue}
               />
@@ -129,7 +129,7 @@ export default function TokenDialog({
             ) : (
               <>
                 <Key className="mr-2 h-4 w-4" />
-                Save Token
+                Save Key
               </>
             )}
           </Button>

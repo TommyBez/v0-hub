@@ -9,8 +9,8 @@ v0hub lets you paste a GitHub repository URL and create a v0 chat session for th
 ### Key Features
 
 - **Public Chats**: Create public v0 chats using the default API key
-- **Private Chats**: Sign in to create private chats using your personal v0 token
-- **Secure Token Storage**: Your v0 API token is encrypted and stored securely
+- **Private Chats**: Sign in to create private chats using your personal v0 api key
+- **Secure Key Storage**: Your v0 API key is encrypted and stored securely
 - **Branch Selection**: Automatically fetches and lets you select repository branches
  - **URL Shortening**: Removed. Previously used Dub; now we link directly to v0 URLs.
 
@@ -48,7 +48,7 @@ v0hub lets you paste a GitHub repository URL and create a v0 chat session for th
    # v0 API (optional - for public chats)
    V0_API_KEY=your_v0_api_key
    
-   # Token Encryption
+   # Key Encryption
    ENCRYPTION_KEY=your_32_byte_hex_encryption_key  # Generate with: openssl rand -hex 32
    
     
@@ -76,17 +76,17 @@ v0hub lets you paste a GitHub repository URL and create a v0 chat session for th
 
 ### Private Chats (Sign-in Required)
 1. Sign in with Clerk authentication
-2. Add your v0 API token via the "API Token" page
+2. Add your v0 API key via the "API Key" page
 3. Enter a GitHub repository URL
 4. Toggle "Private Chat" option
 5. Click "Create private chat"
 
-## Managing Your API Token
+## Managing Your API Key
 
-1. Click "API Token" in the header (when signed in)
-2. Enter your v0 API token
-3. Your token is encrypted and stored securely
-4. You can update or delete your token at any time
+1. Click "API Key" in the header (when signed in)
+2. Enter your v0 API key
+3. Your key is encrypted and stored securely
+4. You can update or delete your key at any time
 
 ## Tech Stack
 
@@ -117,15 +117,15 @@ pnpm db:studio   # Open Drizzle Studio
 - `DATABASE_URL` - Required. Neon PostgreSQL connection string
 - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` - Required. Clerk publishable key
 - `CLERK_SECRET_KEY` - Required. Clerk secret key
-- `ENCRYPTION_KEY` - Required. 32-byte hex key for token encryption
+- `ENCRYPTION_KEY` - Required. 32-byte hex key for key encryption
 - `V0_API_KEY` - Optional. Default v0 API key for public chats
  
 
 ## Security
 
-- User tokens are encrypted using AES-256-CBC encryption
-- Tokens are never exposed in the UI (masked display)
-- Each user can only access their own token
+- User API keys are encrypted using AES-256-CBC encryption
+- Keys are never exposed in the UI (masked display)
+- Each user can only access their own key
 - HTTPS is required in production
 
 ## License
