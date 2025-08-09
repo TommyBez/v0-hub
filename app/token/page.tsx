@@ -13,7 +13,7 @@ export default async function TokenPage() {
         <div className="mb-8">
           <h1 className="font-bold text-3xl tracking-tight">v0 API Key</h1>
           <p className="mt-2 text-muted-foreground">
-            Manage your personal v0 API key to create private chats. Your token is encrypted and stored securely.
+            Manage your personal v0 API key to create private chats. Your key is encrypted and stored securely.
           </p>
         </div>
 

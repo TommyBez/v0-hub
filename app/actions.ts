@@ -223,7 +223,7 @@ export async function createV0ChatWithToken(
     apiKey = token
   } else if (!apiKey) {
     throw new Error(
-      'No API key available. Please provide a token or set V0_API_KEY.',
+      'No API key available. Please provide an API key or set V0_API_KEY.',
     )
   }
 
