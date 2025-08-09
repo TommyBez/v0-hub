@@ -9,7 +9,7 @@ v0hub lets you paste a GitHub repository URL and create a v0 chat session for th
 ### Key Features
 
 - **Public Chats**: Create public v0 chats using the default API key
-- **Private Chats**: Sign in to create private chats using your personal v0 token
+- **Private Chats**: Sign in to create private chats using your personal v0 api key
 - **Secure Token Storage**: Your v0 API token is encrypted and stored securely
 - **Branch Selection**: Automatically fetches and lets you select repository branches
  - **URL Shortening**: Removed. Previously used Dub; now we link directly to v0 URLs.
