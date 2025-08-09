@@ -1,10 +1,4 @@
-import {
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  SignUpButton,
-  UserButton,
-} from '@clerk/nextjs'
+import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs'
 import { GitBranch, Key } from 'lucide-react'
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/theme-toggle'
@@ -26,6 +20,7 @@ export function Header() {
                 <span className="hidden sm:inline">API Key</span>
               </Button>
             </Link>
+            <UserButton />
           </SignedIn>
           <SignedOut>
             <SignInButton mode="modal">
@@ -33,15 +28,7 @@ export function Header() {
                 Sign In
               </Button>
             </SignInButton>
-            <SignUpButton mode="modal">
-              <Button size="sm" type="button" variant="link">
-                Sign Up
-              </Button>
-            </SignUpButton>
           </SignedOut>
-          <SignedIn>
-            <UserButton />
-          </SignedIn>
           <ThemeToggle />
         </div>
       </div>

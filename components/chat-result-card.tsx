@@ -23,7 +23,10 @@ interface ChatData {
 }
 
 interface ChatResultCardProps {
-  chatResultPromise: Promise<{ chatData: ChatData | null; error: string | null }>
+  chatResultPromise: Promise<{
+    chatData: ChatData | null
+    error: string | null
+  }>
   isPrivate?: boolean
 }
 
@@ -47,7 +50,9 @@ export default function ChatResultCard({
     )
   }
 
-  if (!chatData) return null
+  if (!chatData) {
+    return null
+  }
 
   return (
     <Card className="fade-in-50 animate-in">

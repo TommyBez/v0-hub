@@ -13,7 +13,7 @@ import UserPrefetch from '@/components/user-prefetch'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'v0hub - GitHub Repository Bootstrapper',
+  title: 'v0hub - v0 GitHub Bootstrapper',
   description: 'Bootstrap a v0 chat from a GitHub repository.',
   generator: 'v0.dev',
 }

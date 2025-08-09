@@ -45,7 +45,8 @@ export default async function DynamicBootstrapPage({
         : await createV0Chat(repoUrl, fullBranchName)
       return { chatData, error: null }
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to bootstrap chat'
+      const message =
+        err instanceof Error ? err.message : 'Failed to bootstrap chat'
       logger.error(`Error bootstrapping chat: ${err}`)
       return { chatData: null, error: message }
     }
@@ -80,7 +81,10 @@ export default async function DynamicBootstrapPage({
             </Card>
           }
         >
-          <ChatResultCard chatResultPromise={chatResultPromise} isPrivate={isPrivate} />
+          <ChatResultCard
+            chatResultPromise={chatResultPromise}
+            isPrivate={isPrivate}
+          />
         </Suspense>
       </div>
     </div>

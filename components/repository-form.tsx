@@ -134,10 +134,10 @@ export default function RepositoryForm({
                         {field.value ? 'Private Chat' : 'Public Chat'}
                       </FormLabel>
                       <FormDescription>
-  {field.value
-    ? 'Uses your personal v0 api key'
-    : 'Uses the default v0 api key'}
-</FormDescription>
+                        {field.value
+                          ? 'Uses your personal v0 api key'
+                          : 'Uses the default v0 api key'}
+                      </FormDescription>
                     </div>
                     <FormControl>
                       <Switch

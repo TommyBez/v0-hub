@@ -1,10 +1,16 @@
 import { Suspense } from 'react'
-import { TokenManager } from '@/components/token-manager'
 import { getUserToken } from '@/app/actions'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { TokenManager } from '@/components/token-manager'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 
-export default async function TokenPage() {
+export default function TokenPage() {
   const tokenStatusPromise = getUserToken()
 
   return (
@@ -13,7 +19,8 @@ export default async function TokenPage() {
         <div className="mb-8">
           <h1 className="font-bold text-3xl tracking-tight">v0 API Key</h1>
           <p className="mt-2 text-muted-foreground">
-            Manage your personal v0 API key to create private chats. Your key is encrypted and stored securely.
+            Manage your personal v0 API key to create private chats. Your key is
+            encrypted and stored securely.
           </p>
         </div>
 
@@ -21,7 +28,9 @@ export default async function TokenPage() {
           fallback={
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">v0 API Key</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  v0 API Key
+                </CardTitle>
                 <CardDescription>
                   <Skeleton className="h-4 w-72" />
                 </CardDescription>

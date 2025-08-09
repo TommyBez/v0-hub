@@ -27,7 +27,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { logger } from '@/lib/logger'
 
-export function TokenManager({ tokenStatusPromise }: { tokenStatusPromise: Promise<{ hasToken: boolean }> }) {
+export function TokenManager({
+  tokenStatusPromise,
+}: {
+  tokenStatusPromise: Promise<{ hasToken: boolean }>
+}) {
   const { hasToken: initialHasToken } = use(tokenStatusPromise)
   const [hasToken, setHasToken] = useState(initialHasToken)
   const [tokenValue, setTokenValue] = useState('')

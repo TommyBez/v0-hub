@@ -8,7 +8,10 @@ export default clerkMiddleware(async (auth, req) => {
     await auth.protect()
   }
 
-  if (isBranchRoute(req) && req.nextUrl.searchParams.get('private') === 'true') {
+  if (
+    isBranchRoute(req) &&
+    req.nextUrl.searchParams.get('private') === 'true'
+  ) {
     await auth.protect()
   }
 })
