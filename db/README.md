@@ -47,7 +47,7 @@ The database includes a `users` table with the following fields:
 - `id` - UUID primary key (auto-generated)
 - `email` - User's email address (unique, required)
 - `clerkId` - Clerk authentication ID (unique, required)
-- `v0token` - Optional v0 API token
+- `v0token` - Optional v0 API key
 - `createdAt` - Timestamp of creation
 - `updatedAt` - Timestamp of last update
 

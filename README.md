@@ -10,7 +10,7 @@ v0hub lets you paste a GitHub repository URL and create a v0 chat session for th
 
 - **Public Chats**: Create public v0 chats using the default API key
 - **Private Chats**: Sign in to create private chats using your personal v0 api key
-- **Secure Token Storage**: Your v0 API token is encrypted and stored securely
+- **Secure Token Storage**: Your v0 API key is encrypted and stored securely
 - **Branch Selection**: Automatically fetches and lets you select repository branches
  - **URL Shortening**: Removed. Previously used Dub; now we link directly to v0 URLs.
 
@@ -76,15 +76,15 @@ v0hub lets you paste a GitHub repository URL and create a v0 chat session for th
 
 ### Private Chats (Sign-in Required)
 1. Sign in with Clerk authentication
-2. Add your v0 API token via the "API Token" page
+2. Add your v0 API key via the "API Key" page
 3. Enter a GitHub repository URL
 4. Toggle "Private Chat" option
 5. Click "Create private chat"
 
-## Managing Your API Token
+## Managing Your API Key
 
-1. Click "API Token" in the header (when signed in)
-2. Enter your v0 API token
+1. Click "API Key" in the header (when signed in)
+2. Enter your v0 API key
 3. Your token is encrypted and stored securely
 4. You can update or delete your token at any time
 
