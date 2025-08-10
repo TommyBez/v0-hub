@@ -2,11 +2,10 @@ import { neon } from '@neondatabase/serverless'
 import { drizzle } from 'drizzle-orm/neon-http'
 import { users, chats } from './schema'
 
-if (!process.env.DATABASE_URL) {
-  throw new Error('DATABASE_URL is not set')
-}
+// During build time, we might not have DATABASE_URL
+const databaseUrl = process.env.DATABASE_URL || 'postgresql://build:build@localhost/build'
 
-const sql = neon(process.env.DATABASE_URL)
+const sql = neon(databaseUrl)
 
 export const db = drizzle(sql, { schema: { users, chats } })
 

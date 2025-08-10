@@ -17,8 +17,14 @@ import {
 import { MessageSquare, Lock, Globe, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 
-// Chat item component
-function ChatItem({ chat }: { chat: Chat }) {
+// Chat item component that fetches full chat details
+async function ChatItem({ chatId }: { chatId: string }) {
+  const chat = await chats.getById(chatId)
+  
+  if (!chat) {
+    return null
+  }
+
   return (
     <SidebarMenuItem>
       <SidebarMenuButton asChild>
@@ -56,7 +62,9 @@ async function ChatList({ userId, owned }: { userId: string; owned: boolean }) {
   return (
     <SidebarMenu>
       {userChats.map((chat) => (
-        <ChatItem key={chat.id} chat={chat} />
+        <Suspense key={chat.id} fallback={<SidebarMenuSkeleton />}>
+          <ChatItem chatId={chat.id} />
+        </Suspense>
       ))}
     </SidebarMenu>
   )

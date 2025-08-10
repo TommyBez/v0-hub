@@ -3,7 +3,7 @@ import { currentUser } from '@clerk/nextjs/server'
 import { eq, and } from 'drizzle-orm'
 import { cache } from 'react'
 import { logger } from '@/lib/logger'
-import { db, type NewUser, type User, users, type Chat, type NewChat, chats } from './index'
+import { db, type NewUser, type User, users, type Chat, type NewChat, chats as chatsTable } from './index'
 
 // Encryption utilities
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY
@@ -144,50 +144,50 @@ export async function deleteUser(clerkId: string): Promise<boolean> {
 export const chatQueries = {
   // Get a chat by ID
   async getById(id: string): Promise<Chat | null> {
-    const [chat] = await db.select().from(chats).where(eq(chats.id, id))
+    const [chat] = await db.select().from(chatsTable).where(eq(chatsTable.id, id))
     return chat || null
   },
 
   // Get a chat by v0id
   async getByV0Id(v0id: string): Promise<Chat | null> {
-    const [chat] = await db.select().from(chats).where(eq(chats.v0id, v0id))
+    const [chat] = await db.select().from(chatsTable).where(eq(chatsTable.v0id, v0id))
     return chat || null
   },
 
   // Get all chats for a user
   async getUserChats(userId: string): Promise<Chat[]> {
-    return db.select().from(chats).where(eq(chats.userId, userId))
+    return db.select().from(chatsTable).where(eq(chatsTable.userId, userId))
   },
 
   // Create a new chat
   async create(data: NewChat): Promise<Chat> {
-    const [newChat] = await db.insert(chats).values(data).returning()
+    const [newChat] = await db.insert(chatsTable).values(data).returning()
     return newChat
   },
 
   // Update chat ownership
   async updateOwnership(id: string, owned: boolean): Promise<Chat | null> {
     const [updatedChat] = await db
-      .update(chats)
+      .update(chatsTable)
       .set({ owned, updatedAt: new Date() })
-      .where(eq(chats.id, id))
+      .where(eq(chatsTable.id, id))
       .returning()
     return updatedChat || null
   },
 
   // Delete a chat
   async delete(id: string): Promise<boolean> {
-    const result = await db.delete(chats).where(eq(chats.id, id))
+    const result = await db.delete(chatsTable).where(eq(chatsTable.id, id))
     return result.rowCount > 0
   },
 
   // Get user's owned and public chats (separate queries for better performance)
   async getUserOwnedChats(userId: string): Promise<Chat[]> {
-    return db.select().from(chats).where(and(eq(chats.userId, userId), eq(chats.owned, true)))
+    return db.select().from(chatsTable).where(and(eq(chatsTable.userId, userId), eq(chatsTable.owned, true)))
   },
 
   async getUserPublicChats(userId: string): Promise<Chat[]> {
-    return db.select().from(chats).where(and(eq(chats.userId, userId), eq(chats.owned, false)))
+    return db.select().from(chatsTable).where(and(eq(chatsTable.userId, userId), eq(chatsTable.owned, false)))
   },
 }
 
