@@ -33,7 +33,7 @@ async function fetchV0ChatDetails(v0id: string, token: string | null): Promise<V
   
   try {
     const client = createClient({ apiKey: token })
-    const chatData = await client.chats.getById({ id: v0id })
+    const chatData = await client.chats.getById({ chatId: v0id })
     return chatData
   } catch (error) {
     console.error(`Failed to fetch v0 chat details for ${v0id}:`, error)
