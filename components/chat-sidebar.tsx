@@ -1,6 +1,7 @@
 import { Suspense } from 'react'
-import { getCachedUser, chats } from '@/db/queries'
+import { getCachedUser, chats, getDecryptedV0Token } from '@/db/queries'
 import type { Chat } from '@/db/schema'
+import { createClient } from 'v0-sdk'
 import {
   Sidebar,
   SidebarContent,
@@ -17,21 +18,44 @@ import {
 import { MessageSquare, Lock, Globe, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 
-// Fetch all user chats with full details in parallel
-async function fetchAllChatsWithDetails(userId: string): Promise<{
-  privateChats: Chat[]
-  publicChats: Chat[]
+// v0 Chat type based on the SDK
+interface V0Chat {
+  id: string
+  name?: string
+  privacy: 'public' | 'private' | 'team' | 'team-edit' | 'unlisted'
+  createdAt: string
+  webUrl: string
+}
+
+// Fetch v0 chat details
+async function fetchV0ChatDetails(v0id: string, token: string | null): Promise<V0Chat | null> {
+  if (!token) return null
+  
+  try {
+    const client = createClient({ apiKey: token })
+    const chatData = await client.chats.getById({ id: v0id })
+    return chatData
+  } catch (error) {
+    console.error(`Failed to fetch v0 chat details for ${v0id}:`, error)
+    return null
+  }
+}
+
+// Fetch all user chats with v0 details in parallel
+async function fetchAllChatsWithV0Details(userId: string, token: string | null): Promise<{
+  privateChats: V0Chat[]
+  publicChats: V0Chat[]
 }> {
-  // Get all user chats
+  // Get all user chats from our database
   const userChats = await chats.getUserChats(userId)
   
-  // Fetch full details for all chats in parallel
-  const fullChats = await Promise.all(
-    userChats.map(chat => chats.getById(chat.id))
+  // Fetch v0 details for all chats in parallel
+  const v0Chats = await Promise.all(
+    userChats.map(chat => fetchV0ChatDetails(chat.v0id, token))
   )
   
   // Filter out nulls
-  const validChats = fullChats.filter((chat): chat is Chat => chat !== null)
+  const validChats = v0Chats.filter((chat): chat is V0Chat => chat !== null)
   
   // Split by privacy
   const privateChats = validChats.filter(chat => 
@@ -39,20 +63,20 @@ async function fetchAllChatsWithDetails(userId: string): Promise<{
   )
   
   const publicChats = validChats.filter(chat => 
-    chat.privacy === 'public' || chat.privacy === 'unlisted' || !chat.privacy
+    chat.privacy === 'public' || chat.privacy === 'unlisted'
   )
   
   return { privateChats, publicChats }
 }
 
 // Chat item component
-function ChatItem({ chat }: { chat: Chat }) {
-  const displayName = chat.name || chat.v0id
+function ChatItem({ chat }: { chat: V0Chat }) {
+  const displayName = chat.name || chat.id
   
   return (
     <SidebarMenuItem>
       <SidebarMenuButton asChild>
-        <Link href={`/chat/${chat.v0id}`} className="group">
+        <Link href={`/chat/${chat.id}`} className="group">
           <MessageSquare className="h-4 w-4 shrink-0" />
           <div className="flex-1 overflow-hidden">
             <div className="truncate font-medium">
@@ -70,8 +94,8 @@ function ChatItem({ chat }: { chat: Chat }) {
 }
 
 // Server component that fetches and displays chats
-async function ChatLists({ userId }: { userId: string }) {
-  const { privateChats, publicChats } = await fetchAllChatsWithDetails(userId)
+async function ChatLists({ userId, token }: { userId: string; token: string | null }) {
+  const { privateChats, publicChats } = await fetchAllChatsWithV0Details(userId, token)
 
   return (
     <>
@@ -171,6 +195,9 @@ export async function ChatSidebar() {
     return null
   }
 
+  // Get user's v0 token for fetching chat details
+  const v0Token = await getDecryptedV0Token(user.clerkId)
+
   return (
     <Sidebar>
       <SidebarHeader>
@@ -183,7 +210,7 @@ export async function ChatSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <Suspense fallback={<ChatListSkeleton />}>
-          <ChatLists userId={user.id} />
+          <ChatLists userId={user.id} token={v0Token} />
         </Suspense>
       </SidebarContent>
     </Sidebar>

@@ -15,8 +15,6 @@ export const chats = pgTable('chats', {
   v0id: text('v0id').notNull().unique(), // v0 chat ID
   userId: uuid('user_id').notNull().references(() => users.id),
   owned: boolean('owned').notNull().default(false), // Whether created with user's v0 API key
-  name: text('name'), // Chat name from v0
-  privacy: text('privacy'), // Privacy setting from v0: 'public' | 'private' | 'team' | 'team-edit' | 'unlisted'
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })
