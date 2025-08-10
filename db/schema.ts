@@ -13,6 +13,7 @@ export const users = pgTable('users', {
 export const chats = pgTable('chats', {
   id: uuid('id').defaultRandom().primaryKey(),
   v0id: text('v0id').notNull().unique(), // v0 chat ID
+  repositoryUrl: text('repository_url'), // GitHub repository URL
   userId: uuid('user_id').notNull().references(() => users.id),
   owned: boolean('owned').notNull().default(false), // Whether created with user's v0 API key
   createdAt: timestamp('created_at').defaultNow().notNull(),

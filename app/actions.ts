@@ -86,6 +86,7 @@ export async function createV0Chat(
         v0id: chat.id,
         userId: user.id,
         owned: false, // Created with server's API key
+        repositoryUrl: repoUrl, // Save the repository URL
       })
     }
   } catch (error) {
@@ -272,6 +273,7 @@ export async function createV0ChatWithToken(
         v0id: chat.id,
         userId: user.id,
         owned: useUserToken, // true if created with user's API key
+        repositoryUrl: repoUrl, // Save the repository URL
       })
     }
   } catch (error) {
