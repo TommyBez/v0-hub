@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import { getCachedUser, chats, getDecryptedV0Token } from '@/db/queries'
+import { getCachedUser, chats } from '@/db/queries'
 import type { Chat } from '@/db/schema'
 import {
   Sidebar,
@@ -16,37 +16,9 @@ import {
 } from '@/components/ui/sidebar'
 import { MessageSquare, Lock, Globe, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
-import { createClient } from 'v0-sdk'
 
-// Interface for v0 chat metadata
-interface V0ChatMetadata {
-  id: string
-  title?: string
-  description?: string
-  createdAt?: string
-  url?: string
-}
-
-// Fetch chat metadata from v0
-async function fetchV0ChatMetadata(v0id: string, token: string | null): Promise<V0ChatMetadata | null> {
-  if (!token) return null
-  
-  try {
-    const client = createClient(token)
-    // Note: The actual API might differ - this is a placeholder
-    // You'll need to check the v0 SDK documentation for the correct method
-    const chatData = await client.chats.get(v0id)
-    return chatData as V0ChatMetadata
-  } catch (error) {
-    console.error(`Failed to fetch v0 chat metadata for ${v0id}:`, error)
-    return null
-  }
-}
-
-// Chat item component with metadata
-async function ChatItem({ chat, token }: { chat: Chat; token: string | null }) {
-  const metadata = await fetchV0ChatMetadata(chat.v0id, token)
-  
+// Chat item component
+function ChatItem({ chat }: { chat: Chat }) {
   return (
     <SidebarMenuItem>
       <SidebarMenuButton asChild>
@@ -54,13 +26,11 @@ async function ChatItem({ chat, token }: { chat: Chat; token: string | null }) {
           <MessageSquare className="h-4 w-4 shrink-0" />
           <div className="flex-1 overflow-hidden">
             <div className="truncate font-medium">
-              {metadata?.title || chat.v0id}
+              {chat.v0id}
             </div>
-            {metadata?.description && (
-              <div className="truncate text-xs text-muted-foreground">
-                {metadata.description}
-              </div>
-            )}
+            <div className="truncate text-xs text-muted-foreground">
+              {new Date(chat.createdAt).toLocaleDateString()}
+            </div>
           </div>
           <ExternalLink className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100" />
         </Link>
@@ -70,7 +40,7 @@ async function ChatItem({ chat, token }: { chat: Chat; token: string | null }) {
 }
 
 // Server component that fetches chat data
-async function ChatList({ userId, owned, token }: { userId: string; owned: boolean; token: string | null }) {
+async function ChatList({ userId, owned }: { userId: string; owned: boolean }) {
   const userChats = owned
     ? await chats.getUserOwnedChats(userId)
     : await chats.getUserPublicChats(userId)
@@ -86,9 +56,7 @@ async function ChatList({ userId, owned, token }: { userId: string; owned: boole
   return (
     <SidebarMenu>
       {userChats.map((chat) => (
-        <Suspense key={chat.id} fallback={<SidebarMenuSkeleton />}>
-          <ChatItem chat={chat} token={owned ? token : null} />
-        </Suspense>
+        <ChatItem key={chat.id} chat={chat} />
       ))}
     </SidebarMenu>
   )
@@ -113,9 +81,6 @@ export async function ChatSidebar() {
     return null
   }
 
-  // Get user's v0 token for fetching private chat metadata
-  const v0Token = await getDecryptedV0Token(user.clerkId)
-
   return (
     <Sidebar>
       <SidebarHeader>
@@ -138,7 +103,7 @@ export async function ChatSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <Suspense fallback={<ChatListSkeleton />}>
-              <ChatList userId={user.id} owned={true} token={v0Token} />
+              <ChatList userId={user.id} owned={true} />
             </Suspense>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -156,7 +121,7 @@ export async function ChatSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <Suspense fallback={<ChatListSkeleton />}>
-              <ChatList userId={user.id} owned={false} token={null} />
+              <ChatList userId={user.id} owned={false} />
             </Suspense>
           </SidebarGroupContent>
         </SidebarGroup>
