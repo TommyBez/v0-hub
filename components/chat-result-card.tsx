@@ -79,18 +79,20 @@ export default function ChatResultCard({
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors cursor-pointer">
+                      <SiGithub className="h-4 w-4" />
+                      <span className="sr-only">GitHub repository</span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
                     <a
                       href={repositoryUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex h-8 w-8 items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
+                      className="text-primary-foreground hover:underline"
                     >
-                      <SiGithub className="h-4 w-4" />
-                      <span className="sr-only">Open GitHub repository</span>
+                      {repositoryUrl}
                     </a>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{repositoryUrl}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -99,7 +101,7 @@ export default function ChatResultCard({
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted cursor-pointer">
                       <GitBranch className="h-4 w-4" />
                       <span className="sr-only">Branch: {branch}</span>
                     </div>
