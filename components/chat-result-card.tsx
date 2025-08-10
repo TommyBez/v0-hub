@@ -2,8 +2,9 @@
 
 import { SiV0, SiGithub } from '@icons-pack/react-simple-icons'
 import { Copy, Globe, Lock, GitBranch } from 'lucide-react'
-import { use, useEffect, useState } from 'react'
+import { use } from 'react'
 import { toast } from 'sonner'
+import { useIsMobile } from '@/hooks/use-mobile'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -50,19 +51,7 @@ export default function ChatResultCard({
   branch,
 }: ChatResultCardProps) {
   const { chatData, error } = use(chatResultPromise)
-  const [isMobile, setIsMobile] = useState(false)
-
-  useEffect(() => {
-    // Check if device is mobile
-    const checkIsMobile = () => {
-      setIsMobile(window.matchMedia('(max-width: 768px)').matches)
-    }
-    
-    checkIsMobile()
-    window.addEventListener('resize', checkIsMobile)
-    
-    return () => window.removeEventListener('resize', checkIsMobile)
-  }, [])
+  const isMobile = useIsMobile()
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
