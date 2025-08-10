@@ -87,6 +87,7 @@ export async function createV0Chat(
         userId: user.id,
         owned: false, // Created with server's API key
         repositoryUrl: repoUrl, // Save the repository URL
+        branch: branch, // Save the branch name
       })
     }
   } catch (error) {
@@ -274,6 +275,7 @@ export async function createV0ChatWithToken(
         userId: user.id,
         owned: useUserToken, // true if created with user's API key
         repositoryUrl: repoUrl, // Save the repository URL
+        branch: branch, // Save the branch name
       })
     }
   } catch (error) {
