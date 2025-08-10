@@ -1,7 +1,7 @@
 'use client'
 
-import { SiV0 } from '@icons-pack/react-simple-icons'
-import { Copy, Globe, Lock } from 'lucide-react'
+import { SiV0, SiGithub } from '@icons-pack/react-simple-icons'
+import { Copy, Globe, Lock, GitBranch } from 'lucide-react'
 import { use } from 'react'
 import { toast } from 'sonner'
 import { Badge } from '@/components/ui/badge'
@@ -15,6 +15,12 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 interface ChatData {
   id: string
@@ -28,11 +34,15 @@ interface ChatResultCardProps {
     error: string | null
   }>
   isPrivate?: boolean
+  repositoryUrl?: string
+  branch?: string
 }
 
 export default function ChatResultCard({
   chatResultPromise,
   isPrivate = false,
+  repositoryUrl,
+  branch,
 }: ChatResultCardProps) {
   const { chatData, error } = use(chatResultPromise)
 
@@ -64,22 +74,59 @@ export default function ChatResultCard({
               Your new chat instance is ready. Open it and fork!.
             </CardDescription>
           </div>
-          <Badge
-            className="gap-1"
-            variant={isPrivate ? 'default' : 'secondary'}
-          >
-            {isPrivate ? (
-              <>
-                <Lock className="h-3 w-3" />
-                Private
-              </>
-            ) : (
-              <>
-                <Globe className="h-3 w-3" />
-                Public
-              </>
+          <div className="flex items-center gap-2">
+            {repositoryUrl && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <a
+                      href={repositoryUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex h-8 w-8 items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors"
+                    >
+                      <SiGithub className="h-4 w-4" />
+                      <span className="sr-only">Open GitHub repository</span>
+                    </a>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{repositoryUrl}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )}
-          </Badge>
+            {branch && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
+                      <GitBranch className="h-4 w-4" />
+                      <span className="sr-only">Branch: {branch}</span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{branch}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+            <Badge
+              className="gap-1"
+              variant={isPrivate ? 'default' : 'secondary'}
+            >
+              {isPrivate ? (
+                <>
+                  <Lock className="h-3 w-3" />
+                  Private
+                </>
+              ) : (
+                <>
+                  <Globe className="h-3 w-3" />
+                  Public
+                </>
+              )}
+            </Badge>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">

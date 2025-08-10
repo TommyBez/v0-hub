@@ -84,6 +84,8 @@ export default async function DynamicBootstrapPage({
           <ChatResultCard
             chatResultPromise={chatResultPromise}
             isPrivate={isPrivate}
+            repositoryUrl={repoUrl}
+            branch={fullBranchName}
           />
         </Suspense>
       </div>
