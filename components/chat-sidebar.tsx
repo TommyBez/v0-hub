@@ -30,27 +30,25 @@ async function fetchAllChatsWithDetails(userId: string): Promise<{
     userChats.map(chat => chats.getById(chat.id))
   )
   
-  // Filter out any null results and split by privacy
+  // Filter out nulls
   const validChats = fullChats.filter((chat): chat is Chat => chat !== null)
   
-  // TODO: Update this logic based on how privacy is stored in the chat data
-  // For now, assuming there's a field that indicates privacy status
-  // This needs to be adjusted based on actual chat schema
-  const privateChats = validChats.filter(chat => {
-    // Placeholder: adjust based on actual privacy field
-    return false // Update this based on actual chat data structure
-  })
+  // Split by privacy
+  const privateChats = validChats.filter(chat => 
+    chat.privacy === 'private' || chat.privacy === 'team' || chat.privacy === 'team-edit'
+  )
   
-  const publicChats = validChats.filter(chat => {
-    // Placeholder: adjust based on actual privacy field
-    return true // Update this based on actual chat data structure
-  })
+  const publicChats = validChats.filter(chat => 
+    chat.privacy === 'public' || chat.privacy === 'unlisted' || !chat.privacy
+  )
   
   return { privateChats, publicChats }
 }
 
 // Chat item component
 function ChatItem({ chat }: { chat: Chat }) {
+  const displayName = chat.name || chat.v0id
+  
   return (
     <SidebarMenuItem>
       <SidebarMenuButton asChild>
@@ -58,7 +56,7 @@ function ChatItem({ chat }: { chat: Chat }) {
           <MessageSquare className="h-4 w-4 shrink-0" />
           <div className="flex-1 overflow-hidden">
             <div className="truncate font-medium">
-              {chat.v0id}
+              {displayName}
             </div>
             <div className="truncate text-xs text-muted-foreground">
               {new Date(chat.createdAt).toLocaleDateString()}
