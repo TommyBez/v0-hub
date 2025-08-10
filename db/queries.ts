@@ -141,56 +141,42 @@ export async function deleteUser(clerkId: string): Promise<boolean> {
 }
 
 // Chat queries
-export const chatQueries = {
-  // Get a chat by ID
-  async getById(id: string): Promise<Chat | null> {
-    const [chat] = await db.select().from(chatsTable).where(eq(chatsTable.id, id))
-    return chat || null
-  },
 
-  // Get a chat by v0id
-  async getByV0Id(v0id: string): Promise<Chat | null> {
-    const [chat] = await db.select().from(chatsTable).where(eq(chatsTable.v0id, v0id))
-    return chat || null
-  },
-
-  // Get all chats for a user
-  async getUserChats(userId: string): Promise<Chat[]> {
-    return db.select().from(chatsTable).where(eq(chatsTable.userId, userId))
-  },
-
-  // Create a new chat
-  async create(data: NewChat): Promise<Chat> {
-    const [newChat] = await db.insert(chatsTable).values(data).returning()
-    return newChat
-  },
-
-  // Update chat ownership
-  async updateOwnership(id: string, owned: boolean): Promise<Chat | null> {
-    const [updatedChat] = await db
-      .update(chatsTable)
-      .set({ owned, updatedAt: new Date() })
-      .where(eq(chatsTable.id, id))
-      .returning()
-    return updatedChat || null
-  },
-
-  // Delete a chat
-  async delete(id: string): Promise<boolean> {
-    const result = await db.delete(chatsTable).where(eq(chatsTable.id, id))
-    return result.rowCount > 0
-  },
+// Get a chat by ID
+export async function getChatById(id: string): Promise<Chat | null> {
+  const [chat] = await db.select().from(chatsTable).where(eq(chatsTable.id, id))
+  return chat || null
 }
 
-// Export the chats object for backward compatibility
-export const chatsQueries = chatQueries
+// Get a chat by v0id
+export async function getChatByV0Id(v0id: string): Promise<Chat | null> {
+  const [chat] = await db.select().from(chatsTable).where(eq(chatsTable.v0id, v0id))
+  return chat || null
+}
 
-// Export chats with getById method
-export const chats = {
-  getById: chatQueries.getById,
-  getByV0Id: chatQueries.getByV0Id,
-  getUserChats: chatQueries.getUserChats,
-  create: chatQueries.create,
-  updateOwnership: chatQueries.updateOwnership,
-  delete: chatQueries.delete,
+// Get all chats for a user
+export async function getUserChats(userId: string): Promise<Chat[]> {
+  return db.select().from(chatsTable).where(eq(chatsTable.userId, userId))
+}
+
+// Create a new chat
+export async function createChat(data: NewChat): Promise<Chat> {
+  const [newChat] = await db.insert(chatsTable).values(data).returning()
+  return newChat
+}
+
+// Update chat ownership
+export async function updateChatOwnership(id: string, owned: boolean): Promise<Chat | null> {
+  const [updatedChat] = await db
+    .update(chatsTable)
+    .set({ owned, updatedAt: new Date() })
+    .where(eq(chatsTable.id, id))
+    .returning()
+  return updatedChat || null
+}
+
+// Delete a chat
+export async function deleteChat(id: string): Promise<boolean> {
+  const result = await db.delete(chatsTable).where(eq(chatsTable.id, id))
+  return result.rowCount > 0
 }

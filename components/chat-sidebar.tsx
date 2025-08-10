@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import { getCachedUser, chats, getDecryptedV0Token } from '@/db/queries'
+import { getCachedUser, getUserChats, getDecryptedV0Token } from '@/db/queries'
 import type { Chat } from '@/db/schema'
 import { createClient } from 'v0-sdk'
 import {
@@ -47,7 +47,7 @@ async function fetchAllChatsWithV0Details(userId: string, token: string | null):
   publicChats: V0Chat[]
 }> {
   // Get all user chats from our database
-  const userChats = await chats.getUserChats(userId)
+  const userChats = await getUserChats(userId)
   
   // Fetch v0 details for all chats in parallel
   const v0Chats = await Promise.all(
