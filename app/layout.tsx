@@ -10,7 +10,7 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/sonner'
 import UserPrefetch from '@/components/user-prefetch'
 import { ChatSidebar } from '@/components/chat-sidebar'
-import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
+import { SidebarProvider } from '@/components/ui/sidebar'
 
 const inter = Inter({ subsets: ['latin'] })
 
