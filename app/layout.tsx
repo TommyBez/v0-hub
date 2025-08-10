@@ -9,6 +9,8 @@ import { Header } from '@/components/header'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/sonner'
 import UserPrefetch from '@/components/user-prefetch'
+import { ChatSidebar } from '@/components/chat-sidebar'
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -36,11 +38,20 @@ export default function RootLayout({
             defaultTheme="light"
             disableTransitionOnChange
           >
-            <div className="relative flex min-h-screen flex-col">
-              <Header />
-              <main className="flex-1">{children}</main>
-              <Footer />
-            </div>
+            <SidebarProvider>
+              <div className="relative flex min-h-screen w-full">
+                <ChatSidebar />
+                <div className="flex-1 flex flex-col">
+                  <Header />
+                  <div className="flex items-center gap-2 px-4 py-2 border-b">
+                    <SidebarTrigger />
+                    <span className="text-sm text-muted-foreground">Toggle sidebar</span>
+                  </div>
+                  <main className="flex-1">{children}</main>
+                  <Footer />
+                </div>
+              </div>
+            </SidebarProvider>
             <Toaster richColors />
           </ThemeProvider>
           <Analytics mode="production" />
