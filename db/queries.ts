@@ -180,15 +180,6 @@ export const chatQueries = {
     const result = await db.delete(chatsTable).where(eq(chatsTable.id, id))
     return result.rowCount > 0
   },
-
-  // Get user's owned and public chats (separate queries for better performance)
-  async getUserOwnedChats(userId: string): Promise<Chat[]> {
-    return db.select().from(chatsTable).where(and(eq(chatsTable.userId, userId), eq(chatsTable.owned, true)))
-  },
-
-  async getUserPublicChats(userId: string): Promise<Chat[]> {
-    return db.select().from(chatsTable).where(and(eq(chatsTable.userId, userId), eq(chatsTable.owned, false)))
-  },
 }
 
 // Export the chats object for backward compatibility
@@ -202,6 +193,4 @@ export const chats = {
   create: chatQueries.create,
   updateOwnership: chatQueries.updateOwnership,
   delete: chatQueries.delete,
-  getUserOwnedChats: chatQueries.getUserOwnedChats,
-  getUserPublicChats: chatQueries.getUserPublicChats,
 }

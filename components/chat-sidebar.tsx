@@ -1,6 +1,7 @@
 import { Suspense } from 'react'
-import { getCachedUser, chats } from '@/db/queries'
+import { getCachedUser, chats, getDecryptedV0Token } from '@/db/queries'
 import type { Chat } from '@/db/schema'
+import { createClient } from 'v0-sdk'
 import {
   Sidebar,
   SidebarContent,
@@ -17,13 +18,84 @@ import {
 import { MessageSquare, Lock, Globe, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 
-// Chat item component that fetches full chat details
-async function ChatItem({ chatId }: { chatId: string }) {
-  const chat = await chats.getById(chatId)
+// Interface for v0 chat details
+interface V0ChatInfo {
+  id: string
+  chatPrivacy?: 'public' | 'private'
+  name?: string
+  createdAt?: string
+}
+
+// Fetch v0 chat info to determine privacy
+async function fetchV0ChatInfo(v0id: string, token: string | null): Promise<V0ChatInfo | null> {
+  if (!token) return null
   
-  if (!chat) {
+  try {
+    const client = createClient({ apiKey: token })
+    // Using the chats.find method to search for the specific chat
+    const response = await client.chats.find({ limit: '100' })
+    const chat = response.items?.find(item => item.id === v0id)
+    
+    if (chat) {
+      return {
+        id: chat.id,
+        chatPrivacy: chat.chatPrivacy,
+        name: chat.name,
+        createdAt: chat.createdAt,
+      }
+    }
+    return null
+  } catch (error) {
+    console.error(`Failed to fetch v0 chat info for ${v0id}:`, error)
     return null
   }
+}
+
+// Enhanced chat with v0 info
+interface EnhancedChat extends Chat {
+  v0Info?: V0ChatInfo | null
+}
+
+// Fetch all chats with their v0 info in parallel
+async function fetchChatsWithV0Info(userId: string, token: string | null): Promise<{
+  privateChats: EnhancedChat[]
+  publicChats: EnhancedChat[]
+}> {
+  // Get all user chats
+  const userChats = await chats.getUserChats(userId)
+  
+  // Fetch v0 info for all chats in parallel
+  const chatsWithV0Info = await Promise.all(
+    userChats.map(async (chat) => {
+      const [fullChat, v0Info] = await Promise.all([
+        chats.getById(chat.id),
+        fetchV0ChatInfo(chat.v0id, token)
+      ])
+      
+      return {
+        ...fullChat!,
+        v0Info
+      } as EnhancedChat
+    })
+  )
+  
+  // Split into private and public based on v0 chatPrivacy
+  const privateChats = chatsWithV0Info.filter(
+    chat => chat.v0Info?.chatPrivacy === 'private'
+  )
+  const publicChats = chatsWithV0Info.filter(
+    chat => chat.v0Info?.chatPrivacy === 'public' || !chat.v0Info
+  )
+  
+  return { privateChats, publicChats }
+}
+
+// Chat item component
+function ChatItem({ chat }: { chat: EnhancedChat }) {
+  const displayName = chat.v0Info?.name || chat.v0id
+  const createdDate = chat.v0Info?.createdAt 
+    ? new Date(chat.v0Info.createdAt).toLocaleDateString()
+    : new Date(chat.createdAt).toLocaleDateString()
 
   return (
     <SidebarMenuItem>
@@ -32,10 +104,10 @@ async function ChatItem({ chatId }: { chatId: string }) {
           <MessageSquare className="h-4 w-4 shrink-0" />
           <div className="flex-1 overflow-hidden">
             <div className="truncate font-medium">
-              {chat.v0id}
+              {displayName}
             </div>
             <div className="truncate text-xs text-muted-foreground">
-              {new Date(chat.createdAt).toLocaleDateString()}
+              {createdDate}
             </div>
           </div>
           <ExternalLink className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100" />
@@ -45,39 +117,97 @@ async function ChatItem({ chatId }: { chatId: string }) {
   )
 }
 
-// Server component that fetches chat data
-async function ChatList({ userId, owned }: { userId: string; owned: boolean }) {
-  const userChats = owned
-    ? await chats.getUserOwnedChats(userId)
-    : await chats.getUserPublicChats(userId)
-
-  if (userChats.length === 0) {
-    return (
-      <div className="px-3 py-2 text-sm text-muted-foreground">
-        No {owned ? 'private' : 'public'} chats yet
-      </div>
-    )
-  }
+// Server component that fetches and displays chats
+async function ChatLists({ userId, token }: { userId: string; token: string | null }) {
+  const { privateChats, publicChats } = await fetchChatsWithV0Info(userId, token)
 
   return (
-    <SidebarMenu>
-      {userChats.map((chat) => (
-        <Suspense key={chat.id} fallback={<SidebarMenuSkeleton />}>
-          <ChatItem chatId={chat.id} />
-        </Suspense>
-      ))}
-    </SidebarMenu>
+    <>
+      {/* Private Chats */}
+      <SidebarGroup>
+        <SidebarGroupLabel>
+          <Lock className="mr-2 h-4 w-4" />
+          Private Chats
+          <span className="ml-auto text-xs text-muted-foreground">
+            Your private sessions
+          </span>
+        </SidebarGroupLabel>
+        <SidebarGroupContent>
+          {privateChats.length === 0 ? (
+            <div className="px-3 py-2 text-sm text-muted-foreground">
+              No private chats yet
+            </div>
+          ) : (
+            <SidebarMenu>
+              {privateChats.map((chat) => (
+                <ChatItem key={chat.id} chat={chat} />
+              ))}
+            </SidebarMenu>
+          )}
+        </SidebarGroupContent>
+      </SidebarGroup>
+
+      <SidebarSeparator />
+
+      {/* Public Chats */}
+      <SidebarGroup>
+        <SidebarGroupLabel>
+          <Globe className="mr-2 h-4 w-4" />
+          Public Chats
+          <span className="ml-auto text-xs text-muted-foreground">
+            Shared sessions
+          </span>
+        </SidebarGroupLabel>
+        <SidebarGroupContent>
+          {publicChats.length === 0 ? (
+            <div className="px-3 py-2 text-sm text-muted-foreground">
+              No public chats yet
+            </div>
+          ) : (
+            <SidebarMenu>
+              {publicChats.map((chat) => (
+                <ChatItem key={chat.id} chat={chat} />
+              ))}
+            </SidebarMenu>
+          )}
+        </SidebarGroupContent>
+      </SidebarGroup>
+    </>
   )
 }
 
 // Loading skeleton component
 function ChatListSkeleton() {
   return (
-    <SidebarMenu>
-      <SidebarMenuSkeleton />
-      <SidebarMenuSkeleton />
-      <SidebarMenuSkeleton />
-    </SidebarMenu>
+    <>
+      <SidebarGroup>
+        <SidebarGroupLabel>
+          <Lock className="mr-2 h-4 w-4" />
+          Private Chats
+        </SidebarGroupLabel>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            <SidebarMenuSkeleton />
+            <SidebarMenuSkeleton />
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+      
+      <SidebarSeparator />
+      
+      <SidebarGroup>
+        <SidebarGroupLabel>
+          <Globe className="mr-2 h-4 w-4" />
+          Public Chats
+        </SidebarGroupLabel>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            <SidebarMenuSkeleton />
+            <SidebarMenuSkeleton />
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+    </>
   )
 }
 
@@ -88,6 +218,9 @@ export async function ChatSidebar() {
   if (!user) {
     return null
   }
+
+  // Get user's v0 token for fetching chat details
+  const v0Token = await getDecryptedV0Token(user.clerkId)
 
   return (
     <Sidebar>
@@ -100,39 +233,9 @@ export async function ChatSidebar() {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        {/* Private Chats */}
-        <SidebarGroup>
-          <SidebarGroupLabel>
-            <Lock className="mr-2 h-4 w-4" />
-            Private Chats
-            <span className="ml-auto text-xs text-muted-foreground">
-              Created with your API key
-            </span>
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <Suspense fallback={<ChatListSkeleton />}>
-              <ChatList userId={user.id} owned={true} />
-            </Suspense>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarSeparator />
-
-        {/* Public Chats */}
-        <SidebarGroup>
-          <SidebarGroupLabel>
-            <Globe className="mr-2 h-4 w-4" />
-            Public Chats
-            <span className="ml-auto text-xs text-muted-foreground">
-              Shared sessions
-            </span>
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <Suspense fallback={<ChatListSkeleton />}>
-              <ChatList userId={user.id} owned={false} />
-            </Suspense>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <Suspense fallback={<ChatListSkeleton />}>
+          <ChatLists userId={user.id} token={v0Token} />
+        </Suspense>
       </SidebarContent>
     </Sidebar>
   )
