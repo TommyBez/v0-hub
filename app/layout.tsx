@@ -45,7 +45,6 @@ export default function RootLayout({
                   <Header />
                   <div className="flex items-center gap-2 px-4 py-2 border-b">
                     <SidebarTrigger />
-                    <span className="text-sm text-muted-foreground">Toggle sidebar</span>
                   </div>
                   <main className="flex-1">{children}</main>
                   <Footer />
