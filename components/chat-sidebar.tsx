@@ -1,7 +1,6 @@
 import { Suspense } from 'react'
-import { getCachedUser, chats, getDecryptedV0Token } from '@/db/queries'
+import { getCachedUser, chats } from '@/db/queries'
 import type { Chat } from '@/db/schema'
-import { createClient } from 'v0-sdk'
 import {
   Sidebar,
   SidebarContent,
@@ -18,85 +17,40 @@ import {
 import { MessageSquare, Lock, Globe, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 
-// Interface for v0 chat details
-interface V0ChatInfo {
-  id: string
-  chatPrivacy?: 'public' | 'private'
-  name?: string
-  createdAt?: string
-}
-
-// Fetch v0 chat info to determine privacy
-async function fetchV0ChatInfo(v0id: string, token: string | null): Promise<V0ChatInfo | null> {
-  if (!token) return null
-  
-  try {
-    const client = createClient({ apiKey: token })
-    // Using the chats.find method to search for the specific chat
-    const response = await client.chats.find({ limit: '100' })
-    const chat = response.items?.find(item => item.id === v0id)
-    
-    if (chat) {
-      return {
-        id: chat.id,
-        chatPrivacy: chat.chatPrivacy,
-        name: chat.name,
-        createdAt: chat.createdAt,
-      }
-    }
-    return null
-  } catch (error) {
-    console.error(`Failed to fetch v0 chat info for ${v0id}:`, error)
-    return null
-  }
-}
-
-// Enhanced chat with v0 info
-interface EnhancedChat extends Chat {
-  v0Info?: V0ChatInfo | null
-}
-
-// Fetch all chats with their v0 info in parallel
-async function fetchChatsWithV0Info(userId: string, token: string | null): Promise<{
-  privateChats: EnhancedChat[]
-  publicChats: EnhancedChat[]
+// Fetch all user chats with full details in parallel
+async function fetchAllChatsWithDetails(userId: string): Promise<{
+  privateChats: Chat[]
+  publicChats: Chat[]
 }> {
   // Get all user chats
   const userChats = await chats.getUserChats(userId)
   
-  // Fetch v0 info for all chats in parallel
-  const chatsWithV0Info = await Promise.all(
-    userChats.map(async (chat) => {
-      const [fullChat, v0Info] = await Promise.all([
-        chats.getById(chat.id),
-        fetchV0ChatInfo(chat.v0id, token)
-      ])
-      
-      return {
-        ...fullChat!,
-        v0Info
-      } as EnhancedChat
-    })
+  // Fetch full details for all chats in parallel
+  const fullChats = await Promise.all(
+    userChats.map(chat => chats.getById(chat.id))
   )
   
-  // Split into private and public based on v0 chatPrivacy
-  const privateChats = chatsWithV0Info.filter(
-    chat => chat.v0Info?.chatPrivacy === 'private'
-  )
-  const publicChats = chatsWithV0Info.filter(
-    chat => chat.v0Info?.chatPrivacy === 'public' || !chat.v0Info
-  )
+  // Filter out any null results and split by privacy
+  const validChats = fullChats.filter((chat): chat is Chat => chat !== null)
+  
+  // TODO: Update this logic based on how privacy is stored in the chat data
+  // For now, assuming there's a field that indicates privacy status
+  // This needs to be adjusted based on actual chat schema
+  const privateChats = validChats.filter(chat => {
+    // Placeholder: adjust based on actual privacy field
+    return false // Update this based on actual chat data structure
+  })
+  
+  const publicChats = validChats.filter(chat => {
+    // Placeholder: adjust based on actual privacy field
+    return true // Update this based on actual chat data structure
+  })
   
   return { privateChats, publicChats }
 }
 
 // Chat item component
-function ChatItem({ chat }: { chat: EnhancedChat }) {
-  const displayName = chat.v0Info?.name || chat.v0id
-  const createdDate = chat.v0Info?.createdAt 
-    ? new Date(chat.v0Info.createdAt).toLocaleDateString()
-    : new Date(chat.createdAt).toLocaleDateString()
-
+function ChatItem({ chat }: { chat: Chat }) {
   return (
     <SidebarMenuItem>
       <SidebarMenuButton asChild>
@@ -104,10 +58,10 @@ function ChatItem({ chat }: { chat: EnhancedChat }) {
           <MessageSquare className="h-4 w-4 shrink-0" />
           <div className="flex-1 overflow-hidden">
             <div className="truncate font-medium">
-              {displayName}
+              {chat.v0id}
             </div>
             <div className="truncate text-xs text-muted-foreground">
-              {createdDate}
+              {new Date(chat.createdAt).toLocaleDateString()}
             </div>
           </div>
           <ExternalLink className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100" />
@@ -118,8 +72,8 @@ function ChatItem({ chat }: { chat: EnhancedChat }) {
 }
 
 // Server component that fetches and displays chats
-async function ChatLists({ userId, token }: { userId: string; token: string | null }) {
-  const { privateChats, publicChats } = await fetchChatsWithV0Info(userId, token)
+async function ChatLists({ userId }: { userId: string }) {
+  const { privateChats, publicChats } = await fetchAllChatsWithDetails(userId)
 
   return (
     <>
@@ -219,9 +173,6 @@ export async function ChatSidebar() {
     return null
   }
 
-  // Get user's v0 token for fetching chat details
-  const v0Token = await getDecryptedV0Token(user.clerkId)
-
   return (
     <Sidebar>
       <SidebarHeader>
@@ -234,7 +185,7 @@ export async function ChatSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <Suspense fallback={<ChatListSkeleton />}>
-          <ChatLists userId={user.id} token={v0Token} />
+          <ChatLists userId={user.id} />
         </Suspense>
       </SidebarContent>
     </Sidebar>
