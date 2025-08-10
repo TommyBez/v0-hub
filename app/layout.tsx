@@ -9,6 +9,7 @@ import { Header } from '@/components/header'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/sonner'
 import UserPrefetch from '@/components/user-prefetch'
+import AppSidebar from '@/components/sidebar'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -38,7 +39,9 @@ export default function RootLayout({
           >
             <div className="relative flex min-h-screen flex-col">
               <Header />
-              <main className="flex-1">{children}</main>
+              <main className="flex-1">
+                <AppSidebar>{children}</AppSidebar>
+              </main>
               <Footer />
             </div>
             <Toaster richColors />
