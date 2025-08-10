@@ -6,6 +6,7 @@ import {
   getCachedUser,
   getDecryptedV0Token,
   updateUserV0Token,
+  createChat,
 } from '@/db/queries'
 import { logger } from '@/lib/logger'
 
@@ -76,6 +77,21 @@ export async function createV0Chat(
     chatPrivacy: 'public',
     name: chatName,
   })
+
+  // Save to database if user is authenticated
+  try {
+    const user = await getCachedUser()
+    if (user) {
+      await createChat({
+        v0id: chat.id,
+        userId: user.id,
+        owned: false, // Created with server's API key
+      })
+    }
+  } catch (error) {
+    // Log error but don't fail the chat creation
+    logger.error(`Failed to save chat to database: ${error}`)
+  }
 
   return {
     id: chat.id,
@@ -207,10 +223,11 @@ export async function createV0ChatWithToken(
   useUserToken = false,
 ): Promise<ChatCreationResult> {
   let apiKey = process.env.V0_API_KEY
+  let user = null
 
   // If user token is requested, use it
   if (useUserToken) {
-    const user = await getCachedUser()
+    user = await getCachedUser()
     if (!user) {
       throw new Error('Not authenticated')
     }
@@ -242,6 +259,25 @@ export async function createV0ChatWithToken(
     chatPrivacy: useUserToken ? 'private' : 'public',
     name: chatName,
   })
+
+  // Save to database if user is authenticated
+  try {
+    // Get current user if not already fetched
+    if (!user) {
+      user = await getCachedUser()
+    }
+    
+    if (user) {
+      await createChat({
+        v0id: chat.id,
+        userId: user.id,
+        owned: useUserToken, // true if created with user's API key
+      })
+    }
+  } catch (error) {
+    // Log error but don't fail the chat creation
+    logger.error(`Failed to save chat to database: ${error}`)
+  }
 
   return {
     id: chat.id,
