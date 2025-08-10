@@ -2,7 +2,7 @@
 
 import { SiV0, SiGithub } from '@icons-pack/react-simple-icons'
 import { Copy, Globe, Lock, GitBranch } from 'lucide-react'
-import { use } from 'react'
+import { use, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -21,6 +21,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 
 interface ChatData {
   id: string
@@ -45,6 +50,19 @@ export default function ChatResultCard({
   branch,
 }: ChatResultCardProps) {
   const { chatData, error } = use(chatResultPromise)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    // Check if device is mobile
+    const checkIsMobile = () => {
+      setIsMobile(window.matchMedia('(max-width: 768px)').matches)
+    }
+    
+    checkIsMobile()
+    window.addEventListener('resize', checkIsMobile)
+    
+    return () => window.removeEventListener('resize', checkIsMobile)
+  }, [])
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
@@ -76,41 +94,76 @@ export default function ChatResultCard({
           </div>
           <div className="flex items-center gap-2">
             {repositoryUrl && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
+              isMobile ? (
+                <Popover>
+                  <PopoverTrigger asChild>
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors cursor-pointer">
                       <SiGithub className="h-4 w-4" />
                       <span className="sr-only">GitHub repository</span>
                     </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto">
                     <a
                       href={repositoryUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-primary-foreground hover:underline"
+                      className="text-sm hover:underline block"
                     >
                       {repositoryUrl}
                     </a>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+                  </PopoverContent>
+                </Popover>
+              ) : (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors cursor-pointer">
+                        <SiGithub className="h-4 w-4" />
+                        <span className="sr-only">GitHub repository</span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <a
+                        href={repositoryUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary-foreground hover:underline"
+                      >
+                        {repositoryUrl}
+                      </a>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )
             )}
             {branch && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
+              isMobile ? (
+                <Popover>
+                  <PopoverTrigger asChild>
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted cursor-pointer">
                       <GitBranch className="h-4 w-4" />
                       <span className="sr-only">Branch: {branch}</span>
                     </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{branch}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto">
+                    <p className="text-sm">{branch}</p>
+                  </PopoverContent>
+                </Popover>
+              ) : (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted cursor-pointer">
+                        <GitBranch className="h-4 w-4" />
+                        <span className="sr-only">Branch: {branch}</span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{branch}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )
             )}
             <Badge
               className="gap-1"
