@@ -3,7 +3,7 @@ import { currentUser } from '@clerk/nextjs/server'
 import { desc, eq } from 'drizzle-orm'
 import { cache } from 'react'
 import { logger } from '@/lib/logger'
-import { getDb, type NewUser, type User, users, chats as chatsTable, type Chat, type NewChat } from './index'
+import { db, type NewUser, type User, users, chats as chatsTable, type Chat, type NewChat } from './index'
 
 // Encryption utilities
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY
@@ -42,21 +42,18 @@ function decrypt(text: string): string {
 
 // Create a new user
 export async function createUser(data: NewUser): Promise<User> {
-  const db = getDb()
   const [newUser] = await db.insert(users).values(data).returning()
   return newUser
 }
 
 // Get a user by Clerk ID
 export async function getUserByClerkId(clerkId: string): Promise<User | null> {
-  const db = getDb()
   const [user] = await db.select().from(users).where(eq(users.clerkId, clerkId))
   return user || null
 }
 
 // Get a user by email
 export async function getUserByEmail(email: string): Promise<User | null> {
-  const db = getDb()
   const [user] = await db.select().from(users).where(eq(users.email, email))
   return user || null
 }
@@ -109,7 +106,6 @@ export async function updateUserV0Token(
   clerkId: string,
   v0token: string | null,
 ): Promise<User | null> {
-  const db = getDb()
   const [updatedUser] = await db
     .update(users)
     .set({
@@ -140,7 +136,6 @@ export async function getDecryptedV0Token(
 
 // Delete a user by Clerk ID
 export async function deleteUser(clerkId: string): Promise<boolean> {
-  const db = getDb()
   const result = await db.delete(users).where(eq(users.clerkId, clerkId))
   return result.rowCount > 0
 }
@@ -148,19 +143,16 @@ export async function deleteUser(clerkId: string): Promise<boolean> {
 // Chats API
 export const chats = {
   async create(data: NewChat): Promise<Chat> {
-    const db = getDb()
     const [row] = await db.insert(chatsTable).values(data).returning()
     return row
   },
 
   async getById(id: string): Promise<Chat | null> {
-    const db = getDb()
     const [row] = await db.select().from(chatsTable).where(eq(chatsTable.id, id))
     return row ?? null
   },
 
   async listByUser(userId: string): Promise<{ privateChats: Chat[]; publicChats: Chat[] }> {
-    const db = getDb()
     const rows = await db
       .select()
       .from(chatsTable)
