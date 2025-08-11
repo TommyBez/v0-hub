@@ -1,10 +1,9 @@
 'use client'
 
-import { SiV0, SiGithub } from '@icons-pack/react-simple-icons'
-import { Copy, Globe, Lock, GitBranch } from 'lucide-react'
+import { SiGithub, SiV0 } from '@icons-pack/react-simple-icons'
+import { Copy, GitBranch, Globe, Lock } from 'lucide-react'
 import { use } from 'react'
 import { toast } from 'sonner'
-import { useIsMobile } from '@/hooks/use-mobile'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -17,16 +16,17 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 interface ChatData {
   id: string
@@ -82,21 +82,21 @@ export default function ChatResultCard({
             </CardDescription>
           </div>
           <div className="flex items-center gap-2">
-            {repositoryUrl && (
-              isMobile ? (
+            {repositoryUrl &&
+              (isMobile ? (
                 <Popover>
                   <PopoverTrigger asChild>
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors cursor-pointer">
+                    <div className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-muted transition-colors hover:bg-muted/80">
                       <SiGithub className="h-4 w-4" />
                       <span className="sr-only">GitHub repository</span>
                     </div>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto">
                     <a
+                      className="block text-sm hover:underline"
                       href={repositoryUrl}
-                      target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm hover:underline block"
+                      target="_blank"
                     >
                       {repositoryUrl}
                     </a>
@@ -106,30 +106,29 @@ export default function ChatResultCard({
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted hover:bg-muted/80 transition-colors cursor-pointer">
+                      <div className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-muted transition-colors hover:bg-muted/80">
                         <SiGithub className="h-4 w-4" />
                         <span className="sr-only">GitHub repository</span>
                       </div>
                     </TooltipTrigger>
                     <TooltipContent>
                       <a
-                        href={repositoryUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
                         className="text-primary-foreground hover:underline"
+                        href={repositoryUrl}
+                        rel="noopener noreferrer"
+                        target="_blank"
                       >
                         {repositoryUrl}
                       </a>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
-              )
-            )}
-            {branch && (
-              isMobile ? (
+              ))}
+            {branch &&
+              (isMobile ? (
                 <Popover>
                   <PopoverTrigger asChild>
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted cursor-pointer">
+                    <div className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-muted">
                       <GitBranch className="h-4 w-4" />
                       <span className="sr-only">Branch: {branch}</span>
                     </div>
@@ -142,7 +141,7 @@ export default function ChatResultCard({
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted cursor-pointer">
+                      <div className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-muted">
                         <GitBranch className="h-4 w-4" />
                         <span className="sr-only">Branch: {branch}</span>
                       </div>
@@ -152,8 +151,7 @@ export default function ChatResultCard({
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
-              )
-            )}
+              ))}
             <Badge
               className="gap-1"
               variant={isPrivate ? 'default' : 'secondary'}

@@ -1,7 +1,6 @@
 'use client'
 
-import * as React from 'react'
-import { useIsMobile } from '@/hooks/use-mobile'
+import type * as React from 'react'
 import {
   Dialog,
   DialogClose,
@@ -9,8 +8,6 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogOverlay,
-  DialogPortal,
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
@@ -24,6 +21,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from '@/components/ui/drawer'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 interface ResponsiveDialogProps {
   open?: boolean
@@ -31,25 +29,32 @@ interface ResponsiveDialogProps {
   children: React.ReactNode
 }
 
-export function ResponsiveDialog({ open, onOpenChange, children }: ResponsiveDialogProps) {
+export function ResponsiveDialog({
+  open,
+  onOpenChange,
+  children,
+}: ResponsiveDialogProps) {
   const isMobile = useIsMobile()
 
   if (isMobile) {
     return (
-      <Drawer open={open} onOpenChange={onOpenChange}>
+      <Drawer onOpenChange={onOpenChange} open={open}>
         {children}
       </Drawer>
     )
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog onOpenChange={onOpenChange} open={open}>
       {children}
     </Dialog>
   )
 }
 
-export function ResponsiveDialogTrigger({ children, ...props }: React.ComponentPropsWithoutRef<typeof DialogTrigger>) {
+export function ResponsiveDialogTrigger({
+  children,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof DialogTrigger>) {
   const isMobile = useIsMobile()
 
   if (isMobile) {
@@ -59,13 +64,19 @@ export function ResponsiveDialogTrigger({ children, ...props }: React.ComponentP
   return <DialogTrigger {...props}>{children}</DialogTrigger>
 }
 
-interface ResponsiveDialogContentProps extends React.ComponentPropsWithoutRef<typeof DialogContent> {
+interface ResponsiveDialogContentProps
+  extends React.ComponentPropsWithoutRef<typeof DialogContent> {
   children: React.ReactNode
   className?: string
   showCloseButton?: boolean
 }
 
-export function ResponsiveDialogContent({ children, className, showCloseButton = true, ...props }: ResponsiveDialogContentProps) {
+export function ResponsiveDialogContent({
+  children,
+  className,
+  showCloseButton = true,
+  ...props
+}: ResponsiveDialogContentProps) {
   const isMobile = useIsMobile()
 
   if (isMobile) {
@@ -77,13 +88,21 @@ export function ResponsiveDialogContent({ children, className, showCloseButton =
   }
 
   return (
-    <DialogContent className={className} showCloseButton={showCloseButton} {...props}>
+    <DialogContent
+      className={className}
+      showCloseButton={showCloseButton}
+      {...props}
+    >
       {children}
     </DialogContent>
   )
 }
 
-export function ResponsiveDialogHeader({ children, className, ...props }: React.ComponentPropsWithoutRef<typeof DialogHeader>) {
+export function ResponsiveDialogHeader({
+  children,
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof DialogHeader>) {
   const isMobile = useIsMobile()
 
   if (isMobile) {
@@ -101,7 +120,11 @@ export function ResponsiveDialogHeader({ children, className, ...props }: React.
   )
 }
 
-export function ResponsiveDialogFooter({ children, className, ...props }: React.ComponentPropsWithoutRef<typeof DialogFooter>) {
+export function ResponsiveDialogFooter({
+  children,
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof DialogFooter>) {
   const isMobile = useIsMobile()
 
   if (isMobile) {
@@ -119,7 +142,11 @@ export function ResponsiveDialogFooter({ children, className, ...props }: React.
   )
 }
 
-export function ResponsiveDialogTitle({ children, className, ...props }: React.ComponentPropsWithoutRef<typeof DialogTitle>) {
+export function ResponsiveDialogTitle({
+  children,
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof DialogTitle>) {
   const isMobile = useIsMobile()
 
   if (isMobile) {
@@ -137,7 +164,11 @@ export function ResponsiveDialogTitle({ children, className, ...props }: React.C
   )
 }
 
-export function ResponsiveDialogDescription({ children, className, ...props }: React.ComponentPropsWithoutRef<typeof DialogDescription>) {
+export function ResponsiveDialogDescription({
+  children,
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof DialogDescription>) {
   const isMobile = useIsMobile()
 
   if (isMobile) {
@@ -155,7 +186,10 @@ export function ResponsiveDialogDescription({ children, className, ...props }: R
   )
 }
 
-export function ResponsiveDialogClose({ children, ...props }: React.ComponentPropsWithoutRef<typeof DialogClose>) {
+export function ResponsiveDialogClose({
+  children,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof DialogClose>) {
   const isMobile = useIsMobile()
 
   if (isMobile) {
