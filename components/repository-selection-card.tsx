@@ -1,5 +1,8 @@
 import { SiGithub } from '@icons-pack/react-simple-icons'
-import RepositoryForm from '@/components/repository-form'
+import BranchSelector from '@/components/branch-selector'
+import CreateChatButton from '@/components/create-chat-button'
+import PrivateChatToggle from '@/components/private-chat-toggle'
+import RepositoryInput from '@/components/repository-input'
 import {
   Card,
   CardContent,
@@ -39,7 +42,16 @@ export default function RepositorySelectionCard({
         </CardHeader>
       )}
       <CardContent>
-        <RepositoryForm repositoryUrl={repositoryUrl} showHeader={showHeader} />
+        <div className={`relative space-y-4 ${showHeader ? '' : 'pt-6'}`}>
+          <RepositoryInput disabled={!!repositoryUrl} />
+          <BranchSelector />
+          <div className="space-y-4 border-t pt-4">
+            <PrivateChatToggle />
+          </div>
+          <div className="relative mt-6">
+            <CreateChatButton />
+          </div>
+        </div>
       </CardContent>
     </Card>
   )
