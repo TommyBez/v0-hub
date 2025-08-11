@@ -18,33 +18,10 @@ import {
 import { getCachedUser, getDecryptedV0Token, getUserChats } from '@/db/queries'
 import { logger } from '@/lib/logger'
 
-// v0 Chat type based on the SDK
-interface V0Chat {
-  id: string
-  name?: string
-  privacy: 'public' | 'private' | 'team' | 'team-edit' | 'unlisted'
-  createdAt: string
-  webUrl: string
-}
-
-// Fetch v0 chat details
-async function fetchV0ChatDetails(
-  v0id: string,
-  token: string | null,
-): Promise<V0Chat | null> {
-  if (!token) {
-    return null
-  }
-
-  try {
-    const client = createClient({ apiKey: token })
-    const chatData = await client.chats.getById({ chatId: v0id })
-    return chatData
-  } catch (error) {
-    logger.error(`Failed to fetch v0 chat details for ${v0id}: ${error}`)
-    return null
-  }
-}
+// v0 Chat type based on the SDK response
+type V0Chat = Awaited<
+  ReturnType<ReturnType<typeof createClient>['chats']['getById']>
+>
 
 // Fetch all user chats with v0 details in parallel
 async function fetchAllChatsWithV0Details(
@@ -57,13 +34,54 @@ async function fetchAllChatsWithV0Details(
   // Get all user chats from our database
   const userChats = await getUserChats(userId)
 
+  // Create at most two clients
+  const userClient = token ? createClient({ apiKey: token }) : null
+  const serverClient = process.env.V0_API_KEY
+    ? createClient({ apiKey: process.env.V0_API_KEY })
+    : null
+
+  // If both clients are missing, we can't fetch any chats
+  const hasClients = userClient || serverClient
+  if (!hasClients) {
+    logger.error('No API keys available to fetch v0 chat details')
+    return { privateChats: [], publicChats: [] }
+  }
+
   // Fetch v0 details for all chats in parallel
   const v0Chats = await Promise.all(
-    userChats.map((chat) => fetchV0ChatDetails(chat.v0id, token)),
+    userChats.map(async (chat) => {
+      try {
+        // Determine which client to use based on ownership
+        let client: ReturnType<typeof createClient> | null = null
+
+        if (chat.owned) {
+          // For owned chats, must use user client
+          client = userClient
+        } else {
+          // For non-owned chats, prefer server client, fall back to user client
+          client = serverClient || userClient
+        }
+
+        if (!client) {
+          logger.error(
+            `No client available to fetch v0 chat details for ${chat.v0id}`,
+          )
+          return null
+        }
+
+        const chatData = await client.chats.getById({ chatId: chat.v0id })
+        return chatData
+      } catch (error) {
+        logger.error(
+          `Failed to fetch v0 chat details for ${chat.v0id}: ${error}`,
+        )
+        return null
+      }
+    }),
   )
 
   // Filter out nulls
-  const validChats = v0Chats.filter((chat): chat is V0Chat => chat !== null)
+  const validChats = v0Chats.filter((chat) => chat !== null)
 
   // Split by privacy
   const privateChats = validChats.filter(
@@ -122,9 +140,6 @@ async function ChatLists({
         <SidebarGroupLabel>
           <Lock className="mr-2 h-4 w-4" />
           Private Chats
-          <span className="ml-auto text-muted-foreground text-xs">
-            Your private sessions
-          </span>
         </SidebarGroupLabel>
         <SidebarGroupContent>
           {privateChats.length === 0 ? (
@@ -148,9 +163,6 @@ async function ChatLists({
         <SidebarGroupLabel>
           <Globe className="mr-2 h-4 w-4" />
           Public Chats
-          <span className="ml-auto text-muted-foreground text-xs">
-            Shared sessions
-          </span>
         </SidebarGroupLabel>
         <SidebarGroupContent>
           {publicChats.length === 0 ? (
