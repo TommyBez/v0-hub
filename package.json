@@ -48,6 +48,7 @@
     "@radix-ui/react-tooltip": "latest",
     "@remix-run/react": "latest",
     "@sveltejs/kit": "latest",
+    "@tanstack/react-query": "^5.84.2",
     "@vercel/analytics": "latest",
     "autoprefixer": "^10.4.20",
     "class-variance-authority": "^0.7.1",
