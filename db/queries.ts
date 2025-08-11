@@ -1,6 +1,6 @@
 import crypto from 'node:crypto'
 import { currentUser } from '@clerk/nextjs/server'
-import { eq } from 'drizzle-orm'
+import { desc, eq } from 'drizzle-orm'
 import { cache } from 'react'
 import { logger } from '@/lib/logger'
 import {
@@ -14,9 +14,10 @@ import {
 } from './index'
 
 // Encryption utilities
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY
-  ? Buffer.from(process.env.ENCRYPTION_KEY, 'hex')
-  : crypto.randomBytes(32)
+if (!process.env.ENCRYPTION_KEY) {
+  throw new Error('ENCRYPTION_KEY is not set')
+}
+const ENCRYPTION_KEY = Buffer.from(process.env.ENCRYPTION_KEY, 'hex')
 const IV_LENGTH = 16
 
 function encrypt(text: string): string {
@@ -171,6 +172,7 @@ export async function getUserChats(userId: string): Promise<Chat[]> {
     .select()
     .from(chatsTable)
     .where(eq(chatsTable.userId, userId))
+    .orderBy(desc(chatsTable.createdAt))
   return chats
 }
 
