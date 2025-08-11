@@ -74,13 +74,12 @@ export default function BranchSelector({
       }, 500)
       return () => clearTimeout(timeoutId)
     }
-    setBranches([])
-    setSelectedBranch('')
-    setBranchError('')
-    onBranchChange('')
-  }, [repoUrl, fetchBranches, onBranchChange])
+  }, [repoUrl, fetchBranches])
 
   const handleBranchChange = (branch: string) => {
+    if (!branch) {
+      return
+    }
     setSelectedBranch(branch)
     onBranchChange(branch)
   }
@@ -100,31 +99,30 @@ export default function BranchSelector({
       <Label className="font-medium text-base" htmlFor="branch">
         Branch
       </Label>
-      <div className="relative">
-        <Select
-          disabled={isSubmitting || isFetchingBranches || branches.length === 0}
-          onValueChange={handleBranchChange}
-          value={selectedBranch}
-        >
-          <SelectTrigger className="h-12 w-full text-base">
-            <div className="flex items-center gap-2">
-              {isFetchingBranches ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <GitBranch className="h-4 w-4" />
-              )}
-              <SelectValue placeholder={getPlaceholder()} />
-            </div>
-          </SelectTrigger>
-          <SelectContent>
-            {branches.map((branch) => (
-              <SelectItem key={branch} value={branch}>
-                {branch}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+
+      <Select
+        disabled={isSubmitting || isFetchingBranches || branches.length === 0}
+        onValueChange={handleBranchChange}
+        value={selectedBranch}
+      >
+        <SelectTrigger className="h-12 w-full text-base">
+          <div className="flex items-center gap-2">
+            {isFetchingBranches ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <GitBranch className="h-4 w-4" />
+            )}
+            <SelectValue placeholder={getPlaceholder()} />
+          </div>
+        </SelectTrigger>
+        <SelectContent>
+          {branches.map((branch) => (
+            <SelectItem key={branch} value={branch}>
+              {branch}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
       {branchError && <p className="text-destructive text-sm">{branchError}</p>}
       {branches.length > 0 && (
         <p className="text-muted-foreground text-sm">
