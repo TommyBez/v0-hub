@@ -35,6 +35,7 @@ export default async function RepositoryPage({ params }: PageProps) {
       <div className="w-full max-w-2xl">
         <RepositorySelectionCard
           description={`Choose a branch from ${user}/${repository} to explore`}
+          repositoryUrl={repoUrl}
           title="Select Branch"
         />
       </div>

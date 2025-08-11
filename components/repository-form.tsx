@@ -32,10 +32,12 @@ type FormData = z.infer<typeof formSchema>
 
 interface RepositoryFormProps {
   showHeader?: boolean
+  repositoryUrl?: string
 }
 
 export default function RepositoryForm({
   showHeader = true,
+  repositoryUrl,
 }: RepositoryFormProps) {
   const {
     showTokenDialog,
@@ -49,7 +51,7 @@ export default function RepositoryForm({
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      repoUrl: '',
+      repoUrl: repositoryUrl || '',
       branch: '',
       isPrivateChat: false,
     },
@@ -94,7 +96,7 @@ export default function RepositoryForm({
                   <FormControl>
                     <Input
                       className="h-12 text-base"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || !!repositoryUrl}
                       placeholder="https://github.com/vercel/next.js"
                       type="url"
                       {...field}

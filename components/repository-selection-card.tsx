@@ -11,6 +11,7 @@ import {
 interface RepositorySelectionCardProps {
   title?: string
   description?: string
+  repositoryUrl?: string
   disabled?: boolean
   showHeader?: boolean
 }
@@ -19,6 +20,7 @@ export default function RepositorySelectionCard({
   title = 'Bootstrap Chat from GitHub',
   description = 'Initialize a new v0 chat instance from a public GitHub repository.',
   showHeader = true,
+  repositoryUrl,
 }: RepositorySelectionCardProps) {
   return (
     <Card className="relative overflow-hidden border-primary/20 shadow-primary/5 shadow-xl">
@@ -37,7 +39,7 @@ export default function RepositorySelectionCard({
         </CardHeader>
       )}
       <CardContent>
-        <RepositoryForm showHeader={showHeader} />
+        <RepositoryForm repositoryUrl={repositoryUrl} showHeader={showHeader} />
       </CardContent>
     </Card>
   )
