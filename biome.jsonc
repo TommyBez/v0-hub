@@ -9,6 +9,6 @@
     }
   },
   "files": {
-    "includes": ["**", "!components/ui/**", "!**/*.css"]
+    "includes": ["**", "!components/ui/**", "!**/*.css", "db/migrations/**"]
   }
 }

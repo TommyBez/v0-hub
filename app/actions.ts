@@ -3,11 +3,12 @@
 import { createClient, v0 } from 'v0-sdk'
 import { z } from 'zod'
 import {
+  createChat,
   getCachedUser,
   getDecryptedV0Token,
   updateUserV0Token,
-  createChat,
 } from '@/db/queries'
+import type { User } from '@/db/schema'
 import { logger } from '@/lib/logger'
 
 const GITHUB_REPO_URL_REGEX = /^https:\/\/github\.com\/[^/]+\/[^/]+$/
@@ -47,11 +48,12 @@ function generateChatName(repoUrl: string, branch: string): string {
   const repoName = match ? match[2] : 'repository'
 
   // Omit branch if it's main or master
+  const normalizedBranch = branch.toLowerCase().trim()
   const shouldIncludeBranch =
-    branch !== 'main' && branch !== 'master' && branch !== 'main'
+    normalizedBranch !== 'main' && normalizedBranch !== 'master'
 
   return shouldIncludeBranch
-    ? `[v0hub] ${repoName} - ${branch}`
+    ? `[v0hub] ${repoName} - ${normalizedBranch}`
     : `[v0hub] ${repoName}`
 }
 
@@ -86,6 +88,8 @@ export async function createV0Chat(
         v0id: chat.id,
         userId: user.id,
         owned: false, // Created with server's API key
+        repositoryUrl: repoUrl, // Save the repository URL
+        branch, // Save the branch name
       })
     }
   } catch (error) {
@@ -223,7 +227,7 @@ export async function createV0ChatWithToken(
   useUserToken = false,
 ): Promise<ChatCreationResult> {
   let apiKey = process.env.V0_API_KEY
-  let user = null
+  let user: User | null = null
 
   // If user token is requested, use it
   if (useUserToken) {
@@ -266,12 +270,14 @@ export async function createV0ChatWithToken(
     if (!user) {
       user = await getCachedUser()
     }
-    
+
     if (user) {
       await createChat({
         v0id: chat.id,
         userId: user.id,
         owned: useUserToken, // true if created with user's API key
+        repositoryUrl: repoUrl, // Save the repository URL
+        branch, // Save the branch name
       })
     }
   } catch (error) {

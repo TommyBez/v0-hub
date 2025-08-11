@@ -1,9 +1,17 @@
 import crypto from 'node:crypto'
 import { currentUser } from '@clerk/nextjs/server'
-import { eq, and } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { cache } from 'react'
 import { logger } from '@/lib/logger'
-import { db, type NewUser, type User, users, type Chat, type NewChat, chats as chatsTable } from './index'
+import {
+  type Chat,
+  chats as chatsTable,
+  db,
+  type NewChat,
+  type NewUser,
+  type User,
+  users,
+} from './index'
 
 // Encryption utilities
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY
@@ -150,13 +158,20 @@ export async function getChatById(id: string): Promise<Chat | null> {
 
 // Get a chat by v0id
 export async function getChatByV0Id(v0id: string): Promise<Chat | null> {
-  const [chat] = await db.select().from(chatsTable).where(eq(chatsTable.v0id, v0id))
+  const [chat] = await db
+    .select()
+    .from(chatsTable)
+    .where(eq(chatsTable.v0id, v0id))
   return chat || null
 }
 
 // Get all chats for a user
 export async function getUserChats(userId: string): Promise<Chat[]> {
-  return db.select().from(chatsTable).where(eq(chatsTable.userId, userId))
+  const chats = await db
+    .select()
+    .from(chatsTable)
+    .where(eq(chatsTable.userId, userId))
+  return chats
 }
 
 // Create a new chat
@@ -166,7 +181,10 @@ export async function createChat(data: NewChat): Promise<Chat> {
 }
 
 // Update chat ownership
-export async function updateChatOwnership(id: string, owned: boolean): Promise<Chat | null> {
+export async function updateChatOwnership(
+  id: string,
+  owned: boolean,
+): Promise<Chat | null> {
   const [updatedChat] = await db
     .update(chatsTable)
     .set({ owned, updatedAt: new Date() })

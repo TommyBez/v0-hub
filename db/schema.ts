@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, uuid, boolean } from 'drizzle-orm/pg-core'
+import { boolean, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod'
 
 export const users = pgTable('users', {
@@ -13,7 +13,11 @@ export const users = pgTable('users', {
 export const chats = pgTable('chats', {
   id: uuid('id').defaultRandom().primaryKey(),
   v0id: text('v0id').notNull().unique(), // v0 chat ID
-  userId: uuid('user_id').notNull().references(() => users.id),
+  repositoryUrl: text('repository_url'), // GitHub repository URL
+  branch: text('branch'), // Git branch name
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id),
   owned: boolean('owned').notNull().default(false), // Whether created with user's v0 API key
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
