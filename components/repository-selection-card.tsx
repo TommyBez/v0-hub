@@ -1,8 +1,11 @@
 import { SiGithub } from '@icons-pack/react-simple-icons'
+import { Suspense } from 'react'
 import BranchSelector from '@/components/branch-selector'
+import BranchSelectorSkeleton from '@/components/branch-selector-skeleton'
 import CreateChatButton from '@/components/create-chat-button'
 import PrivateChatToggle from '@/components/private-chat-toggle'
 import RepositoryInput from '@/components/repository-input'
+import RepositoryInputSkeleton from '@/components/repository-input-skeleton'
 import {
   Card,
   CardContent,
@@ -43,8 +46,12 @@ export default function RepositorySelectionCard({
       )}
       <CardContent>
         <div className={`relative space-y-4 ${showHeader ? '' : 'pt-6'}`}>
-          <RepositoryInput disabled={!!repositoryUrl} />
-          <BranchSelector />
+          <Suspense fallback={<RepositoryInputSkeleton />}>
+            <RepositoryInput disabled={!!repositoryUrl} />
+          </Suspense>
+          <Suspense fallback={<BranchSelectorSkeleton />}>
+            <BranchSelector />
+          </Suspense>
           <div className="space-y-4 border-t pt-4">
             <PrivateChatToggle />
           </div>

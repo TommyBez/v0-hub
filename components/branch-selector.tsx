@@ -1,10 +1,9 @@
 'use client'
 
+import { useQuery } from '@tanstack/react-query'
 import { GitBranch, Loader2 } from 'lucide-react'
 import { useQueryState } from 'nuqs'
-import { useCallback, useEffect, useState } from 'react'
-import { toast } from 'sonner'
-import { fetchGitHubBranches } from '@/app/actions'
+import { useEffect } from 'react'
 import { Label } from '@/components/ui/label'
 import {
   Select,
@@ -14,6 +13,12 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { branchParser, repositoryUrlParser } from '@/lib/search-params'
+import { fetchGitHubBranches } from '@/services/github'
+
+const fetchBranchesQuery = async (url: string) => {
+  const result = await fetchGitHubBranches(url)
+  return result.branches
+}
 
 const GITHUB_REPO_URL_REGEX =
   /^https:\/\/github\.com\/[^/]+\/[^/]+(?:\.git)?(?:\/)?$/
@@ -26,52 +31,31 @@ export default function BranchSelector({ disabled }: BranchSelectorProps) {
   const [repositoryUrl] = useQueryState('repositoryUrl', repositoryUrlParser)
   const [branch, setBranch] = useQueryState('branch', branchParser)
 
-  const [branches, setBranches] = useState<string[]>([])
-  const [isFetchingBranches, setIsFetchingBranches] = useState(false)
-  const [branchError, setBranchError] = useState('')
-
-  const fetchBranches = useCallback(
-    async (url: string) => {
-      setIsFetchingBranches(true)
-      setBranchError('')
-      setBranches([])
-      setBranch('')
-
-      try {
-        const result = await fetchGitHubBranches(url)
-
-        if (result.success && result.branches) {
-          setBranches(result.branches)
-          // Prioritize "main" over "master", then fall back to first branch
-          const defaultBranch =
-            result.branches.find((b) => b === 'main') ||
-            result.branches.find((b) => b === 'master') ||
-            result.branches[0]
-          setBranch(defaultBranch)
-          toast.success(`Found ${result.branches.length} branches`)
-        } else {
-          setBranchError(result.error || 'Failed to fetch branches')
-          toast.error(result.error || 'Failed to fetch branches')
-        }
-      } catch {
-        setBranchError('Failed to fetch branches')
-        toast.error('Failed to fetch branches')
-      } finally {
-        setIsFetchingBranches(false)
-      }
+  const {
+    data: branches,
+    isLoading: isFetchingBranches,
+    error: branchError,
+  } = useQuery({
+    queryKey: ['branches', repositoryUrl],
+    queryFn: () => fetchBranchesQuery(repositoryUrl),
+    enabled:
+      !!repositoryUrl && repositoryUrl.match(GITHUB_REPO_URL_REGEX) !== null,
+    meta: {
+      errorMessage: 'Failed to fetch branches',
+      successMessage: (data: string[]) => {
+        return `Found ${data.length} branch${data.length !== 1 ? 'es' : ''}`
+      },
     },
-    [setBranch],
-  )
+  })
 
-  // Fetch branches when repo URL changes
   useEffect(() => {
-    if (repositoryUrl.match(GITHUB_REPO_URL_REGEX)) {
-      const timeoutId = setTimeout(() => {
-        fetchBranches(repositoryUrl)
-      }, 500)
-      return () => clearTimeout(timeoutId)
+    const defaultBranch =
+      branches?.find((b) => b === 'main') ??
+      branches?.find((b) => b === 'master')
+    if (defaultBranch) {
+      setBranch(defaultBranch)
     }
-  }, [repositoryUrl, fetchBranches])
+  }, [branches, setBranch])
 
   const handleBranchChange = (newBranch: string) => {
     if (!newBranch) {
@@ -84,7 +68,7 @@ export default function BranchSelector({ disabled }: BranchSelectorProps) {
     if (isFetchingBranches) {
       return 'Fetching branches...'
     }
-    if (branches.length === 0) {
+    if (branches?.length === 0) {
       return 'Enter repository URL first'
     }
     return 'Select a branch'
@@ -94,7 +78,7 @@ export default function BranchSelector({ disabled }: BranchSelectorProps) {
     <div className="grid gap-2">
       <Label className="font-medium text-base">Branch</Label>
       <Select
-        disabled={disabled || isFetchingBranches || branches.length === 0}
+        disabled={disabled || isFetchingBranches || branches?.length === 0}
         onValueChange={handleBranchChange}
         value={branch}
       >
@@ -109,7 +93,7 @@ export default function BranchSelector({ disabled }: BranchSelectorProps) {
           </div>
         </SelectTrigger>
         <SelectContent>
-          {branches.map((branchName) => (
+          {branches?.map((branchName) => (
             <SelectItem key={branchName} value={branchName}>
               {branchName}
             </SelectItem>
@@ -117,12 +101,12 @@ export default function BranchSelector({ disabled }: BranchSelectorProps) {
         </SelectContent>
       </Select>
       {branchError && (
-        <p className="mt-2 text-destructive text-sm">{branchError}</p>
+        <p className="mt-2 text-destructive text-sm">{branchError.message}</p>
       )}
-      {branches.length > 0 && (
+      {branches?.length && branches?.length > 0 && (
         <p className="mt-2 text-muted-foreground text-sm">
-          Found {branches.length} branch
-          {branches.length !== 1 ? 'es' : ''}
+          Found {branches?.length} branch
+          {branches?.length !== 1 ? 'es' : ''}
         </p>
       )}
     </div>

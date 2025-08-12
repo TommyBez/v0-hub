@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
-import { fetchGitHubBranches } from '@/app/actions'
 import RepositorySelectionCard from '@/components/repository-selection-card'
+import { fetchGitHubBranches } from '@/services/github'
 
 interface PageProps {
   params: Promise<{

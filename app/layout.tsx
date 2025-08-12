@@ -12,6 +12,7 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { Toaster } from '@/components/ui/sonner'
 import UserPrefetch from '@/components/user-prefetch'
+import ReactQueryProvider from '@/providers/react-query'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -34,24 +35,26 @@ export default function RootLayout({
       <html lang="en" suppressHydrationWarning>
         <body className={inter.className}>
           <NuqsAdapter>
-            <UserPrefetch />
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="light"
-              disableTransitionOnChange
-            >
-              <SidebarProvider>
-                <div className="relative flex min-h-screen w-full">
-                  <ChatSidebar />
-                  <div className="flex flex-1 flex-col">
-                    <Header />
-                    <main className="flex-1">{children}</main>
-                    <Footer />
+            <ReactQueryProvider>
+              <UserPrefetch />
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="light"
+                disableTransitionOnChange
+              >
+                <SidebarProvider>
+                  <div className="relative flex min-h-screen w-full">
+                    <ChatSidebar />
+                    <div className="flex flex-1 flex-col">
+                      <Header />
+                      <main className="flex-1">{children}</main>
+                      <Footer />
+                    </div>
                   </div>
-                </div>
-              </SidebarProvider>
-              <Toaster richColors />
-            </ThemeProvider>
+                </SidebarProvider>
+                <Toaster richColors />
+              </ThemeProvider>
+            </ReactQueryProvider>
             <Analytics mode="production" />
           </NuqsAdapter>
         </body>
