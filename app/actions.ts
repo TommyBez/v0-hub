@@ -1,5 +1,7 @@
 'use server'
 
+import { revalidatePath } from 'next/cache'
+import { after } from 'next/server'
 import { createClient, v0 } from 'v0-sdk'
 import { z } from 'zod'
 import {
@@ -96,6 +98,12 @@ export async function createV0Chat(
     // Log error but don't fail the chat creation
     logger.error(`Failed to save chat to database: ${error}`)
   }
+
+  // TODO: This is a hack to revalidate the path after the chat is created.
+  // We should find a better way to do this.
+  after(() => {
+    revalidatePath('/')
+  })
 
   return {
     id: chat.id,
@@ -237,6 +245,9 @@ export async function createV0ChatWithToken(
     // Log error but don't fail the chat creation
     logger.error(`Failed to save chat to database: ${error}`)
   }
+  after(() => {
+    revalidatePath('/')
+  })
 
   return {
     id: chat.id,

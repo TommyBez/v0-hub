@@ -78,7 +78,7 @@ export default function ChatResultCard({
           <div>
             <CardTitle>Chat Created!</CardTitle>
             <CardDescription>
-              Your new chat instance is ready. Open it and fork!.
+              Your new chat instance is ready. Open it and fork!
             </CardDescription>
           </div>
           <div className="flex items-center gap-2">
