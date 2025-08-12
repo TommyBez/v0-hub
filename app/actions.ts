@@ -1,12 +1,16 @@
 'use server'
 
+import { revalidatePath } from 'next/cache'
+import { after } from 'next/server'
 import { createClient, v0 } from 'v0-sdk'
 import { z } from 'zod'
 import {
+  createChat,
   getCachedUser,
   getDecryptedV0Token,
   updateUserV0Token,
 } from '@/db/queries'
+import type { User } from '@/db/schema'
 import { logger } from '@/lib/logger'
 
 const GITHUB_REPO_URL_REGEX = /^https:\/\/github\.com\/[^/]+\/[^/]+$/
@@ -46,11 +50,12 @@ function generateChatName(repoUrl: string, branch: string): string {
   const repoName = match ? match[2] : 'repository'
 
   // Omit branch if it's main or master
+  const normalizedBranch = branch.toLowerCase().trim()
   const shouldIncludeBranch =
-    branch !== 'main' && branch !== 'master' && branch !== 'main'
+    normalizedBranch !== 'main' && normalizedBranch !== 'master'
 
   return shouldIncludeBranch
-    ? `[v0hub] ${repoName} - ${branch}`
+    ? `[v0hub] ${repoName} - ${normalizedBranch}`
     : `[v0hub] ${repoName}`
 }
 
@@ -75,6 +80,29 @@ export async function createV0Chat(
     },
     chatPrivacy: 'public',
     name: chatName,
+  })
+
+  // Save to database if user is authenticated
+  try {
+    const user = await getCachedUser()
+    if (user) {
+      await createChat({
+        v0id: chat.id,
+        userId: user.id,
+        owned: false, // Created with server's API key
+        repositoryUrl: repoUrl, // Save the repository URL
+        branch, // Save the branch name
+      })
+    }
+  } catch (error) {
+    // Log error but don't fail the chat creation
+    logger.error(`Failed to save chat to database: ${error}`)
+  }
+
+  // TODO: This is a hack to revalidate the path after the chat is created.
+  // We should find a better way to do this.
+  after(() => {
+    revalidatePath('/')
   })
 
   return {
@@ -124,53 +152,6 @@ export async function bootstrapChatFromRepo(
   }
 }
 
-// New action to fetch branches from GitHub
-export async function fetchGitHubBranches(
-  repoUrl: string,
-): Promise<{ success: boolean; branches?: string[]; error?: string }> {
-  try {
-    // Extract owner and repo from URL
-    const match = repoUrl.match(GITHUB_REPO_URL_REGEX_WITH_BRANCH)
-    if (!match) {
-      return { success: false, error: 'Invalid GitHub repository URL' }
-    }
-
-    const [, owner, repo] = match
-
-    // Fetch branches from GitHub API
-    const response = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/branches`,
-      {
-        headers: {
-          Accept: 'application/vnd.github.v3+json',
-          'User-Agent': 'v0-github-bootstrapper',
-        },
-      },
-    )
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        return { success: false, error: 'Repository not found or is private' }
-      }
-      if (response.status === 403) {
-        return {
-          success: false,
-          error: 'Rate limit exceeded. Please try again later.',
-        }
-      }
-      return { success: false, error: `GitHub API error: ${response.status}` }
-    }
-
-    const branches = await response.json()
-    const branchNames = branches.map((branch: { name: string }) => branch.name)
-
-    return { success: true, branches: branchNames }
-  } catch (error) {
-    logger.error(`Error fetching branches: ${error}`)
-    return { success: false, error: 'Failed to fetch branches' }
-  }
-}
-
 // Token Management Server Actions
 
 export async function getUserToken(): Promise<{ hasToken: boolean }> {
@@ -207,10 +188,11 @@ export async function createV0ChatWithToken(
   useUserToken = false,
 ): Promise<ChatCreationResult> {
   let apiKey = process.env.V0_API_KEY
+  let user: User | null = null
 
   // If user token is requested, use it
   if (useUserToken) {
-    const user = await getCachedUser()
+    user = await getCachedUser()
     if (!user) {
       throw new Error('Not authenticated')
     }
@@ -241,6 +223,30 @@ export async function createV0ChatWithToken(
     },
     chatPrivacy: useUserToken ? 'private' : 'public',
     name: chatName,
+  })
+
+  // Save to database if user is authenticated
+  try {
+    // Get current user if not already fetched
+    if (!user) {
+      user = await getCachedUser()
+    }
+
+    if (user) {
+      await createChat({
+        v0id: chat.id,
+        userId: user.id,
+        owned: useUserToken, // true if created with user's API key
+        repositoryUrl: repoUrl, // Save the repository URL
+        branch, // Save the branch name
+      })
+    }
+  } catch (error) {
+    // Log error but don't fail the chat creation
+    logger.error(`Failed to save chat to database: ${error}`)
+  }
+  after(() => {
+    revalidatePath('/')
   })
 
   return {

@@ -1,9 +1,9 @@
 'use client'
 
+import { useQuery } from '@tanstack/react-query'
 import { GitBranch, Loader2 } from 'lucide-react'
-import { useCallback, useEffect, useState } from 'react'
-import { toast } from 'sonner'
-import { fetchGitHubBranches } from '@/app/actions'
+import { useQueryState } from 'nuqs'
+import { useEffect } from 'react'
 import { Label } from '@/components/ui/label'
 import {
   Select,
@@ -12,124 +12,101 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { branchParser, repositoryUrlParser } from '@/lib/search-params'
+import { fetchGitHubBranches } from '@/services/github'
+
+const fetchBranchesQuery = async (url: string) => {
+  const result = await fetchGitHubBranches(url)
+  return result.branches
+}
 
 const GITHUB_REPO_URL_REGEX =
   /^https:\/\/github\.com\/[^/]+\/[^/]+(?:\.git)?(?:\/)?$/
 
 interface BranchSelectorProps {
-  repoUrl: string
-  isSubmitting: boolean
-  onBranchChange: (branch: string) => void
+  disabled?: boolean
 }
 
-export default function BranchSelector({
-  repoUrl,
-  isSubmitting,
-  onBranchChange,
-}: BranchSelectorProps) {
-  const [branches, setBranches] = useState<string[]>([])
-  const [selectedBranch, setSelectedBranch] = useState('')
-  const [isFetchingBranches, setIsFetchingBranches] = useState(false)
-  const [branchError, setBranchError] = useState('')
+export default function BranchSelector({ disabled }: BranchSelectorProps) {
+  const [repositoryUrl] = useQueryState('repositoryUrl', repositoryUrlParser)
+  const [branch, setBranch] = useQueryState('branch', branchParser)
 
-  const fetchBranches = useCallback(
-    async (url: string) => {
-      setIsFetchingBranches(true)
-      setBranchError('')
-      setBranches([])
-      setSelectedBranch('')
-
-      try {
-        const result = await fetchGitHubBranches(url)
-
-        if (result.success && result.branches) {
-          setBranches(result.branches)
-          // Prioritize "main" over "master", then fall back to first branch
-          const defaultBranch =
-            result.branches.find((branch) => branch === 'main') ||
-            result.branches.find((branch) => branch === 'master') ||
-            result.branches[0]
-          setSelectedBranch(defaultBranch)
-          onBranchChange(defaultBranch)
-          toast.success(`Found ${result.branches.length} branches`)
-        } else {
-          setBranchError(result.error || 'Failed to fetch branches')
-          toast.error(result.error || 'Failed to fetch branches')
-        }
-      } catch {
-        setBranchError('Failed to fetch branches')
-        toast.error('Failed to fetch branches')
-      } finally {
-        setIsFetchingBranches(false)
-      }
+  const {
+    data: branches,
+    isLoading: isFetchingBranches,
+    error: branchError,
+  } = useQuery({
+    queryKey: ['branches', repositoryUrl],
+    queryFn: () => fetchBranchesQuery(repositoryUrl),
+    enabled:
+      !!repositoryUrl && repositoryUrl.match(GITHUB_REPO_URL_REGEX) !== null,
+    meta: {
+      errorMessage: 'Failed to fetch branches',
+      successMessage: (data: string[]) => {
+        return `Found ${data.length} branch${data.length !== 1 ? 'es' : ''}`
+      },
     },
-    [onBranchChange],
-  )
+  })
 
-  // Fetch branches when repo URL changes
   useEffect(() => {
-    if (repoUrl.match(GITHUB_REPO_URL_REGEX)) {
-      const timeoutId = setTimeout(() => {
-        fetchBranches(repoUrl)
-      }, 500)
-      return () => clearTimeout(timeoutId)
+    const defaultBranch =
+      branches?.find((b) => b === 'main') ??
+      branches?.find((b) => b === 'master')
+    if (defaultBranch) {
+      setBranch(defaultBranch)
     }
-    setBranches([])
-    setSelectedBranch('')
-    setBranchError('')
-    onBranchChange('')
-  }, [repoUrl, fetchBranches, onBranchChange])
+  }, [branches, setBranch])
 
-  const handleBranchChange = (branch: string) => {
-    setSelectedBranch(branch)
-    onBranchChange(branch)
+  const handleBranchChange = (newBranch: string) => {
+    if (!newBranch) {
+      return
+    }
+    setBranch(newBranch)
   }
 
   const getPlaceholder = () => {
     if (isFetchingBranches) {
       return 'Fetching branches...'
     }
-    if (branches.length === 0) {
+    if (branches?.length === 0) {
       return 'Enter repository URL first'
     }
     return 'Select a branch'
   }
 
   return (
-    <div className="space-y-2">
-      <Label className="font-medium text-base" htmlFor="branch">
-        Branch
-      </Label>
-      <div className="relative">
-        <Select
-          disabled={isSubmitting || isFetchingBranches || branches.length === 0}
-          onValueChange={handleBranchChange}
-          value={selectedBranch}
-        >
-          <SelectTrigger className="h-12 w-full text-base">
-            <div className="flex items-center gap-2">
-              {isFetchingBranches ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <GitBranch className="h-4 w-4" />
-              )}
-              <SelectValue placeholder={getPlaceholder()} />
-            </div>
-          </SelectTrigger>
-          <SelectContent>
-            {branches.map((branch) => (
-              <SelectItem key={branch} value={branch}>
-                {branch}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      {branchError && <p className="text-destructive text-sm">{branchError}</p>}
-      {branches.length > 0 && (
-        <p className="text-muted-foreground text-sm">
-          Found {branches.length} branch
-          {branches.length !== 1 ? 'es' : ''}
+    <div className="grid gap-2">
+      <Label className="font-medium text-base">Branch</Label>
+      <Select
+        disabled={disabled || isFetchingBranches || branches?.length === 0}
+        onValueChange={handleBranchChange}
+        value={branch}
+      >
+        <SelectTrigger className="h-12 w-full text-base">
+          <div className="flex items-center gap-2">
+            {isFetchingBranches ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <GitBranch className="h-4 w-4" />
+            )}
+            <SelectValue placeholder={getPlaceholder()} />
+          </div>
+        </SelectTrigger>
+        <SelectContent>
+          {branches?.map((branchName) => (
+            <SelectItem key={branchName} value={branchName}>
+              {branchName}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      {branchError && (
+        <p className="mt-2 text-destructive text-sm">{branchError.message}</p>
+      )}
+      {branches?.length && branches?.length > 0 && (
+        <p className="mt-2 text-muted-foreground text-sm">
+          Found {branches?.length} branch
+          {branches?.length !== 1 ? 'es' : ''}
         </p>
       )}
     </div>

@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
-import { fetchGitHubBranches } from '@/app/actions'
 import RepositorySelectionCard from '@/components/repository-selection-card'
+import { fetchGitHubBranches } from '@/services/github'
 
 interface PageProps {
   params: Promise<{
@@ -35,6 +35,7 @@ export default async function RepositoryPage({ params }: PageProps) {
       <div className="w-full max-w-2xl">
         <RepositorySelectionCard
           description={`Choose a branch from ${user}/${repository} to explore`}
+          repositoryUrl={repoUrl}
           title="Select Branch"
         />
       </div>

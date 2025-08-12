@@ -1,14 +1,23 @@
 import crypto from 'node:crypto'
 import { currentUser } from '@clerk/nextjs/server'
-import { eq } from 'drizzle-orm'
+import { desc, eq } from 'drizzle-orm'
 import { cache } from 'react'
 import { logger } from '@/lib/logger'
-import { db, type NewUser, type User, users } from './index'
+import {
+  type Chat,
+  chats as chatsTable,
+  db,
+  type NewChat,
+  type NewUser,
+  type User,
+  users,
+} from './index'
 
 // Encryption utilities
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY
-  ? Buffer.from(process.env.ENCRYPTION_KEY, 'hex')
-  : crypto.randomBytes(32)
+if (!process.env.ENCRYPTION_KEY) {
+  throw new Error('ENCRYPTION_KEY is not set')
+}
+const ENCRYPTION_KEY = Buffer.from(process.env.ENCRYPTION_KEY, 'hex')
 const IV_LENGTH = 16
 
 function encrypt(text: string): string {
@@ -137,5 +146,57 @@ export async function getDecryptedV0Token(
 // Delete a user by Clerk ID
 export async function deleteUser(clerkId: string): Promise<boolean> {
   const result = await db.delete(users).where(eq(users.clerkId, clerkId))
+  return result.rowCount > 0
+}
+
+// Chat queries
+
+// Get a chat by ID
+export async function getChatById(id: string): Promise<Chat | null> {
+  const [chat] = await db.select().from(chatsTable).where(eq(chatsTable.id, id))
+  return chat || null
+}
+
+// Get a chat by v0id
+export async function getChatByV0Id(v0id: string): Promise<Chat | null> {
+  const [chat] = await db
+    .select()
+    .from(chatsTable)
+    .where(eq(chatsTable.v0id, v0id))
+  return chat || null
+}
+
+// Get all chats for a user
+export async function getUserChats(userId: string): Promise<Chat[]> {
+  const chats = await db
+    .select()
+    .from(chatsTable)
+    .where(eq(chatsTable.userId, userId))
+    .orderBy(desc(chatsTable.createdAt))
+  return chats
+}
+
+// Create a new chat
+export async function createChat(data: NewChat): Promise<Chat> {
+  const [newChat] = await db.insert(chatsTable).values(data).returning()
+  return newChat
+}
+
+// Update chat ownership
+export async function updateChatOwnership(
+  id: string,
+  owned: boolean,
+): Promise<Chat | null> {
+  const [updatedChat] = await db
+    .update(chatsTable)
+    .set({ owned, updatedAt: new Date() })
+    .where(eq(chatsTable.id, id))
+    .returning()
+  return updatedChat || null
+}
+
+// Delete a chat
+export async function deleteChat(id: string): Promise<boolean> {
+  const result = await db.delete(chatsTable).where(eq(chatsTable.id, id))
   return result.rowCount > 0
 }

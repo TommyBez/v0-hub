@@ -4,7 +4,6 @@ import { Eye, EyeOff, Key, Loader2 } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { saveUserToken } from '@/app/actions'
-import { Button } from '@/components/ui/button'
 import {
   ResponsiveDialog,
   ResponsiveDialogContent,
@@ -13,6 +12,7 @@ import {
   ResponsiveDialogHeader,
   ResponsiveDialogTitle,
 } from '@/components/responsive-dialog'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { logger } from '@/lib/logger'
@@ -79,9 +79,11 @@ export default function TokenDialog({
               v0.dev settings
             </a>
             .
+            <br />
+            <b>Your key will be stored securely in our database.</b>
           </ResponsiveDialogDescription>
         </ResponsiveDialogHeader>
-        <div className="space-y-4 py-4 px-4">
+        <div className="space-y-4 px-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="dialog-token">API Key</Label>
             <div className="flex gap-2">

@@ -1,14 +1,19 @@
 'use client'
 
 import { useAuth, useClerk } from '@clerk/nextjs'
+import { useQueryState } from 'nuqs'
 import { useCallback, useEffect, useState } from 'react'
 import { getUserToken } from '@/app/actions'
 import { logger } from '@/lib/logger'
+import { privateChatParser } from '@/lib/search-params'
 
 export function useTokenManager() {
   const { isSignedIn } = useAuth()
   const { openSignIn } = useClerk()
-  const [isPrivateChat, setIsPrivateChat] = useState(false)
+  const [isPrivateChat, setIsPrivateChat] = useQueryState(
+    'privateChat',
+    privateChatParser,
+  )
   const [hasToken, setHasToken] = useState(false)
   const [showTokenDialog, setShowTokenDialog] = useState(false)
 
@@ -23,7 +28,7 @@ export function useTokenManager() {
     } catch (tokenError) {
       logger.error(`Failed to check token: ${tokenError}`)
     }
-  }, [])
+  }, [setIsPrivateChat])
 
   // Check if user has token when private chat is enabled
   useEffect(() => {

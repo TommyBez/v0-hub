@@ -1,5 +1,11 @@
 import { SiGithub } from '@icons-pack/react-simple-icons'
-import RepositoryForm from '@/components/repository-form'
+import { Suspense } from 'react'
+import BranchSelector from '@/components/branch-selector'
+import BranchSelectorSkeleton from '@/components/branch-selector-skeleton'
+import CreateChatButton from '@/components/create-chat-button'
+import PrivateChatToggle from '@/components/private-chat-toggle'
+import RepositoryInput from '@/components/repository-input'
+import RepositoryInputSkeleton from '@/components/repository-input-skeleton'
 import {
   Card,
   CardContent,
@@ -11,6 +17,7 @@ import {
 interface RepositorySelectionCardProps {
   title?: string
   description?: string
+  repositoryUrl?: string
   disabled?: boolean
   showHeader?: boolean
 }
@@ -19,6 +26,7 @@ export default function RepositorySelectionCard({
   title = 'Bootstrap Chat from GitHub',
   description = 'Initialize a new v0 chat instance from a public GitHub repository.',
   showHeader = true,
+  repositoryUrl,
 }: RepositorySelectionCardProps) {
   return (
     <Card className="relative overflow-hidden border-primary/20 shadow-primary/5 shadow-xl">
@@ -37,7 +45,20 @@ export default function RepositorySelectionCard({
         </CardHeader>
       )}
       <CardContent>
-        <RepositoryForm showHeader={showHeader} />
+        <div className={`relative space-y-4 ${showHeader ? '' : 'pt-6'}`}>
+          <Suspense fallback={<RepositoryInputSkeleton />}>
+            <RepositoryInput disabled={!!repositoryUrl} />
+          </Suspense>
+          <Suspense fallback={<BranchSelectorSkeleton />}>
+            <BranchSelector />
+          </Suspense>
+          <div className="space-y-4 border-t pt-4">
+            <PrivateChatToggle />
+          </div>
+          <div className="relative mt-6">
+            <CreateChatButton />
+          </div>
+        </div>
       </CardContent>
     </Card>
   )
