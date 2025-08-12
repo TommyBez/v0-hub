@@ -15,6 +15,13 @@
       "when": 1754785384311,
       "tag": "0001_striped_wallow",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1754988229732,
+      "tag": "0002_mixed_arclight",
+      "breakpoints": true
     }
   ]
 }
