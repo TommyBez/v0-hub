@@ -42,7 +42,7 @@ export default function RootLayout({
                 defaultTheme="light"
                 disableTransitionOnChange
               >
-                <SidebarProvider>
+                <SidebarProvider defaultOpen={false}>
                   <div className="relative flex min-h-screen w-full">
                     <ChatSidebar />
                     <div className="flex flex-1 flex-col">
