@@ -79,6 +79,8 @@ export default function TokenDialog({
               v0.dev settings
             </a>
             .
+            <br />
+            <b>Your key will be stored securely in our database.</b>
           </ResponsiveDialogDescription>
         </ResponsiveDialogHeader>
         <div className="space-y-4 px-4 py-4">
