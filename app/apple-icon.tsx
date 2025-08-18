@@ -36,6 +36,7 @@ export default function AppleIcon() {
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
+          <title>V0 Hub icon</title>
           {/* Center node */}
           <circle cx="12" cy="12" r="3" fill="white" />
           {/* Connected nodes */}
