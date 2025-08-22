@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button'
 export function HeaderButtons() {
   const segment = useSelectedLayoutSegment()
 
-  if (segment !== 'dashboard') {
+  if (segment && segment !== 'dashboard') {
     return <ThemeToggle />
   }
   return (
