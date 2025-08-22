@@ -9,7 +9,7 @@ export default function Loading() {
           <div className="h-2 w-2 animate-bounce rounded-full bg-gray-900 dark:bg-gray-100" />
         </div>
         <p className="text-gray-600 text-sm dark:text-gray-400">
-          Creating v0 chat
+          Fetching branch data
         </p>
       </div>
     </div>
