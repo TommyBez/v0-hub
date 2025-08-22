@@ -48,6 +48,7 @@
     "@radix-ui/react-tooltip": "latest",
     "@remix-run/react": "latest",
     "@sveltejs/kit": "latest",
+    "@upstash/redis": "^1.35.3",
     "@vercel/analytics": "latest",
     "autoprefixer": "^10.4.20",
     "class-variance-authority": "^0.7.1",
