@@ -1,0 +1,8 @@
+<svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>V0 Hub Chat Icon</title>
+  <!-- Chat bubble with tail -->
+  <path d="M30 48C30 38.0589 38.0589 30 48 30H144C153.941 30 162 38.0589 162 48V108C162 117.941 153.941 126 144 126H69L42 156V126H48C38.0589 126 30 117.941 30 108V48Z" fill="oklch(58.54% 0.2041 277.12)" stroke="oklch(58.54% 0.2041 277.12)" stroke-width="9" stroke-linejoin="round"/>
+  
+  <!-- Triangle inside -->
+  <path d="M96 54L120 102H72L96 54Z" fill="white"/>
+</svg>
