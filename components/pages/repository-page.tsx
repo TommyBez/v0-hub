@@ -1,5 +1,6 @@
 import { Redis } from '@upstash/redis'
 import { notFound, redirect } from 'next/navigation'
+import { getRepositoryWithBranches, type BranchInfo } from '@/lib/github-client'
 
 export interface RepositoryPageParams {
   user: string
@@ -13,117 +14,90 @@ export interface RepositoryPageProps {
 export default async function RepositoryPage({ params }: RepositoryPageProps) {
   const redis = Redis.fromEnv()
   const { user, repository } = await params
+
+  // Check for cached commits for main, master, and default branch
   const cachedMainCommit = await redis.get<string>(
     `commit:main:${user}:${repository}`,
   )
-
   if (cachedMainCommit) {
     redirect(`/${user}/${repository}/tree/main?commit=${cachedMainCommit}`)
   }
-  const main = await fetch(
-    `https://api.github.com/repos/${user}/${repository}/branches/main`,
-    {
-      headers: {
-        Accept: 'application/vnd.github.v3+json',
-        'User-Agent': 'v0-github-bootstrapper',
-      },
-      cache: 'no-store',
-    },
-  )
-  if (main.ok) {
-    const mainBranch = await main.json()
-    await redis.set(
-      `commit:main:${user}:${repository}`,
-      mainBranch.commit.sha,
-      { ex: 60 * 60 },
-    )
-    return redirect(
-      `/${user}/${repository}/tree/main?commit=${mainBranch.commit.sha}`,
-    )
-  }
+
   const cachedMasterCommit = await redis.get<string>(
     `commit:master:${user}:${repository}`,
   )
   if (cachedMasterCommit) {
     redirect(`/${user}/${repository}/tree/master?commit=${cachedMasterCommit}`)
   }
-  const master = await fetch(
-    `https://api.github.com/repos/${user}/${repository}/branches/master`,
-    {
-      headers: {
-        Accept: 'application/vnd.github.v3+json',
-        'User-Agent': 'v0-github-bootstrapper',
-      },
-      cache: 'no-store',
-    },
-  )
-  if (master.ok) {
-    const masterBranch = await master.json()
-    await redis.set(
-      `commit:master:${user}:${repository}`,
-      masterBranch.commit.sha,
-      { ex: 60 * 60 },
-    )
-    redirect(
-      `/${user}/${repository}/tree/master?commit=${masterBranch.commit.sha}`,
-    )
-  }
 
-  const cachedRepoDefaultBranch = await redis.get<string>(
+  const cachedDefaultBranch = await redis.get<string>(
     `default-branch:${user}:${repository}`,
   )
-  if (cachedRepoDefaultBranch) {
-    return redirect(`/${user}/${repository}/tree/${cachedRepoDefaultBranch}`)
-  }
-
-  const repoRes = await fetch(
-    `https://api.github.com/repos/${user}/${repository}`,
-    {
-      headers: {
-        Accept: 'application/vnd.github.v3+json',
-        'User-Agent': 'v0-github-bootstrapper',
-      },
-      cache: 'no-store',
-    },
-  )
-
-  if (repoRes.ok) {
-    const repo = await repoRes.json()
-    await redis.set(
-      `default-branch:${user}:${repository}`,
-      repo.default_branch,
-      { ex: 60 * 60 },
+  if (cachedDefaultBranch) {
+    const cachedDefaultCommit = await redis.get<string>(
+      `commit:${cachedDefaultBranch}:${user}:${repository}`,
     )
-    const defaultBranch: string | undefined = repo?.default_branch
-    if (defaultBranch) {
-      const cacheKey = `commit:${defaultBranch}:${user}:${repository}`
-      const cachedDefaultCommit = await redis.get<string>(cacheKey)
-      if (cachedDefaultCommit) {
-        return redirect(
-          `/${user}/${repository}/tree/${defaultBranch}?commit=${cachedDefaultCommit}`,
-        )
-      }
-
-      const branchRes = await fetch(
-        `https://api.github.com/repos/${user}/${repository}/branches/${encodeURIComponent(defaultBranch)}`,
-        {
-          headers: {
-            Accept: 'application/vnd.github.v3+json',
-            'User-Agent': 'v0-github-bootstrapper',
-          },
-          cache: 'no-store',
-        },
+    if (cachedDefaultCommit) {
+      redirect(
+        `/${user}/${repository}/tree/${cachedDefaultBranch}?commit=${cachedDefaultCommit}`,
       )
-
-      if (branchRes.ok) {
-        const branchData = await branchRes.json()
-        await redis.set(cacheKey, branchData.commit.sha, { ex: 900 })
-
-        return redirect(
-          `/${user}/${repository}/tree/${defaultBranch}?commit=${branchData.commit.sha}`,
-        )
-      }
     }
   }
+
+  // Fetch repository information with all branches in a single GraphQL query
+  const repoInfo = await getRepositoryWithBranches(user, repository)
+  if (!repoInfo) {
+    return notFound()
+  }
+
+  // Helper function to find branch by name
+  const findBranch = (branchName: string): BranchInfo | undefined => {
+    return repoInfo.branches.find(branch => branch.name === branchName)
+  }
+
+  // Try to find main branch first
+  const mainBranch = findBranch('main')
+  if (mainBranch) {
+    await redis.set(
+      `commit:main:${user}:${repository}`,
+      mainBranch.commit,
+      { ex: 60 * 60 },
+    )
+    redirect(`/${user}/${repository}/tree/main?commit=${mainBranch.commit}`)
+  }
+
+  // Try to find master branch if main doesn't exist
+  const masterBranch = findBranch('master')
+  if (masterBranch) {
+    await redis.set(
+      `commit:master:${user}:${repository}`,
+      masterBranch.commit,
+      { ex: 60 * 60 },
+    )
+    redirect(`/${user}/${repository}/tree/master?commit=${masterBranch.commit}`)
+  }
+
+  // Fall back to default branch
+  if (repoInfo.defaultBranch) {
+    const { name: defaultBranchName, commit: defaultCommit } = repoInfo.defaultBranch
+    
+    // Cache the default branch name and commit
+    await redis.set(
+      `default-branch:${user}:${repository}`,
+      defaultBranchName,
+      { ex: 60 * 60 },
+    )
+    await redis.set(
+      `commit:${defaultBranchName}:${user}:${repository}`,
+      defaultCommit,
+      { ex: 60 * 60 },
+    )
+    
+    redirect(
+      `/${user}/${repository}/tree/${defaultBranchName}?commit=${defaultCommit}`,
+    )
+  }
+
+  // If no branches are found, return 404
   return notFound()
 }
