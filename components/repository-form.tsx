@@ -58,9 +58,7 @@ export default function RepositoryForm({
   const onSubmit = (data: FormData) => {
     // Create a minimal event object for compatibility with existing handleSubmit
     const event = new Event('submit') as unknown as React.FormEvent
-    event.preventDefault = () => {
-      // Prevent default form submission
-    }
+    event.preventDefault()
 
     handleSubmit(event, data.repoUrl, data.branch, data.isPrivateChat)
   }

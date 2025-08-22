@@ -41,7 +41,7 @@ export function useFormSubmission() {
           params.set('private', 'true')
         }
         const queryString = params.toString()
-        const url = `/${owner}/${repo}/tree/${selectedBranch}${queryString ? `?${queryString}` : ''}`
+        const url = `dashboard/${owner}/${repo}/tree/${selectedBranch}${queryString ? `?${queryString}` : ''}`
         router.push(url)
       }
     } catch (formError) {
