@@ -96,7 +96,7 @@ export default async function RepositoryPage({ params }: RepositoryPageProps) {
     )
     const defaultBranch: string | undefined = repo?.default_branch
     if (defaultBranch) {
-      const cacheKey = `branch:${user}:${repository}:${defaultBranch}`
+      const cacheKey = `commit:${defaultBranch}:${user}:${repository}`
       const cachedDefaultCommit = await redis.get<string>(cacheKey)
       if (cachedDefaultCommit) {
         return redirect(
