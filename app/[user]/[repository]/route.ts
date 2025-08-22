@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation'
+import { NextResponse } from 'next/server'
 import { fetchGitHubBranches } from '@/app/actions'
 
 export async function GET(
@@ -10,16 +10,13 @@ export async function GET(
   const result = await fetchGitHubBranches(repoUrl)
 
   if (result.success && result.branches) {
-    // Check if main or master branch exists
-    const mainBranch = result.branches.find((branch) => branch === 'main')
-    const masterBranch = result.branches.find((branch) => branch === 'master')
-
-    // Redirect to main or master branch if available
-    if (mainBranch) {
-      redirect(`/${user}/${repository}/tree/main`)
-    } else if (masterBranch) {
-      redirect(`/${user}/${repository}/tree/master`)
+    const names = new Set(result.branches)
+    if (names.has('main')) {
+      return NextResponse.redirect(`/${user}/${repository}/tree/main`)
+    }
+    if (names.has('master')) {
+      return NextResponse.redirect(`/${user}/${repository}/tree/master`)
     }
   }
-  redirect(`dashboard/${user}/${repository}`)
+  NextResponse.redirect(`/dashboard/${user}/${repository}`)
 }
