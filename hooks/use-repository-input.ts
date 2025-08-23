@@ -1,6 +1,5 @@
 'use client'
 
-import { useQueryClient } from '@tanstack/react-query'
 import { useQueryState } from 'nuqs'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { SafeParseSuccess } from 'zod'
@@ -21,7 +20,6 @@ interface UseRepositoryInputResult {
 
 export function useRepositoryInput(): UseRepositoryInputResult {
   const validateGithubRepoUrlSchema = useValidateGithubUrl()
-  const queryClient = useQueryClient()
 
   // URL query state
   const [repositoryUrl, setRepositoryUrl] = useQueryState(
@@ -60,12 +58,6 @@ export function useRepositoryInput(): UseRepositoryInputResult {
         validationRef.current = null
       }
 
-      // Cancel pending queries
-      const queryState = queryClient.getQueryState(['validate-github-repo-url'])
-      if (queryState) {
-        queryClient.cancelQueries({ queryKey: ['validate-github-repo-url'] })
-      }
-
       // Reset validation state for immediate feedback
       if (newValue === '') {
         setValidationState('idle')
@@ -73,7 +65,7 @@ export function useRepositoryInput(): UseRepositoryInputResult {
         setValidationState('validating')
       }
     },
-    [queryClient, validationState],
+    [validationState],
   )
 
   // Handle debounced validation
