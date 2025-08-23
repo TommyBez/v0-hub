@@ -1,7 +1,18 @@
 import { Octokit } from 'octokit'
+import { logger } from './logger'
 
-// Create a shared Octokit client instance
+// Get GitHub token from environment variables
+const githubToken = process.env.GITHUB_TOKEN
+
+if (!githubToken) {
+  throw new Error(
+    'GitHub authentication token is required. Please set either GITHUB_TOKEN or GH_TOKEN environment variable.',
+  )
+}
+
+// Create a shared Octokit client instance with authentication
 const octokit = new Octokit({
+  auth: githubToken,
   userAgent: 'v0-github-bootstrapper',
 })
 
@@ -84,7 +95,9 @@ export async function getRepositoryWithBranches(
     })
 
     const { repository } = response
-    if (!repository) return null
+    if (!repository) {
+      return null
+    }
 
     const defaultBranch = repository.defaultBranchRef
       ? {
@@ -93,7 +106,7 @@ export async function getRepositoryWithBranches(
         }
       : null
 
-    const branches = repository.refs.nodes.map(branch => ({
+    const branches = repository.refs.nodes.map((branch) => ({
       name: branch.name,
       commit: branch.target.oid,
     }))
@@ -103,7 +116,7 @@ export async function getRepositoryWithBranches(
       branches,
     }
   } catch (error) {
-    console.error('Failed to fetch repository info:', error)
+    logger.error(`Failed to fetch repository info: ${error}`)
     return null
   }
 }
@@ -130,7 +143,7 @@ export async function getBranchCommit(
 
     return response.repository?.ref?.target?.oid || null
   } catch (error) {
-    console.error('Failed to fetch branch commit:', error)
+    logger.error(`Failed to fetch branch commit: ${error}`)
     return null
   }
 }

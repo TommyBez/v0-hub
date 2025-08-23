@@ -21,6 +21,7 @@ v0hub lets you paste a GitHub repository URL and create a v0 chat session for th
 - Neon Database (PostgreSQL)
 - Clerk account for authentication
 - v0 API key from [v0.dev](https://v0.dev) (optional for public chats)
+- GitHub Personal Access Token (for API access)
  
 
 ## Setup
@@ -47,6 +48,11 @@ v0hub lets you paste a GitHub repository URL and create a v0 chat session for th
    
    # v0 API (optional - for public chats)
    V0_API_KEY=your_v0_api_key
+   
+   # GitHub API (required)
+   GITHUB_TOKEN=your_github_personal_access_token
+   # or
+   GH_TOKEN=your_github_personal_access_token
    
    # Key Encryption
    ENCRYPTION_KEY=your_32_byte_hex_encryption_key  # Generate with: openssl rand -hex 32

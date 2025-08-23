@@ -39,7 +39,11 @@ export default async function RepositoryTreePage({
       commit = cachedCommit
     } else {
       // Use GraphQL to get branch commit efficiently
-      const branchCommit = await getBranchCommit(user, repository, fullBranchName)
+      const branchCommit = await getBranchCommit(
+        user,
+        repository,
+        fullBranchName,
+      )
       if (branchCommit) {
         commit = branchCommit
         await redis.set(
@@ -67,6 +71,6 @@ export default async function RepositoryTreePage({
   await redis.set(`chat:${repoUrl}:${fullBranchName}:${commit}`, chatData.url, {
     ex: 60 * 60,
   })
-  
+
   return redirect(chatData.url)
 }
