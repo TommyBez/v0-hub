@@ -244,7 +244,7 @@ export async function checkGithubRepoUrl(repoUrl: string) {
   try {
     const match = repoUrl.match(GITHUB_REPO_URL_REGEX_WITH_BRANCH)
     if (!match) {
-      throw new Error('Invalid GitHub repository URL')
+      return false
     }
 
     const [, owner, repo] = match
@@ -253,9 +253,9 @@ export async function checkGithubRepoUrl(repoUrl: string) {
       owner,
       repo,
     })
-    return response
+    return response?.status === 200
   } catch (error) {
     logger.error(`Error checking GitHub repository URL: ${error}`)
-    throw new Error('Failed to check GitHub repository URL')
+    return false
   }
 }

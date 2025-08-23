@@ -22,7 +22,7 @@ export async function GET(
   }
 
   const response = await checkGithubRepoUrl(decodedUrl)
-  const isValid = response.status === 200
+  const isValid = response
   await redis.set(decodedUrl, isValid)
   return NextResponse.json({ isValid })
 }
