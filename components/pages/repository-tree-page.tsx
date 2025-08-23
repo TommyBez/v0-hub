@@ -2,6 +2,7 @@ import { Redis } from '@upstash/redis'
 import { redirect } from 'next/navigation'
 import { createV0Chat, createV0ChatWithToken } from '@/app/actions'
 import { getBranchCommit } from '@/lib/github-client'
+import { searchParamsCache } from '@/lib/search-params'
 
 export interface RepositoryTreePageProps {
   params: Promise<{
@@ -9,19 +10,17 @@ export interface RepositoryTreePageProps {
     repository: string
     branch: string[]
   }>
-  searchParams: Promise<{ private?: string; commit?: string }>
 }
 
 export default async function RepositoryTreePage({
   params,
-  searchParams,
 }: RepositoryTreePageProps) {
   const redis = Redis.fromEnv()
   const { user, repository, branch } = await params
-  const searchParamsData = await searchParams
+  const searchParamsData = searchParamsCache.all()
   const fullBranchName = branch.join('/')
   const repoUrl = `https://github.com/${user}/${repository}`
-  const isPrivate = searchParamsData.private === 'true'
+  const isPrivate = searchParamsData.private
   let commit = searchParamsData.commit
 
   // Handle private repositories with token

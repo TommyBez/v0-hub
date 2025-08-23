@@ -4,6 +4,7 @@ import type React from 'react'
 import './globals.css'
 import { ClerkProvider } from '@clerk/nextjs'
 import { Analytics } from '@vercel/analytics/next'
+import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import { Footer } from '@/components/footer'
 import { Header } from '@/components/header'
 import { ThemeProvider } from '@/components/theme-provider'
@@ -27,25 +28,27 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <ClerkProvider>
-      <UserPrefetch />
-      <html lang="en" suppressHydrationWarning>
-        <body className={inter.className}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="light"
-            disableTransitionOnChange
-          >
-            <div className="relative flex min-h-screen flex-col">
-              <Header />
-              <main className="flex-1">{children}</main>
-              <Footer />
-            </div>
-            <Toaster richColors />
-          </ThemeProvider>
-          <Analytics mode="production" />
-        </body>
-      </html>
-    </ClerkProvider>
+    <NuqsAdapter>
+      <ClerkProvider>
+        <UserPrefetch />
+        <html lang="en" suppressHydrationWarning>
+          <body className={inter.className}>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="light"
+              disableTransitionOnChange
+            >
+              <div className="relative flex min-h-screen flex-col">
+                <Header />
+                <main className="flex-1">{children}</main>
+                <Footer />
+              </div>
+              <Toaster richColors />
+            </ThemeProvider>
+            <Analytics mode="production" />
+          </body>
+        </html>
+      </ClerkProvider>
+    </NuqsAdapter>
   )
 }
