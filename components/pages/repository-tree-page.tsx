@@ -1,6 +1,8 @@
 import { Redis } from '@upstash/redis'
 import { redirect } from 'next/navigation'
 import { createV0Chat, createV0ChatWithToken } from '@/app/actions'
+import { getBranchCommit } from '@/lib/github-client'
+import { searchParamsCache } from '@/lib/search-params'
 
 export interface RepositoryTreePageProps {
   params: Promise<{
@@ -8,26 +10,26 @@ export interface RepositoryTreePageProps {
     repository: string
     branch: string[]
   }>
-  searchParams: Promise<{ private?: string; commit?: string }>
 }
 
 export default async function RepositoryTreePage({
   params,
-  searchParams,
 }: RepositoryTreePageProps) {
   const redis = Redis.fromEnv()
   const { user, repository, branch } = await params
-  const searchParamsData = await searchParams
+  const searchParamsData = searchParamsCache.all()
   const fullBranchName = branch.join('/')
   const repoUrl = `https://github.com/${user}/${repository}`
-  const isPrivate = searchParamsData.private === 'true'
+  const isPrivate = searchParamsData.private
   let commit = searchParamsData.commit
 
+  // Handle private repositories with token
   if (isPrivate) {
     const chatData = await createV0ChatWithToken(repoUrl, fullBranchName, true)
     return redirect(chatData.url)
   }
 
+  // If no commit is provided, try to get it from cache or fetch it
   if (!commit) {
     const cachedCommit = await redis.get<string>(
       `commit:${fullBranchName}:${user}:${repository}`,
@@ -35,11 +37,16 @@ export default async function RepositoryTreePage({
     if (cachedCommit) {
       commit = cachedCommit
     } else {
-      const main = await fetch(
-        `https://api.github.com/repos/${user}/${repository}/branches/${fullBranchName}`,
+      // Use GraphQL to get branch commit efficiently
+      const branchCommit = await getBranchCommit(
+        user,
+        repository,
+        fullBranchName,
       )
-      const mainBranch = await main.json()
-      commit = mainBranch.commit.sha
+      if (!branchCommit) {
+        return redirect(`/${user}/${repository}`)
+      }
+      commit = branchCommit
       await redis.set(
         `commit:${fullBranchName}:${user}:${repository}`,
         commit,
@@ -48,15 +55,19 @@ export default async function RepositoryTreePage({
     }
   }
 
+  // Check if we have a cached chat URL for this specific commit
   const cachedChatUrl = await redis.get<string>(
     `chat:${repoUrl}:${fullBranchName}:${commit}`,
   )
   if (cachedChatUrl) {
     return redirect(cachedChatUrl)
   }
+
+  // Create new chat and cache the URL
   const chatData = await createV0Chat(repoUrl, fullBranchName)
   await redis.set(`chat:${repoUrl}:${fullBranchName}:${commit}`, chatData.url, {
     ex: 60 * 60,
   })
+
   return redirect(chatData.url)
 }

@@ -124,53 +124,6 @@ export async function bootstrapChatFromRepo(
   }
 }
 
-// New action to fetch branches from GitHub
-export async function fetchGitHubBranches(
-  repoUrl: string,
-): Promise<{ success: boolean; branches?: string[]; error?: string }> {
-  try {
-    // Extract owner and repo from URL
-    const match = repoUrl.match(GITHUB_REPO_URL_REGEX_WITH_BRANCH)
-    if (!match) {
-      return { success: false, error: 'Invalid GitHub repository URL' }
-    }
-
-    const [, owner, repo] = match
-
-    // Fetch branches from GitHub API
-    const response = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/branches`,
-      {
-        headers: {
-          Accept: 'application/vnd.github.v3+json',
-          'User-Agent': 'v0-github-bootstrapper',
-        },
-      },
-    )
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        return { success: false, error: 'Repository not found or is private' }
-      }
-      if (response.status === 403) {
-        return {
-          success: false,
-          error: 'Rate limit exceeded. Please try again later.',
-        }
-      }
-      return { success: false, error: `GitHub API error: ${response.status}` }
-    }
-
-    const branches = await response.json()
-    const branchNames = branches.map((branch: { name: string }) => branch.name)
-
-    return { success: true, branches: branchNames }
-  } catch (error) {
-    logger.error(`Error fetching branches: ${error}`)
-    return { success: false, error: 'Failed to fetch branches' }
-  }
-}
-
 // Token Management Server Actions
 
 export async function getUserToken(): Promise<{ hasToken: boolean }> {
