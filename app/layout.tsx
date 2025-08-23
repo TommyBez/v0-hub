@@ -1,12 +1,10 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import type React from 'react'
+import type { ReactNode } from 'react'
 import './globals.css'
 import { ClerkProvider } from '@clerk/nextjs'
 import { Analytics } from '@vercel/analytics/next'
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
-import { Footer } from '@/components/footer'
-import { Header } from '@/components/header'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/sonner'
 import UserPrefetch from '@/components/user-prefetch'
@@ -21,7 +19,7 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: ReactNode
 }>) {
   return (
     <NuqsAdapter>
@@ -34,11 +32,7 @@ export default function RootLayout({
               defaultTheme="light"
               disableTransitionOnChange
             >
-              <div className="relative flex min-h-screen flex-col">
-                <Header />
-                <main className="flex-1">{children}</main>
-                <Footer />
-              </div>
+              {children}
               <Toaster richColors />
             </ThemeProvider>
             <Analytics mode="production" />
