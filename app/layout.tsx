@@ -22,10 +22,11 @@ export default function RootLayout({
   children: ReactNode
 }>) {
   return (
+    <html lang="en" suppressHydrationWarning>
     <NuqsAdapter>
       <ClerkProvider>
         <UserPrefetch />
-        <html lang="en" suppressHydrationWarning>
+        
           <body className={inter.className}>
             <ThemeProvider
               attribute="class"
@@ -37,8 +38,8 @@ export default function RootLayout({
             </ThemeProvider>
             <Analytics mode="production" />
           </body>
-        </html>
-      </ClerkProvider>
-    </NuqsAdapter>
+        </ClerkProvider>
+      </NuqsAdapter>
+    </html>
   )
 }
