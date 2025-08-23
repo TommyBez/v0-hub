@@ -18,9 +18,6 @@ export const metadata: Metadata = {
   description: 'Bootstrap a v0 chat from a GitHub repository.',
 }
 
-// Force dynamic rendering for all pages since we're using authentication
-export const dynamic = 'force-dynamic'
-
 export default function RootLayout({
   children,
 }: Readonly<{
