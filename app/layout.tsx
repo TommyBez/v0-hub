@@ -16,7 +16,6 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'v0hub - v0 GitHub Bootstrapper',
   description: 'Bootstrap a v0 chat from a GitHub repository.',
-  generator: 'v0.dev',
 }
 
 // Force dynamic rendering for all pages since we're using authentication
