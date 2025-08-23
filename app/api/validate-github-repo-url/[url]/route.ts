@@ -1,5 +1,6 @@
 import { Redis } from '@upstash/redis'
 import { type NextRequest, NextResponse } from 'next/server'
+import { checkGithubRepoUrl } from '@/lib/github-client'
 
 export async function GET(
   _request: NextRequest,
@@ -7,17 +8,21 @@ export async function GET(
 ) {
   const redis = Redis.fromEnv()
   const { url } = await params
-  if (!url) {
+  const decodedUrl = decodeURIComponent(url)
+  if (!decodedUrl) {
     return NextResponse.json({ error: 'URL is required' }, { status: 400 })
   }
 
-  const cached = await redis.get(url)
-  if (cached) {
-    return NextResponse.json({ isValid: cached })
+  const cached = await redis.get(decodedUrl)
+  if (cached !== null && cached !== undefined) {
+    // Convert cached value to boolean (handle string "true"/"false" or boolean values)
+    const isValid =
+      typeof cached === 'string' ? cached === 'true' : Boolean(cached)
+    return NextResponse.json({ isValid })
   }
 
-  const response = await fetch(`https://api.github.com/repos/${url}`)
+  const response = await checkGithubRepoUrl(decodedUrl)
   const isValid = response.status === 200
-  await redis.set(url, isValid)
+  await redis.set(decodedUrl, isValid)
   return NextResponse.json({ isValid })
 }

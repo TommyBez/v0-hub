@@ -1,53 +1,67 @@
 'use client'
 
 import { SiGithub } from '@icons-pack/react-simple-icons'
+import { useQueryClient } from '@tanstack/react-query'
 import { useQueryState } from 'nuqs'
-import { useDeferredValue, useEffect, useState } from 'react'
-import { z } from 'zod'
+import { useEffect, useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useDebouncedValue } from '@/hooks/use-debounced-value'
+import { useValidateGithubUrl } from '@/hooks/use-validate-github-url'
 import { repositoryUrlParser } from '@/lib/search-params'
 
-const GITHUB_REPO_URL_REGEX =
-  /^https:\/\/github\.com\/[^/]+\/[^/]+(?:\.git)?(?:\/)?$/
-
-const validateGithubRepoUrlSchema = z
-  .string()
-  .regex(GITHUB_REPO_URL_REGEX, 'URL is not a valid GitHub repository URL')
-  .refine(async (url) => {
-    const response = await fetch(`/api/validate-github-repo-url/${url}`)
-    const data = await response.json()
-    return data.isValid
-  }, 'URL is not a valid GitHub repository URL')
-
 export default function RepositoryInput() {
+  const validateGithubRepoUrlSchema = useValidateGithubUrl()
   const [repositoryUrl, setRepositoryUrl] = useQueryState(
     'repositoryUrl',
     repositoryUrlParser.withOptions({ shallow: false }),
   )
-  const [inputValue, setInputValue] = useState(repositoryUrl)
+  const [inputValue, setInputValue] = useState('')
   const [isValidUrl, setIsValidUrl] = useState(true)
-  const deferreddValue = useDeferredValue(inputValue)
+  const debouncedValue = useDebouncedValue(inputValue, 1000)
+  const queryClient = useQueryClient()
 
   useEffect(() => {
+    if (debouncedValue === '') {
+      return
+    }
+
+    let cancelled = false
+
     const validate = async () => {
-      if (deferreddValue === '') {
-        return
+      // Ignore if stale or effect was cleaned up
+      if (cancelled) {
+        return true
       }
       const result =
-        await validateGithubRepoUrlSchema.safeParseAsync(deferreddValue)
+        await validateGithubRepoUrlSchema.safeParseAsync(debouncedValue)
+
       if (result.success) {
-        setRepositoryUrl(result.data)
+        if (result.data !== repositoryUrl) {
+          setRepositoryUrl(result.data)
+        }
         setIsValidUrl(true)
       } else {
         setIsValidUrl(false)
       }
     }
+
     validate()
-  }, [deferreddValue, setRepositoryUrl])
+    return () => {
+      cancelled = true
+    }
+  }, [
+    debouncedValue,
+    setRepositoryUrl,
+    validateGithubRepoUrlSchema,
+    repositoryUrl,
+  ])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setIsValidUrl(true)
+    const queryState = queryClient.getQueryState(['validate-github-repo-url'])
+    if (queryState) {
+      queryClient.cancelQueries({ queryKey: ['validate-github-repo-url'] })
+    }
     setInputValue(e.target.value)
   }
 
@@ -58,16 +72,16 @@ export default function RepositoryInput() {
         GitHub Repository URL
       </Label>
       <Input
-        className={`h-12 text-base ${isValidUrl ? '' : 'border-destructive focus-visible:ring-destructive'}`}
+        className={`h-12 text-base ${!inputValue || isValidUrl ? '' : 'border-destructive focus-visible:ring-destructive'}`}
         onChange={handleInputChange}
         placeholder="https://github.com/vercel/next.js"
         type="url"
         value={inputValue}
       />
       <p
-        className={`text-sm ${isValidUrl ? 'text-muted-foreground' : 'text-destructive'}`}
+        className={`text-sm ${!inputValue || isValidUrl ? 'text-muted-foreground' : 'text-destructive'}`}
       >
-        {isValidUrl
+        {!inputValue || isValidUrl
           ? 'Enter a public GitHub repository URL to start a v0 chat'
           : 'Please enter a valid GitHub repository URL (e.g., https://github.com/user/repo)'}
       </p>
