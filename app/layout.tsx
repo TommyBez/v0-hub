@@ -8,6 +8,7 @@ import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/sonner'
 import UserPrefetch from '@/components/user-prefetch'
+import { Providers } from './providers'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -23,17 +24,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-    <NuqsAdapter>
-      <ClerkProvider>
-        <UserPrefetch />
-        
+      <NuqsAdapter>
+        <ClerkProvider>
+          <UserPrefetch />
+
           <body className={inter.className}>
             <ThemeProvider
               attribute="class"
               defaultTheme="light"
               disableTransitionOnChange
             >
-              {children}
+              <Providers>{children}</Providers>
               <Toaster richColors />
             </ThemeProvider>
             <Analytics mode="production" />

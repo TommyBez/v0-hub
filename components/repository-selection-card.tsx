@@ -22,7 +22,7 @@ export default function RepositorySelectionCard() {
       <CardContent>
         <div className="relative space-y-4">
           <Suspense fallback={<RepositoryInputSkeleton />}>
-            <RepositoryInput disabled={!!repositoryUrl} />
+            <RepositoryInput />
           </Suspense>
           <Suspense fallback={<BranchSelectorSkeleton />}>
             <BranchSelector branchesPromise={repositoryBranchesPromise} />

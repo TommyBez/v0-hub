@@ -2,19 +2,54 @@
 
 import { SiGithub } from '@icons-pack/react-simple-icons'
 import { useQueryState } from 'nuqs'
+import { useDeferredValue, useEffect, useState } from 'react'
+import { z } from 'zod'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { repositoryUrlParser } from '@/lib/search-params'
 
-interface RepositoryInputProps {
-  disabled?: boolean
-}
+const GITHUB_REPO_URL_REGEX =
+  /^https:\/\/github\.com\/[^/]+\/[^/]+(?:\.git)?(?:\/)?$/
 
-export default function RepositoryInput({ disabled }: RepositoryInputProps) {
+const validateGithubRepoUrlSchema = z
+  .string()
+  .regex(GITHUB_REPO_URL_REGEX, 'URL is not a valid GitHub repository URL')
+  .refine(async (url) => {
+    const response = await fetch(`/api/validate-github-repo-url/${url}`)
+    const data = await response.json()
+    return data.isValid
+  }, 'URL is not a valid GitHub repository URL')
+
+export default function RepositoryInput() {
   const [repositoryUrl, setRepositoryUrl] = useQueryState(
     'repositoryUrl',
     repositoryUrlParser.withOptions({ shallow: false }),
   )
+  const [inputValue, setInputValue] = useState(repositoryUrl)
+  const [isValidUrl, setIsValidUrl] = useState(true)
+  const deferreddValue = useDeferredValue(inputValue)
+
+  useEffect(() => {
+    const validate = async () => {
+      if (deferreddValue === '') {
+        return
+      }
+      const result =
+        await validateGithubRepoUrlSchema.safeParseAsync(deferreddValue)
+      if (result.success) {
+        setRepositoryUrl(result.data)
+        setIsValidUrl(true)
+      } else {
+        setIsValidUrl(false)
+      }
+    }
+    validate()
+  }, [deferreddValue, setRepositoryUrl])
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsValidUrl(true)
+    setInputValue(e.target.value)
+  }
 
   return (
     <div className="grid gap-2">
@@ -23,15 +58,18 @@ export default function RepositoryInput({ disabled }: RepositoryInputProps) {
         GitHub Repository URL
       </Label>
       <Input
-        className="h-12 text-base"
-        disabled={disabled}
-        onChange={(e) => setRepositoryUrl(e.target.value)}
+        className={`h-12 text-base ${isValidUrl ? '' : 'border-destructive focus-visible:ring-destructive'}`}
+        onChange={handleInputChange}
         placeholder="https://github.com/vercel/next.js"
         type="url"
-        value={repositoryUrl}
+        value={inputValue}
       />
-      <p className="text-muted-foreground text-sm">
-        Enter a public GitHub repository URL to start a v0 chat
+      <p
+        className={`text-sm ${isValidUrl ? 'text-muted-foreground' : 'text-destructive'}`}
+      >
+        {isValidUrl
+          ? 'Enter a public GitHub repository URL to start a v0 chat'
+          : 'Please enter a valid GitHub repository URL (e.g., https://github.com/user/repo)'}
       </p>
     </div>
   )
