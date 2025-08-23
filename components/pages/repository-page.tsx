@@ -16,18 +16,19 @@ export default async function RepositoryPage({ params }: RepositoryPageProps) {
   const { user, repository } = await params
 
   // Check for cached default branch and commit
-  const cachedDefaultBranch = await redis.get<string>(
-    `default-branch:${user}:${repository}`,
-  )
-  if (cachedDefaultBranch) {
-    const cachedDefaultCommit = await redis.get<string>(
-      `commit:${cachedDefaultBranch}:${user}:${repository}`,
+  const cachedDefaultBranchInfo = await redis.get<{
+    defaultBranchName: string
+    defaultCommit: string
+  }>(`default-branch-info:${user}:${repository}`)
+
+  if (cachedDefaultBranchInfo) {
+    const {
+      defaultBranchName: cachedDefaultBranchName,
+      defaultCommit: cachedDefaultCommit,
+    } = cachedDefaultBranchInfo
+    redirect(
+      `/${user}/${repository}/tree/${cachedDefaultBranchName}?commit=${cachedDefaultCommit}`,
     )
-    if (cachedDefaultCommit) {
-      redirect(
-        `/${user}/${repository}/tree/${cachedDefaultBranch}?commit=${cachedDefaultCommit}`,
-      )
-    }
   }
 
   // Fetch repository information to get default branch
@@ -40,12 +41,12 @@ export default async function RepositoryPage({ params }: RepositoryPageProps) {
     repoInfo.defaultBranch
 
   // Cache the default branch name and commit
-  await redis.set(`default-branch:${user}:${repository}`, defaultBranchName, {
-    ex: 60 * 60,
-  })
   await redis.set(
-    `commit:${defaultBranchName}:${user}:${repository}`,
-    defaultCommit,
+    `default-branch-info:${user}:${repository}`,
+    {
+      defaultBranchName,
+      defaultCommit,
+    },
     { ex: 60 * 60 },
   )
 

@@ -44,17 +44,15 @@ export default async function RepositoryTreePage({
         repository,
         fullBranchName,
       )
-      if (branchCommit) {
-        commit = branchCommit
-        await redis.set(
-          `commit:${fullBranchName}:${user}:${repository}`,
-          commit,
-          { ex: 60 * 60 },
-        )
-      } else {
-        // If branch doesn't exist, redirect to repository page to find default branch
+      if (!branchCommit) {
         return redirect(`/${user}/${repository}`)
       }
+      commit = branchCommit
+      await redis.set(
+        `commit:${fullBranchName}:${user}:${repository}`,
+        commit,
+        { ex: 60 * 60 },
+      )
     }
   }
 
