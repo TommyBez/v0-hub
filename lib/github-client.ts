@@ -17,24 +17,14 @@ const octokit = new Octokit({
 })
 
 // GraphQL query to get repository info with default branch and specific branches
-const GET_REPOSITORY_WITH_BRANCHES = `
-  query GetRepositoryWithBranches($owner: String!, $name: String!) {
+const GET_REPOSITORY_WITH_DEFAULT_BRANCH = `
+  query GetRepositoryWithDefaultBranch($owner: String!, $name: String!) {
     repository(owner: $owner, name: $name) {
       defaultBranchRef {
         name
         target {
           ... on Commit {
             oid
-          }
-        }
-      }
-      refs(refPrefix: "refs/heads/", first: 10) {
-        nodes {
-          name
-          target {
-            ... on Commit {
-              oid
-            }
           }
         }
       }
@@ -57,20 +47,10 @@ const GET_BRANCH_COMMIT = `
   }
 `
 
-export interface BranchInfo {
-  name: string
-  commit: string
-}
-
-export interface RepositoryInfo {
-  defaultBranch: BranchInfo | null
-  branches: BranchInfo[]
-}
-
-export async function getRepositoryWithBranches(
+export async function getRepositoryWithDefaultBranch(
   owner: string,
   name: string,
-): Promise<RepositoryInfo | null> {
+) {
   try {
     const response = await octokit.graphql<{
       repository: {
@@ -80,16 +60,8 @@ export async function getRepositoryWithBranches(
             oid: string
           }
         } | null
-        refs: {
-          nodes: Array<{
-            name: string
-            target: {
-              oid: string
-            }
-          }>
-        }
       }
-    }>(GET_REPOSITORY_WITH_BRANCHES, {
+    }>(GET_REPOSITORY_WITH_DEFAULT_BRANCH, {
       owner,
       name,
     })
@@ -106,14 +78,8 @@ export async function getRepositoryWithBranches(
         }
       : null
 
-    const branches = repository.refs.nodes.map((branch) => ({
-      name: branch.name,
-      commit: branch.target.oid,
-    }))
-
     return {
       defaultBranch,
-      branches,
     }
   } catch (error) {
     logger.error(`Failed to fetch repository info: ${error}`)

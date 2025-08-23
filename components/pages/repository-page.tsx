@@ -1,6 +1,6 @@
 import { Redis } from '@upstash/redis'
 import { notFound, redirect } from 'next/navigation'
-import { getRepositoryWithBranches } from '@/lib/github-client'
+import { getRepositoryWithDefaultBranch } from '@/lib/github-client'
 
 export interface RepositoryPageParams {
   user: string
@@ -31,7 +31,7 @@ export default async function RepositoryPage({ params }: RepositoryPageProps) {
   }
 
   // Fetch repository information to get default branch
-  const repoInfo = await getRepositoryWithBranches(user, repository)
+  const repoInfo = await getRepositoryWithDefaultBranch(user, repository)
   if (!repoInfo?.defaultBranch) {
     return notFound()
   }
