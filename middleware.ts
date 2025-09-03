@@ -1,9 +1,13 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
+import { logger } from '@/lib/logger'
 
 const isProtectedRoute = createRouteMatcher(['/token(.*)'])
 const isBranchRoute = createRouteMatcher(['/:user/:repository/tree/:path*'])
 
 export default clerkMiddleware(async (auth, req) => {
+  if (isBranchRoute(req)) {
+    logger.info({ req })
+  }
   if (isProtectedRoute(req)) {
     await auth.protect()
   }
