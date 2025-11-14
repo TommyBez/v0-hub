@@ -1,24 +1,36 @@
 import { createSocialImage, OPEN_GRAPH_SIZE } from '@/lib/social-image'
 
-type BranchImageProps = {
+type BranchSearchParams = {
+  branch?: string | string[]
+}
+
+type ImageProps = {
   params: Promise<{
     user: string
     repository: string
-    branch: string[]
   }>
+  searchParams: Promise<BranchSearchParams>
 }
 
-const formatBranch = (segments: string[]) =>
-  segments.length > 0 ? segments.join('/') : 'default'
+const resolveBranch = (value?: string | string[]) => {
+  if (!value) {
+    return 'default'
+  }
+  if (Array.isArray(value)) {
+    return value.at(0) ?? 'default'
+  }
+  return value
+}
 
 export const runtime = 'edge'
 export const size = OPEN_GRAPH_SIZE
 export const contentType = 'image/png'
 
-export default async function Image({ params }: BranchImageProps) {
-  const { user, repository, branch } = await params
+export default async function Image({ params, searchParams }: ImageProps) {
+  const { user, repository } = await params
+  const resolvedSearchParams = await searchParams
+  const branchLabel = resolveBranch(resolvedSearchParams?.branch)
   const repoSlug = `${user}/${repository}`
-  const branchLabel = formatBranch(branch)
 
   return createSocialImage({
     title: `${repository} · ${branchLabel}`,
