@@ -15,6 +15,16 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'v0hub - v0 GitHub Bootstrapper',
   description: 'Bootstrap a v0 chat from a GitHub repository.',
+  openGraph: {
+    title: 'v0hub - v0 GitHub Bootstrapper',
+    description: 'Bootstrap a v0 chat from a GitHub repository.',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'v0hub - v0 GitHub Bootstrapper',
+    description: 'Bootstrap a v0 chat from a GitHub repository.',
+  },
 }
 
 export default function RootLayout({
