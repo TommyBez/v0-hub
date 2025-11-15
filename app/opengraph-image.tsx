@@ -1,7 +1,6 @@
 import { ImageResponse } from 'next/og'
 
 // Route segment config
-export const runtime = 'edge'
 export const alt = 'v0hub - v0 GitHub Bootstrapper'
 export const size = {
   width: 1200,
