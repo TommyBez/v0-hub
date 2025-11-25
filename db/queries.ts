@@ -80,7 +80,7 @@ export async function findOrCreateUser(data: {
 }
 
 // Sync current Clerk user with database (combines currentUser + findOrCreateUser)
-async function syncCurrentUser(): Promise<User | null> {
+export async function syncCurrentUser(): Promise<User | null> {
   try {
     const user = await currentUser()
 
