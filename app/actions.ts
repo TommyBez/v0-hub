@@ -157,34 +157,23 @@ export async function deleteUserToken(): Promise<void> {
 export async function createV0ChatWithToken(
   repoUrl: string,
   branch: string,
-  useUserToken = false,
+  privateChat: boolean,
 ): Promise<ChatCreationResult> {
-  let apiKey = process.env.V0_API_KEY
+  const user = await getCachedUser()
+  if (!user) {
+    throw new Error('Not authenticated')
+  }
 
-  // If user token is requested, use it
-  if (useUserToken) {
-    const user = await getCachedUser()
-    if (!user) {
-      throw new Error('Not authenticated')
-    }
-
-    const token = await getDecryptedV0Token(user.clerkId)
-    if (!token) {
-      throw new Error('No token found. Please add your v0 API key.')
-    }
-
-    apiKey = token
-  } else if (!apiKey) {
-    throw new Error(
-      'No API key available. Please provide an API key or set V0_API_KEY.',
-    )
+  const token = await getDecryptedV0Token(user.clerkId)
+  if (!token) {
+    throw new Error('No token found. Please add your v0 API key.')
   }
 
   // Generate custom chat name
   const chatName = generateChatName(repoUrl, branch)
 
   // Create a custom v0 client with the specific token
-  const client = createClient({ apiKey })
+  const client = createClient({ apiKey: token })
 
   const chat = await client.chats.init({
     type: 'repo',
@@ -192,7 +181,7 @@ export async function createV0ChatWithToken(
       url: repoUrl,
       branch,
     },
-    chatPrivacy: useUserToken ? 'private' : 'public',
+    chatPrivacy: privateChat ? 'private' : 'public',
     name: chatName,
   })
 

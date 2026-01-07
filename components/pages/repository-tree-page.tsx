@@ -1,7 +1,9 @@
 import { Redis } from '@upstash/redis'
 import { redirect } from 'next/navigation'
 import { createV0Chat, createV0ChatWithToken } from '@/app/actions'
+import { syncCurrentUser } from '@/db/queries'
 import { getBranchCommit } from '@/lib/github-client'
+import { logger } from '@/lib/logger'
 import { searchParamsCache } from '@/lib/search-params'
 
 export interface RepositoryTreePageProps {
@@ -15,40 +17,46 @@ export interface RepositoryTreePageProps {
 export default async function RepositoryTreePage({
   params,
 }: RepositoryTreePageProps) {
+  const user = await syncCurrentUser()
   const redis = Redis.fromEnv()
-  const { user, repository, branch } = await params
+  const { user: githubUser, repository, branch } = await params
   const searchParamsData = searchParamsCache.all()
   const fullBranchName = branch.join('/')
-  const repoUrl = `https://github.com/${user}/${repository}`
+  const repoUrl = `https://github.com/${githubUser}/${repository}`
   const isPrivate = searchParamsData.private
   let commit = searchParamsData.commit
 
+  logger.info({ user })
   // Handle private repositories with token
-  if (isPrivate) {
-    const chatData = await createV0ChatWithToken(repoUrl, fullBranchName, true)
+  if (isPrivate || user?.v0token) {
+    const chatData = await createV0ChatWithToken(
+      repoUrl,
+      fullBranchName,
+      isPrivate,
+    )
     return redirect(chatData.url)
   }
 
   // If no commit is provided, try to get it from cache or fetch it
   if (!commit) {
     const cachedCommit = await redis.get<string>(
-      `commit:${fullBranchName}:${user}:${repository}`,
+      `commit:${fullBranchName}:${githubUser}:${repository}`,
     )
     if (cachedCommit) {
       commit = cachedCommit
     } else {
       // Use GraphQL to get branch commit efficiently
       const branchCommit = await getBranchCommit(
-        user,
+        githubUser,
         repository,
         fullBranchName,
       )
       if (!branchCommit) {
-        return redirect(`/${user}/${repository}`)
+        return redirect(`/${githubUser}/${repository}`)
       }
       commit = branchCommit
       await redis.set(
-        `commit:${fullBranchName}:${user}:${repository}`,
+        `commit:${fullBranchName}:${githubUser}:${repository}`,
         commit,
         { ex: 60 * 60 },
       )

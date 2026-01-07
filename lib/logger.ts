@@ -1,10 +1,14 @@
 export const logger = {
-  log: (message: string) => {
+  info: (...args: unknown[]) => {
     // biome-ignore lint/suspicious/noConsole: will add a proper logger later
-    console.log(message)
+    console.log(...args)
   },
-  error: (message: string) => {
+  warn: (...args: unknown[]) => {
     // biome-ignore lint/suspicious/noConsole: will add a proper logger later
-    console.error(message)
+    console.warn(...args)
+  },
+  error: (...args: unknown[]) => {
+    // biome-ignore lint/suspicious/noConsole: will add a proper logger later
+    console.error(...args)
   },
 }
